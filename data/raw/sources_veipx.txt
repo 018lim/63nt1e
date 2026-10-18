@@ -1,0 +1,10 @@
+VEIPX Financial Highlights 출처 (SEC EDGAR, CIK 826473)
+- FY1995~1998: https://www.sec.gov/Archives/edgar/data/0000826473/000089322098001701/0000893220-98-001701.txt
+- FY1996~2000: https://www.sec.gov/Archives/edgar/data/0000826473/000093247100000786/0001.txt
+- FY1997~2001: https://www.sec.gov/Archives/edgar/data/0000826473/000093247102000093/fenway485b.txt
+- FY2000~2004: https://www.sec.gov/Archives/edgar/data/0000826473/000093247104001383/formncsr.htm
+- FY2005~2009: https://www.sec.gov/Archives/edgar/data/826473/000093247109001910/fenwayfinal.htm
+- FY2008~2012: https://www.sec.gov/Archives/edgar/data/826473/000093247112005651/fenwayfundsfinal.htm
+겹치는 연도(FY1996~2001, FY2008~2009)는 서로 일치함을 확인.
+12월 분배 총액(digrin 등)과 교차 확인: FY1996~2001, FY2003~2011은 (12월 분배 + 3개 분기 분배) ≈ (nii + cg) 로 일치.
+불일치: FY2002 — 보고서 자본이득 0.60인데 digrin의 2001-12-14 분배는 0.297. 수집 소스 오류로 추정. yfinance 값 확인 필요.
