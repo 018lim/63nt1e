@@ -54,15 +54,18 @@ def monthly_contribute(H, amount, target):
     return H
 
 
-def monthly_withdraw(H, amount):
+def monthly_withdraw(H, amount, income_fallback=True):
     """인출기 월간 처리: 현금에서 먼저 차감 -> 모자라면 시세차익 자산(주식지수·장기채·금)을 보유 비중대로 매도.
     그래도 모자라면 마지막 수단으로 인컴 자산을 보유 비중대로 매도(규칙 예외, fallback 플래그로 반환).
     전체 평가액이 인출액보다 작으면 고갈: 전부 0으로 만들고 depleted=True.
+    income_fallback=False 이면 명세 문자 그대로: 현금 + 시세차익 자산으로 못 내는 달을 고갈로 본다(비교용).
     반환: (새 H, depleted (경로,), fallback_used (경로,))
     """
     H = H.copy()
     n = H.shape[0]
     depleted = H.sum(axis=1) < amount
+    if not income_fallback:
+        depleted = (H[:, CASH] + H[:, CG].sum(axis=1)) < amount
     paid_cash = np.minimum(H[:, CASH], amount)
     H[:, CASH] -= paid_cash
     short = amount - paid_cash                     # 현금으로 못 낸 금액

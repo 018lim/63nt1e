@@ -113,3 +113,21 @@ def test_metrics_basic():
     assert metrics.max_drawdown(r) == pytest.approx(-0.5)
     assert metrics.recovery_months(r) == 2              # 저점 2000-02 -> 2000-04 회복 (1.1 x 0.5 x 1.2 x 2.0 > 1.1)
     assert metrics.cagr(pd.Series([0.01] * 12)) == pytest.approx(1.01 ** 12 - 1)
+
+
+def test_return_per_vol_and_sharpe():
+    r = pd.Series([0.02, -0.01, 0.03, 0.0, 0.01, 0.02] * 4, index=pd.date_range("2000-01-31", periods=24, freq="ME"))
+    rf = pd.Series(0.002, index=r.index)
+    assert metrics.return_per_vol(r) == pytest.approx(metrics.cagr(r) / metrics.volatility(r))
+    ex = r - rf
+    assert metrics.sharpe(r, rf) == pytest.approx(ex.mean() / ex.std(ddof=1) * np.sqrt(12))
+    assert "sharpe" in metrics.summarize(r, rf) and "sharpe" not in metrics.summarize(r)
+
+
+def test_withdraw_strict_mode_declares_depletion_without_selling_income_assets():
+    from src import rebalance as rb
+    h = np.array([[1.0, 1, 1, 5, 5, 5, 0]])
+    new, dep, fb = rb.monthly_withdraw(h, 6.0, income_fallback=False)
+    assert dep[0] and new.sum() == 0                       # 현금+시세차익 3 < 6 -> 고갈
+    new, dep, fb = rb.monthly_withdraw(h, 6.0, income_fallback=True)
+    assert not dep[0] and fb[0]                            # 기본: 마지막 수단으로 인컴 자산 매도

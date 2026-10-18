@@ -27,6 +27,7 @@ class MCResult:
     fx: float
     block: int
     paths: int
+    fallback_paths: int = 0           # 인컴 자산까지 팔아야 했던(규칙 예외) 경로 수
 
 
 def block_bootstrap_indices(n_obs: int, n_months: int, paths: int, block: int, rng) -> np.ndarray:
@@ -39,7 +40,8 @@ def block_bootstrap_indices(n_obs: int, n_months: int, paths: int, block: int, r
 
 def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date,
                    paths=config.MC_PATHS, block=config.MC_BLOCK, seed=config.MC_SEED,
-                   fx=config.FX_FIXED, income_to_cash=config.INCOME_TO_CASH) -> MCResult:
+                   fx=config.FX_FIXED, income_to_cash=config.INCOME_TO_CASH,
+                   income_fallback=True) -> MCResult:
     first = pd.Timestamp(last_date) + pd.offsets.MonthEnd(1)
     end_year = config.BIRTH_YEAR + config.MC_MAX_AGE
     months = pd.date_range(first, f"{end_year}-12-31", freq="ME")
@@ -57,6 +59,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
     V = {n: (np.full(paths, bench_start_values[n]) if n != "strategy" else None) for n in names}
     dep_year = {n: np.zeros(paths, int) for n in names}
     ye_value = {n: np.zeros((paths, len(years))) for n in names}
+    fallback_any = np.zeros(paths, bool)
     inc_all = np.zeros((paths, len(years))); inc_bucket = np.zeros_like(inc_all)
     wd_year = np.zeros(len(years)); a_year = np.array([av.a_value(int(y)) for y in years])
 
@@ -70,7 +73,8 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
         # --- 전략
         H, income = rb.apply_returns(H, price_np[idx[:, t]], inc_np[idx[:, t]], income_to_cash)
         inc_all[:, yi] += income.sum(axis=1); inc_bucket[:, yi] += income[:, rb.INC].sum(axis=1)
-        H, depleted, _ = rb.monthly_withdraw(H, amount)
+        H, depleted, fb = rb.monthly_withdraw(H, amount, income_fallback)
+        fallback_any |= fb
         new = depleted & (dep_year["strategy"] == 0)
         dep_year["strategy"][new] = y
         if m in (3, 6, 9, 12):
@@ -89,7 +93,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
             if m == 12:
                 ye_value[n][:, yi] = V[n]
 
-    return MCResult(years, dep_year, ye_value, inc_all, inc_bucket, wd_year, a_year, fx, block, paths)
+    return MCResult(years, dep_year, ye_value, inc_all, inc_bucket, wd_year, a_year, fx, block, paths, int(fallback_any.sum()))
 
 
 def depletion_prob(res: MCResult, name: str, age: int) -> float:

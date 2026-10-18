@@ -56,6 +56,23 @@ def irr_annual(seed: float, flows: pd.Series, terminal: float) -> float:
     return float((1 + (lo + hi) / 2) ** 12 - 1)
 
 
-def summarize(monthly_returns: pd.Series) -> dict:
-    return {"cagr": cagr(monthly_returns), "vol": volatility(monthly_returns),
-            "mdd": max_drawdown(monthly_returns), "recovery_months": recovery_months(monthly_returns)}
+def return_per_vol(monthly_returns: pd.Series) -> float:
+    """수익 / 변동성 = CAGR / 연 변동성 (무위험수익률을 빼지 않은 형태)."""
+    v = volatility(monthly_returns)
+    return float(cagr(monthly_returns) / v) if v > 0 else float("nan")
+
+
+def sharpe(monthly_returns: pd.Series, risk_free: pd.Series) -> float:
+    """샤프 비율: 월 초과수익률(현금 TB3MS 대비)의 평균 / 표준편차 x sqrt(12)."""
+    ex = monthly_returns - risk_free.reindex(monthly_returns.index)
+    sd = ex.std(ddof=1)
+    return float(ex.mean() / sd * np.sqrt(12)) if sd > 0 else float("nan")
+
+
+def summarize(monthly_returns: pd.Series, risk_free: pd.Series | None = None) -> dict:
+    out = {"cagr": cagr(monthly_returns), "vol": volatility(monthly_returns),
+           "mdd": max_drawdown(monthly_returns), "recovery_months": recovery_months(monthly_returns),
+           "return_per_vol": return_per_vol(monthly_returns)}
+    if risk_free is not None:
+        out["sharpe"] = sharpe(monthly_returns, risk_free)
+    return out
