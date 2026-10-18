@@ -197,6 +197,8 @@ TDF와 경쟁하는 전략이 아니라, **은퇴 후 현금흐름을 중시하�
 ## 9. 기술 스택과 개발 방식
 
 - Python (pandas, NumPy, yfinance), FRED, HTML/JavaScript 대시보드
+- **대시보드 열기**: `dashboard/index.html`을 브라우저로 열면 됩니다(인터넷 연결 불필요). 기대수명 슬라이더(80~100세)를 움직이면 고갈 확률과 잔여자산이 바로 바뀝니다. 숫자는 `python -m src.export`가 만든 `dashboard/data.js`에서 읽습니다.
+- **다시 계산하기**: `python -m src.fetch` → `src.splice` → `src.report` → `src.readme_fill` → `src.export` 순서로 실행합니다. 테스트는 `python -m pytest tests`입니다.
 - 전략 설계와 검증 기준은 직접 정하고, 구현은 AI 코딩 도구(Claude)와 함께 진행했습니다. 데이터 검증 테스트(공개 연도별 수익률과의 대조)로 결과의 정확성을 확인했습니다.
 
 ---
