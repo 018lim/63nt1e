@@ -97,7 +97,7 @@ def splice_asset(asset: str, frames: dict[str, pd.DataFrame], months: pd.PeriodI
 def build():
     div_adj, veipx_log = veipx_dividends_ex_capital_gains(read_yf("VEIPX")["Dividends"])
     frames = {t: monthly_from_yf(t) for t in
-              ["VFINX", "VUSTX", "TLT", "GLD", "FRESX", "VNQ", "VFITX", "IEI", "SCHD", "VBMFX", "FFFDX", "VTTVX"]}
+              ["VFINX", "VUSTX", "TLT", "GLD", "FRESX", "VNQ", "VFITX", "IEI", "SCHD", "FFFDX", "VTTVX"]}
     frames["VEIPX"] = monthly_from_yf("VEIPX", div_adj)
     spot = monthly_gold_spot()
     frames["GOLD_SPOT"] = spot
@@ -116,8 +116,6 @@ def build():
 
     # 벤치마크 구성요소 (TR만 필요)
     bench = pd.DataFrame(index=months)
-    bench["vbmfx"] = frames["VBMFX"].loc[months, "tr"]
-    inc["vbmfx"] = frames["VBMFX"].loc[months, "income"]      # 60/40 인컴 커버리지 계산용 (자산 7개와 별개)
     tdf = pd.Series(np.nan, months)
     for m in months:
         if m >= pd.Period(config.TDF_SWITCH["VTTVX"], "M"):
@@ -125,7 +123,7 @@ def build():
         elif m >= pd.Period(config.TDF_SWITCH["FFFDX"], "M"):
             tdf[m] = frames["FFFDX"].at[m, "tr"]
         else:   # 1995-01 ~ 1996-10: 60/40으로 채움
-            tdf[m] = 0.6 * tr.at[m, "equity"] + 0.4 * bench.at[m, "vbmfx"]
+            tdf[m] = 0.6 * tr.at[m, "equity"] + 0.4 * tr.at[m, "mid_bond"]
     bench["tdf"] = tdf
     tr_all = pd.concat([tr, bench], axis=1)
 

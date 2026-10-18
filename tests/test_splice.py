@@ -87,7 +87,7 @@ def test_veipx_capital_gain_separation_matches_report(built):
 def test_tdf_stitching(built):
     tr = built[0]
     m = pd.Timestamp("1996-10-31")
-    assert tr.at[m, "tdf"] == pytest.approx(0.6 * tr.at[m, "equity"] + 0.4 * tr.at[m, "vbmfx"])
+    assert tr.at[m, "tdf"] == pytest.approx(0.6 * tr.at[m, "equity"] + 0.4 * tr.at[m, "mid_bond"])
     ff = splice.monthly_from_yf("FFFDX")["tr"]; vt = splice.monthly_from_yf("VTTVX")["tr"]
     assert tr.at[pd.Timestamp("1996-11-30"), "tdf"] == pytest.approx(ff[pd.Period("1996-11")])
     assert tr.at[pd.Timestamp("2003-10-31"), "tdf"] == pytest.approx(ff[pd.Period("2003-10")])

@@ -12,7 +12,7 @@ import config
 def benchmark_returns(tr: pd.DataFrame) -> pd.DataFrame:
     """월별 TR 표(splice 출력)에서 벤치마크 월 수익률 4개."""
     return pd.DataFrame({
-        "60/40": 0.6 * tr["equity"] + 0.4 * tr["vbmfx"],
+        "60/40": 0.6 * tr["equity"] + 0.4 * tr["mid_bond"],      # 채권 40% = 중기 국채 (VFITX -> IEI, 전략의 중기채와 같은 시계열)
         "stock100": tr["equity"],
         "cash100": tr["cash"],
         "tdf": tr["tdf"],
@@ -39,5 +39,5 @@ def simulate(returns: np.ndarray, flows: np.ndarray, seed: float):
 def benchmark_income_rates(inc: pd.DataFrame) -> pd.DataFrame:
     """벤치마크가 내는 월 인컴 수익률(전월 말 평가액 대비). 인컴 커버리지 비교용 메모이며 수익률 계산에는 쓰지 않는다.
     TDF는 분배금이 연 1회 자본이득과 섞여 있어 분리하지 못하므로 NaN(비교에서 제외)."""
-    return pd.DataFrame({"60/40": 0.6 * inc["equity"] + 0.4 * inc["vbmfx"], "stock100": inc["equity"],
+    return pd.DataFrame({"60/40": 0.6 * inc["equity"] + 0.4 * inc["mid_bond"], "stock100": inc["equity"],
                          "cash100": inc["cash"], "tdf": np.nan})

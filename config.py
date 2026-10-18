@@ -45,5 +45,5 @@ ETF = {"long_bond": ("TLT", "2002-08"), "gold": ("GLD", "2004-12"),
        "reit": ("VNQ", "2004-10")}
 
 # 벤치마크 구성 (TDF는 1996-11 FFFDX, 2003-11 VTTVX부터)
-BENCH_TICKERS = ["VBMFX", "FFFDX", "VTTVX"]
+BENCH_TICKERS = ["FFFDX", "VTTVX"]
 TDF_SWITCH = {"FFFDX": "1996-11", "VTTVX": "2003-11"}

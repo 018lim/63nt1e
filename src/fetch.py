@@ -11,7 +11,7 @@ import yfinance as yf
 import config
 
 YF_TICKERS = ["VFINX", "VUSTX", "TLT", "GLD", "VEIPX", "SCHD", "VFITX", "IEI", "FRESX", "VNQ",
-              "VBMFX", "FFFDX", "VTTVX"]
+              "FFFDX", "VTTVX"]
 FETCH_START = "1994-11-01"   # 시드 투입(1994-12 말) 가격까지 확보
 
 
