@@ -23,3 +23,10 @@ def annual_tr(ticker: str, year: int) -> float:
 @pytest.mark.parametrize("ticker,year,published", CASES)
 def test_annual_tr_matches_published(ticker, year, published):
     assert annual_tr(ticker, year) == pytest.approx(published, abs=config.VALID_TOL)
+
+
+# TDF 대조 (CLAUDE.md 2.7): VTTVX 2021~2025 연도별 수익률, 출처 Yahoo Finance 성과 표(dividend.com 값과 일치).
+# FFFDX와 VTTVX 2020년 이전은 운용사 공식값 미확인 -> 확인되면 추가.
+@pytest.mark.parametrize("year,published", [(2021, 0.0980), (2022, -0.1555), (2023, 0.1455), (2024, 0.0944), (2025, 0.1460)])
+def test_vttvx_matches_public_calendar_returns(year, published):
+    assert annual_tr("VTTVX", year) == pytest.approx(published, abs=config.VALID_TOL)
