@@ -60,3 +60,15 @@ def test_benchmark_coverage_and_meta(data, results):
     assert cov["bench_retire"]["60/40"] == pytest.approx(results["coverage"]["bench_retire"]["60/40"], abs=1e-3)
     assert 0 < data["meta"]["mc_fallback_paths"] < data["meta"]["mc_paths"]
     assert data["meta"]["mc_fallback_paths"] == results["mc_fallback_paths"]["base"]
+
+
+def test_scenario_block(data, results):
+    sc = data["scenario"]
+    assert sc["shocks"] == [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] and sc["names"] == ["strategy", "60/40", "stock100", "cash100"]
+    k90 = sc["ages"].index(90)
+    for n in sc["names"]:
+        assert len(sc["series"][n]["dep_cum"]) == 6 and len(sc["series"][n]["dep_cum"][0]) == len(sc["ages"])
+        assert len(sc["series"][n]["resid"][0]["90"]) == 5
+    # results.json 과 같은 값
+    assert sc["series"]["strategy"]["dep_cum"][5][k90] == pytest.approx(results["shock"]["series"]["strategy"]["dep_cum"][5][k90], abs=1e-4)
+    assert sc["strategy_cash_years"]["0.0"] == pytest.approx(sc["strategy_cash_years"]["0.5"])

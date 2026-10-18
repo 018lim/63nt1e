@@ -11,7 +11,7 @@ import pandas as pd
 
 import config
 from src import a_value as av
-from src import glide, metrics, report
+from src import glide, metrics, report, scenarios
 from src import montecarlo as mc
 
 IDS = ["strategy", "60/40", "stock100", "cash100", "tdf"]
@@ -96,6 +96,15 @@ def build(out=None) -> dict:
             x = res.bench_income[i][alive, yi] / res.withdrawal[yi] if alive.any() else np.array([0.0])
             p50.append(r(np.quantile(x, 0.50))); p10.append(r(np.quantile(x, 0.10)))
         bench_cov[i] = {"p50": p50, "p10": p10}
+    sc = scenarios.run_scenarios(out)
+    scenario = {"shocks": sc["shocks"], "ages": sc["ages"], "start": sc["start"], "names": scenarios.NAMES,
+                "strategy_stock_weight": r(sc["strategy_stock_weight"], 4),
+                "strategy_cash_years": {str(k): r(v, 2) for k, v in sc["strategy_cash_years"].items()},
+                "series": {n: {"immediate_loss": [r(v, 4) for v in s["immediate_loss"]],
+                               "start_a_multiple": [r(v, 1) for v in s["start_a_multiple"]],
+                               "dep_cum": [[r(v, 5) for v in row] for row in s["dep_cum"]],
+                               "resid": [{str(a): [r(v, 2) for v in q] for a, q in rows.items()} for rows in s["resid"]]}
+                           for n, s in sc["series"].items()}}
     c = report.income_coverage(out)
 
     data = {
@@ -119,6 +128,7 @@ def build(out=None) -> dict:
                      "bench_retire": {k: r(v) for k, v in c["bench_retire"].items()},
                      "actual_2026": {"age": 61, "all": r(c["2026_actual_all"]), "bucket": r(c["2026_actual_bucket"])},
                      "retire": {"all": r(c["retire_all"]), "bucket": r(c["retire_bucket"])}},
+        "scenario": scenario,
         "kpi": {"retire_balance_a": r(acc_t["strategy"]["balance_a_multiple"], 1),
                 "retire_balance_krw": r(acc_t["strategy"]["balance_krw"], 0),
                 "cash_years": r(config.CASH_W * m.loc["2025-12-31", "total"] /

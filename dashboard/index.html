@@ -144,6 +144,14 @@
     .controls.compact .tick { top: 30px; }
     .controls.compact .sl input { top: 8px; }
   }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }
+  .pills label { border: 1px solid var(--ring); border-radius: 999px; padding: 4px 14px; cursor: pointer; font-size: 13px; color: var(--ink2); user-select: none; }
+  .pills label.on { background: var(--brand); border-color: var(--brand); color: var(--surface); font-weight: 650; }
+  .pills input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .pills label:focus-within { outline: 2px solid var(--glide); outline-offset: 2px; }
+  .kpis.k3 { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; }
+  @media (max-width: 900px) { .kpis.k3 { grid-template-columns: minmax(0, 1fr); } }
+  .tile.sm .val { font-size: 24px; }
   ul.lim { color: var(--ink2); font-size: 13px; padding-left: 18px; }
   ul.lim li { margin: 3px 0; }
   .src { color: var(--muted); font-size: 12px; margin-top: 8px; }
@@ -277,6 +285,22 @@
     <div class="legend" id="lgCmp"></div>
     <div class="chart" id="chCmp"></div>
     <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCmp"></div></details>
+  </div>
+
+  <h2>가상 시나리오: 은퇴하는 바로 그 시점에 주가가 폭락한다면</h2>
+  <p class="lead">은퇴 직전(2025-12 말) 계좌에서 주식이 한 번에 폭락한 뒤 인출을 시작하는 경우를 가정합니다. 이후 수익률은 같은 방식(과거 월 수익률을 12개월 덩어리로 다시 뽑은 10,000개 경로)으로 만들었습니다.</p>
+
+  <div class="card">
+    <h3>주가 폭락 충격</h3>
+    <p class="what"><b>보는 법</b>폭락 폭을 고르면, 은퇴하자마자 그만큼 주가가 떨어졌을 때 계좌가 얼마나 줄고, 선택한 기대수명까지 자산이 바닥날 확률과 남는 돈이 어떻게 달라지는지 보여줍니다. 폭락은 주식지수·배당성장에만 적용하고(금·리츠·채권·현금은 그대로), 60/40은 주식 60%만큼, 주식 100%는 전부 영향을 받습니다.</p>
+    <div class="pills" id="pills" role="radiogroup" aria-label="폭락 폭"></div>
+    <div class="kpis k3" id="shockKpis"></div>
+    <p class="cap" style="margin-top:12px">선택한 기대수명(<span id="shAge"></span>세)까지 바닥날 확률을 폭락 폭별로 비교한 그래프입니다.</p>
+    <div class="legend" id="lgSh"></div>
+    <div class="chart" id="chSh"></div>
+    <div class="tbl-wrap" id="tbSh"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <p class="src">한계: 폭락 이후 수익률은 과거(1995~2026) 월 수익률을 다시 뽑은 것이라 폭락 뒤 장기 침체가 이어지는 경우는 담지 못합니다. TDF는 내부 주식 비중을 알 수 없어 뺐고, 현금 100%는 영향이 없습니다. 시작 잔고는 2025-12 말이라 위의 다른 인출기 그래프(2026-09 말 시작)와 값이 조금 다릅니다.</p>
   </div>
 
   <h2>가정과 한계</h2>
@@ -722,7 +746,57 @@
     put("tbCmp", table(["나이"].concat(ids.map(function (id) { return LAB[id]; })), rows));
   }
 
-  function update() { renderKpis(); renderWeights(); renderHist(); renderResid(); renderCoverage(); renderCompare(); }
+  /* ---------- 가상 시나리오 ---------- */
+  state.shock = 3;                                       // 기본: -30%
+  function shockLabel(x) { return x === 0 ? "충격 없음" : "\u2212" + Math.round(x * 100) + "%"; }
+  function buildPills() {
+    var host = $("pills"); host.textContent = "";
+    D.scenario.shocks.forEach(function (x, i) {
+      var lab = html("label", i === state.shock ? "on" : "", null, host);
+      var inp = html("input", null, null, lab); inp.type = "radio"; inp.name = "shock"; inp.checked = i === state.shock;
+      html("span", null, shockLabel(x), lab);
+      inp.addEventListener("change", function () { state.shock = i; renderShock(); });
+    });
+  }
+  function renderShock() {
+    var SC = D.scenario, si = state.shock, ai = ageIdx[state.age], a = state.age;
+    var NM = ["strategy", "60/40", "stock100"];
+    $("shAge").textContent = a;
+    Array.prototype.forEach.call($("pills").children, function (l, i) { l.classList.toggle("on", i === si); });
+    var S = SC.series, x = SC.shocks[si];
+    var dep = function (n, i) { return S[n].dep_cum[i][ai]; };
+    var med = function (n, i) { return S[n].resid[i][String(a)][2]; };
+    var host = $("shockKpis"); host.textContent = "";
+    function tile(lab, val, note) {
+      var t = html("div", "tile sm", null, host);
+      html("div", "lab", lab, t); html("div", "val", val, t); html("div", "note", note, t);
+    }
+    tile("은퇴 직후 63nt1e 계좌 손실", x === 0 ? "0%" : "\u2212" + pct(S.strategy.immediate_loss[si], 1),
+         x === 0 ? "충격 없음 기준" : "주식형 비중 " + pct(SC.strategy_stock_weight, 0) + "에 " + shockLabel(x) + ". 60/40은 \u2212" + pct(S["60/40"].immediate_loss[si], 1) + ", 주식 100%는 \u2212" + pct(S.stock100.immediate_loss[si], 1));
+    tile(a + "세까지 바닥날 확률 (63nt1e)", pct(dep("strategy", si), 2),
+         (x === 0 ? "" : "충격 없을 때 " + pct(dep("strategy", 0), 2) + ". ") + "60/40 " + pct(dep("60/40", si), 2) + " · 주식 100% " + pct(dep("stock100", si), 2));
+    tile(a + "세 남은 자산 중앙값 (63nt1e)", num(med("strategy", si), 1) + "A",
+         "약 " + krw(aToKrw(med("strategy", si))) + (x === 0 ? "" : " · 충격 없을 때 " + num(med("strategy", 0), 1) + "A") + " · 현금 10%는 인출액 " + num(SC.strategy_cash_years[String(x)], 1) + "년치로 충격과 무관");
+    // 폭락 폭별 고갈 확률 선 차트
+    var xs = SC.shocks.map(function (v) { return Math.round(v * 100); });
+    var series = NM.map(function (n) {
+      return { name: LAB[n], color: seriesColor(n), w: n === "strategy" ? 2.6 : 2, endLabel: n === "strategy" ? LAB[n] : null,
+               y: SC.shocks.map(function (_, i) { return dep(n, i); }) };
+    });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chSh"), { height: 260, padL: 50, padR: 78, x0: 0, x1: 50, y0: 0, y1: Math.max(ymax * 1.15, 0.01), zeroBase: true, xs: xs, series: series,
+      vlines: [{ x: xs[si], label: "선택 " + shockLabel(x), color: css("--ink"), opacity: 0.6, anchor: si >= 4 ? "end" : "start", dx: si >= 4 ? -4 : 4 }],
+      yFmt: function (v) { return (v * 100).toFixed(v < 0.1 ? 1 : 0) + "%"; }, xFmt: function (v) { return v === 0 ? "없음" : "\u2212" + v + "%"; },
+      xTicks: xs, label: "폭락 폭별 고갈 확률 선 차트", hFmt: function (i) { return "주가 " + shockLabel(SC.shocks[i]) + " 폭락 (" + a + "세까지)"; },
+      vFmt: function (v) { return pct(v, 2); } });
+    legend("lgSh", series);
+    var rows = SC.shocks.map(function (xv, i) {
+      return { me: i === si, cells: [shockLabel(xv), (S.strategy.immediate_loss[i] === 0 ? "0.0%" : "\u2212" + pct(S.strategy.immediate_loss[i], 1))].concat(NM.map(function (n) { return pct(dep(n, i), 2); }), NM.map(function (n) { return num(med(n, i), 1) + "A"; })) };
+    });
+    put("tbSh", table(["주가 폭락", "63nt1e 즉시 손실", a + "세 고갈: 63nt1e", "60/40", "주식 100%", "남은 자산 중앙값: 63nt1e", "60/40", "주식 100%"], rows));
+  }
+
+  function update() { renderKpis(); renderWeights(); renderHist(); renderResid(); renderCoverage(); renderCompare(); renderShock(); }
   function renderAll() { renderBacktest(); renderMetrics(); renderDrawdown(); update(); }
 
   $("dataEnd").textContent = M.data_end;
@@ -739,6 +813,7 @@
   $("aExA").textContent = $("aExN").textContent = num(D.kpi.retire_balance_a, 1);
   $("aExK").textContent = krw(D.kpi.retire_balance_krw);
   buildSlider();
+  buildPills();
   renderAll();
   var tmr; window.addEventListener("resize", function () { clearTimeout(tmr); tmr = setTimeout(renderAll, 120); });
   if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
