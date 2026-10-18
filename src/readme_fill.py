@@ -63,43 +63,12 @@ def build_section(r: dict) -> str:
     return "\n".join(lines) + "\n" + notes
 
 
-def build_shock(r: dict) -> str:
-    sh = r["shock"]
-    ages, shocks = sh["ages"], sh["shocks"]
-    i90, i100 = ages.index(90), ages.index(100)
-    S = sh["series"]
-    lab = lambda x: "충격 없음" if x == 0 else f"-{x * 100:.0f}%"
-    lines = [
-        "### 은퇴 시점에 주가가 폭락한다면 (가상 시나리오)",
-        "",
-        "2025-12 말 잔고에 주식지수·배당성장이 한 번에 폭락하는 충격을 주고, 2026-01부터 100세까지 인출하는 몬테카를로를 다시 돌렸습니다(충격 크기마다 같은 난수를 써서 짝지어 비교). 금·리츠·채권·현금은 그대로입니다. "
-        "60/40은 주식 60%만큼, 주식 100%는 전부 영향을 받고, 현금 100%는 영향이 없어 표에서 뺐습니다. TDF는 내부 주식 비중을 알 수 없어 제외했습니다.",
-        "",
-        "| 주가 폭락 | 63nt1e 계좌 즉시 손실 | 90세까지 고갈 확률: 63nt1e | 60/40 | 주식 100% | 90세 잔여자산 중앙값(A): 63nt1e | 60/40 | 주식 100% |",
-        "|---|---|---|---|---|---|---|---|",
-    ]
-    for i, x in enumerate(shocks):
-        d = lambda n: pct(S[n]["dep_cum"][i][i90])
-        m = lambda n: f"{S[n]['resid'][i][str(90)][2]:.1f}"
-        lines.append(f"| {lab(x)} | {pct(S['strategy']['immediate_loss'][i], 1)} | {d('strategy')} | {d('60/40')} | {d('stock100')} | {m('strategy')} | {m('60/40')} | {m('stock100')} |")
-    last = len(shocks) - 1
-    dp = lambda n, i, k: S[n]["dep_cum"][i][k]
-    lines += [
-        "",
-        f"- 63nt1e의 은퇴 시점 주식형(주식지수+배당성장) 비중은 {pct(sh['strategy_stock_weight'], 1)}라서, {lab(shocks[last])} 폭락의 즉시 손실은 계좌의 {pct(S['strategy']['immediate_loss'][last], 1)}입니다(60/40은 {pct(S['60/40']['immediate_loss'][last], 1)}, 주식 100%는 {pct(S['stock100']['immediate_loss'][last], 1)}).",
-        f"- 충격이 없을 때 대비 {lab(shocks[last])} 폭락에서 90세 고갈 확률은 63nt1e {pct(dp('strategy', 0, i90))} → {pct(dp('strategy', last, i90))}, 60/40 {pct(dp('60/40', 0, i90))} → {pct(dp('60/40', last, i90))}, 주식 100% {pct(dp('stock100', 0, i90))} → {pct(dp('stock100', last, i90))}입니다. 100세까지로 보면 63nt1e {pct(dp('strategy', 0, i100))} → {pct(dp('strategy', last, i100))}입니다.",
-        f"- 63nt1e의 현금 10%는 인출액 약 {sh['strategy_cash_years'][str(float(shocks[last]))]:.2f}년치로, 충격의 영향을 받지 않는 완충입니다.",
-        "- 한계: 폭락 이후 수익률은 1995~2026년 과거 월 수익률을 다시 뽑은 것이라 폭락 뒤 장기 침체가 이어지는 경우는 담지 못합니다. 충격 없음 기준은 2025-12 말 잔고에서 시작하므로 위 6절 표(2026-09 말 시작)와 값이 조금 다릅니다.",
-    ]
-    return "\n".join(lines) + "\n"
-
-
 def main():
     r = json.loads((config.REPORTS_DIR / "results.json").read_text(encoding="utf-8"))
     text = README.read_text(encoding="utf-8")
     start = text.index("## 6. 결과")
     end = text.index("## 7. 상담에서는")
-    section = "## 6. 결과\n\n<!-- 아래는 python -m src.report 와 python -m src.readme_fill 이 results.json 에서 생성한 값입니다 -->\n\n" + build_section(r) + "\n" + build_shock(r) + "\n---\n\n"
+    section = "## 6. 결과\n\n<!-- 아래는 python -m src.report 와 python -m src.readme_fill 이 results.json 에서 생성한 값입니다 -->\n\n" + build_section(r) + "\n---\n\n"
     text = text[:start] + section + text[end:]
     README.write_text(text, encoding="utf-8")
     print("README 6절 갱신 완료")
