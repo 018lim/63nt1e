@@ -31,14 +31,14 @@ def run_everything(paths=config.MC_PATHS, block=config.MC_BLOCK, income_to_cash=
 def accumulation_table(out) -> pd.DataFrame:
     """적립기(1995-01 ~ 2025-12) 지표. 전략과 벤치마크."""
     m = out["bt"].monthly
-    rets = {"63NT1E": m["ret_before_flow"]}
+    rets = {"63nt1e": m["ret_before_flow"]}
     rets.update({c: out["bench_returns"][c] for c in out["bench_returns"].columns})
     a26 = av.a_value(2026)
     rows = {}
     for name, r in rets.items():
         r = r[r.index <= ACC_END]
         s = metrics.summarize(r, out["tr"]["cash"])
-        v = (m["total"] if name == "63NT1E" else out["bench_values"][name])[ACC_END]
+        v = (m["total"] if name == "63nt1e" else out["bench_values"][name])[ACC_END]
         s["balance_a_multiple"] = v * config.FX_FIXED / a26
         s["balance_krw"] = v * config.FX_FIXED
         rows[name] = s
@@ -93,7 +93,7 @@ def compute_results(base=None) -> dict:
         "strict_no_income_sale": {n: {a: mc.depletion_prob(strict["mc"], n, a) for a in ages} for n in ("strategy",)},
         "block6": {n: {a: mc.depletion_prob(s6["mc"], n, a) for a in ages} for n in s6["mc"].depletion_year},
         "income_to_cash_false": {
-            "accumulation_63NT1E": alt_acc["63NT1E"].to_dict(),
+            "accumulation_63nt1e": alt_acc["63nt1e"].to_dict(),
             "depletion_90": {n: mc.depletion_prob(alt["mc"], n, 90) for n in alt["mc"].depletion_year},
             "median_a_mult_90_strategy": next(r["median_a_mult"] for r in mc_table(alt, (90,)).to_dict("records") if r["name"] == "strategy"),
         },
@@ -119,8 +119,8 @@ def main():
     print("\n== 블록 6개월 민감도 (고갈 확률)"); print(pd.DataFrame(r["block6"]).T.round(4).to_string())
     print("\n== 명세 문자 그대로(인컴 자산 매도 없음, 시세차익+현금으로 못 내면 고갈) 전략 고갈 확률:",
           {a: round(v, 4) for a, v in r["strict_no_income_sale"]["strategy"].items()})
-    a = r["income_to_cash_false"]["accumulation_63NT1E"]; b = acc["63NT1E"]
-    print("\n== INCOME_TO_CASH 기본(True) vs False, 63NT1E 적립기")
+    a = r["income_to_cash_false"]["accumulation_63nt1e"]; b = acc["63nt1e"]
+    print("\n== INCOME_TO_CASH 기본(True) vs False, 63nt1e 적립기")
     for k in ("cagr", "vol", "mdd", "return_per_vol", "sharpe", "balance_a_multiple"):
         print(f"  {k:20s} {b[k]:.4f}  {a[k]:.4f}  (차이 {a[k]-b[k]:+.4f})")
     print("  90세 고갈 확률(전략):", round(r["income_to_cash_false"]["depletion_90"]["strategy"], 4),

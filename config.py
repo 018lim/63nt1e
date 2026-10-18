@@ -1,4 +1,4 @@
-"""63NT1E 전체 파라미터. 코드에서 숫자를 직접 쓰지 말고 여기서 가져온다."""
+"""63nt1e 전체 파라미터. 코드에서 숫자를 직접 쓰지 말고 여기서 가져온다."""
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>63NT1E 대시보드</title>
+<title>63nt1e 대시보드</title>
 <style>
   /* 색은 모두 여기 변수(토큰)로 둔다. 아래 두 곳(어두운 화면)만 바꾸면 전체가 바뀐다. */
   :root {
@@ -122,7 +122,7 @@
 <body>
 <div class="wrap">
   <header>
-    <img src="../assets/63nt1e_logo.svg" alt="63NT1E">
+    <img src="../assets/63nt1e_logo.svg" alt="63nt1e">
     <div>
       <h1>6·3·1 Gentle Glide 대시보드</h1>
       <p class="sub">30세 6:3:1에서 90세 3:6:1까지 매년 0.5%p씩 움직이는 생애주기 자산배분 · 1995년 30세 시작, 2026년 61세 은퇴 시나리오</p>
@@ -572,7 +572,7 @@
   }
   function renderResid() {
     var a = state.age, q = D.mc.series.strategy.resid[a];
-    $("residTitle").textContent = a + "세에 남은 자산 (63NT1E)";
+    $("residTitle").textContent = a + "세에 남은 자산 (63nt1e)";
     rangeChart($("chResid"), q);
     var rows = IDS.map(function (id) {
       var S = D.mc.series[id], i = ageIdx[a], r = S.resid[a];

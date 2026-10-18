@@ -15,7 +15,7 @@ from src import glide, metrics, report
 from src import montecarlo as mc
 
 IDS = ["strategy", "60/40", "stock100", "cash100", "tdf"]
-LABELS = {"strategy": "63NT1E", "60/40": "60/40", "stock100": "주식 100%", "cash100": "현금 100%", "tdf": "TDF"}
+LABELS = {"strategy": "63nt1e", "60/40": "60/40", "stock100": "주식 100%", "cash100": "현금 100%", "tdf": "TDF"}
 BENCH_COL = {"strategy": None, "60/40": "60/40", "stock100": "stock100", "cash100": "cash100", "tdf": "tdf"}
 AGES = list(range(61, config.MC_MAX_AGE + 1))     # 2026(61세) ~ 100세
 QS = (0.10, 0.25, 0.50, 0.75, 0.90)
@@ -54,7 +54,7 @@ def build(out=None) -> dict:
     rets.update({i: out["bench_returns"][BENCH_COL[i]] for i in IDS[1:]})
     dd = {i: (metrics.drawdown(rets[i].loc[acc_idx]) * 100).round(3).tolist() for i in IDS}
     acc = report.accumulation_table(out)
-    acc_t = {LABELS_ID: acc[name].to_dict() for LABELS_ID, name in zip(IDS, ["63NT1E", "60/40", "stock100", "cash100", "tdf"])}
+    acc_t = {LABELS_ID: acc[name].to_dict() for LABELS_ID, name in zip(IDS, ["63nt1e", "60/40", "stock100", "cash100", "tdf"])}
 
     # --- 글라이드패스 비중 (나이 30~100)
     ages_w = list(range(config.START_AGE, config.MC_MAX_AGE + 1))

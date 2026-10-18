@@ -29,7 +29,7 @@ def test_matches_report(data, results):
     for name in data["meta"]["ids"]:
         for a in (80, 90, 100):
             assert data["mc"]["series"][name]["dep_cum"][ages.index(a)] == pytest.approx(mc[(name, a)]["depletion_prob"], abs=1e-4)
-    assert data["metrics"]["strategy"]["balance_a_multiple"] == pytest.approx(results["accumulation"]["63NT1E"]["balance_a_multiple"])
+    assert data["metrics"]["strategy"]["balance_a_multiple"] == pytest.approx(results["accumulation"]["63nt1e"]["balance_a_multiple"])
     assert data["coverage"]["retire"]["bucket"] == pytest.approx(results["coverage"]["retire_bucket"], abs=1e-3)
     assert data["kpi"]["cash_years"] == pytest.approx(results["cash_years"], abs=0.01)
 
