@@ -33,7 +33,9 @@ def build_section(r: dict) -> str:
         row("샤프 비율 (현금 대비)", lambda n: "–" if n == "cash100" else f"{acc[n]['sharpe']:.2f}"),
         row("최대낙폭", lambda n: pct(acc[n]["mdd"])),
         row("61세 적립금 (A값 배수)", lambda n: f"{acc[n]['balance_a_multiple']:.1f}"),
-        "| 은퇴 시점 인컴 커버리지 | " + f"{pct(cov['retire_bucket'], 1)} (인컴 버킷) / {pct(cov['retire_all'], 1)} (현금 이자 포함 전체)" + " | – | – | – | – |",
+        "| 은퇴 시점 인컴 커버리지 (보유 자산 전체의 이자·배당 ÷ 인출액) | " + " | ".join(
+            [pct(cov["retire_all"], 1), "–", pct(cov["bench_retire"]["60/40"], 1), pct(cov["bench_retire"]["stock100"], 1), pct(cov["bench_retire"]["cash100"], 1)]) + " |",
+        "| └ 인컴 버킷 3개 자산(배당성장·중기채·리츠)만 | " + pct(cov["retire_bucket"], 1) + " | – | – | – | – |",
         row("90세까지 고갈 확률", lambda n: pct(mc[(mc_names[n], 90)]["depletion_prob"])),
         row("100세까지 고갈 확률", lambda n: pct(mc[(mc_names[n], 100)]["depletion_prob"])),
         row("90세 잔여자산 중앙값 (A값 배수)", lambda n: f"{mc[(mc_names[n], 90)]['median_a_mult']:.1f}"),
@@ -45,7 +47,7 @@ def build_section(r: dict) -> str:
     a_base, a_alt = acc["63nt1e"], alt["accumulation_63nt1e"]
     strict = r["strict_no_income_sale"]["strategy"]
     notes = f"""
-적립기 지표는 1995-01~2025-12, 몬테카를로는 2026-09 말 잔고에서 시작해 100세까지 10,000개 경로(12개월 블록, 시드 {config.MC_SEED})입니다. 잔여자산은 해당 연도 A값의 배수로 표시했습니다. 벤치마크는 배당 재투자(총수익) 방식이라 인컴 커버리지를 계산하지 않았습니다.
+적립기 지표는 1995-01~2025-12, 몬테카를로는 2026-09 말 잔고에서 시작해 100세까지 10,000개 경로(12개월 블록, 시드 {config.MC_SEED})입니다. 잔여자산은 해당 연도 A값의 배수로 표시했습니다. 벤치마크는 배당 재투자(총수익) 방식이며, 인컴 커버리지는 보유 자산이 낸 이자·배당을 따로 합산한 참고값입니다(TDF는 분배금에 자본이득이 섞여 있어 계산하지 않았습니다).
 
 **있는 그대로 읽으면**
 - 63nt1e는 변동성({pct(acc['63nt1e']['vol'])})과 최대낙폭({pct(acc['63nt1e']['mdd'])})이 현금 100%를 제외한 비교 대상 중 가장 작고 수익 ÷ 변동성이 가장 높습니다. 대신 연평균 수익률과 61세 적립금은 60/40과 주식 100%보다 낮습니다.

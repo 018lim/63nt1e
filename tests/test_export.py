@@ -51,3 +51,12 @@ def test_shapes(data):
     assert data["meta"]["life_male"] == 86.3 and data["meta"]["life_female"] == 90.7
     for a in range(80, 101):
         assert len(data["mc"]["series"]["strategy"]["resid"][str(a)]) == 5
+
+
+def test_benchmark_coverage_and_meta(data, results):
+    cov = data["coverage"]
+    assert set(cov["bench"]) == {"60/40", "stock100", "cash100"}          # TDF는 분배금에 자본이득이 섞여 제외
+    assert all(len(v["p50"]) == len(cov["ages"]) for v in cov["bench"].values())
+    assert cov["bench_retire"]["60/40"] == pytest.approx(results["coverage"]["bench_retire"]["60/40"], abs=1e-3)
+    assert 0 < data["meta"]["mc_fallback_paths"] < data["meta"]["mc_paths"]
+    assert data["meta"]["mc_fallback_paths"] == results["mc_fallback_paths"]["base"]

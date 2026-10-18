@@ -34,3 +34,10 @@ def simulate(returns: np.ndarray, flows: np.ndarray, seed: float):
         v = np.where(dead, 0.0, v)
         out[t] = v
     return out, depleted_at
+
+
+def benchmark_income_rates(inc: pd.DataFrame) -> pd.DataFrame:
+    """벤치마크가 내는 월 인컴 수익률(전월 말 평가액 대비). 인컴 커버리지 비교용 메모이며 수익률 계산에는 쓰지 않는다.
+    TDF는 분배금이 연 1회 자본이득과 섞여 있어 분리하지 못하므로 NaN(비교에서 제외)."""
+    return pd.DataFrame({"60/40": 0.6 * inc["equity"] + 0.4 * inc["vbmfx"], "stock100": inc["equity"],
+                         "cash100": inc["cash"], "tdf": np.nan})

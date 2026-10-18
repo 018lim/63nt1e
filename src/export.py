@@ -88,6 +88,14 @@ def build(out=None) -> dict:
             cov[f"{k}_p10"].append(r(np.quantile(x, 0.10)))
             cov[f"{k}_p50"].append(r(np.quantile(x, 0.50)))
         cov["alive"].append(r(alive.mean(), 4))
+    bench_cov = {}
+    for i in ("60/40", "stock100", "cash100"):
+        p50, p10 = [], []
+        for yi in range(1, len(res.years)):
+            alive = res.year_end_value[i][:, yi] > 0
+            x = res.bench_income[i][alive, yi] / res.withdrawal[yi] if alive.any() else np.array([0.0])
+            p50.append(r(np.quantile(x, 0.50))); p10.append(r(np.quantile(x, 0.10)))
+        bench_cov[i] = {"p50": p50, "p10": p10}
     c = report.income_coverage(out)
 
     data = {
@@ -96,7 +104,7 @@ def build(out=None) -> dict:
             "retire_age": config.START_AGE + 31, "life_male": config.LIFE_MALE, "life_female": config.LIFE_FEMALE,
             "life_default": config.LIFE_DEFAULT, "max_age": config.MC_MAX_AGE,
             "mc_paths": res.paths, "mc_block": res.block, "mc_seed": config.MC_SEED,
-            "data_end": dates[-1], "mc_start": "2026-10", "income_to_cash": config.INCOME_TO_CASH,
+            "data_end": dates[-1], "mc_start": "2026-10", "mc_fallback_paths": res.fallback_paths, "income_to_cash": config.INCOME_TO_CASH,
             "labels": LABELS, "ids": IDS, "assets": config.ASSETS,
             "asset_labels": {"equity": "주식지수", "long_bond": "장기채", "gold": "금", "dividend": "배당성장",
                              "mid_bond": "중기채", "reit": "리츠", "cash": "현금"},
@@ -107,7 +115,8 @@ def build(out=None) -> dict:
         "metrics": acc_t,
         "weights": {"ages": ages_w, "assets": config.ASSETS, "values": weights},
         "mc": {"ages": AGES, "series": mcd, "quantiles": list(QS)},
-        "coverage": {"ages": cov_ages, **cov,
+        "coverage": {"ages": cov_ages, **cov, "bench": bench_cov,
+                     "bench_retire": {k: r(v) for k, v in c["bench_retire"].items()},
                      "actual_2026": {"age": 61, "all": r(c["2026_actual_all"]), "bucket": r(c["2026_actual_bucket"])},
                      "retire": {"all": r(c["retire_all"]), "bucket": r(c["retire_bucket"])}},
         "kpi": {"retire_balance_a": r(acc_t["strategy"]["balance_a_multiple"], 1),

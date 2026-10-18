@@ -28,6 +28,7 @@ class MCResult:
     block: int
     paths: int
     fallback_paths: int = 0           # 인컴 자산까지 팔아야 했던(규칙 예외) 경로 수
+    bench_income: dict = None         # 벤치마크 -> (P, 연수) 연간 인컴 메모(TDF 제외)
 
 
 def block_bootstrap_indices(n_obs: int, n_months: int, paths: int, block: int, rng) -> np.ndarray:
@@ -53,6 +54,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
     price_np, inc_np = price[config.ASSETS].to_numpy(), inc[config.ASSETS].to_numpy()
     bench = benchmarks.benchmark_returns(tr)
     bench_np = bench.to_numpy()
+    bench_inc_np = benchmarks.benchmark_income_rates(inc)[list(bench.columns)].to_numpy()
 
     H = np.tile(np.asarray(start_holdings, float), (paths, 1))
     names = ["strategy"] + list(bench.columns)
@@ -61,6 +63,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
     ye_value = {n: np.zeros((paths, len(years))) for n in names}
     fallback_any = np.zeros(paths, bool)
     inc_all = np.zeros((paths, len(years))); inc_bucket = np.zeros_like(inc_all)
+    bench_income = {n: np.zeros((paths, len(years))) for n in bench.columns}
     wd_year = np.zeros(len(years)); a_year = np.array([av.a_value(int(y)) for y in years])
 
     for t, d in enumerate(months):
@@ -85,6 +88,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
 
         # --- 벤치마크 (같은 월 번호)
         for j, n in enumerate(bench.columns):
+            bench_income[n][:, yi] += V[n] * np.nan_to_num(bench_inc_np[idx[:, t], j])    # 인컴 메모 (전월 말 평가액 x 인컴 수익률)
             v = V[n] * (1.0 + bench_np[idx[:, t], j]) - amount
             dead = v <= 0
             new = dead & (dep_year[n] == 0)
@@ -93,7 +97,7 @@ def run_montecarlo(tr, inc, price, start_holdings, bench_start_values, last_date
             if m == 12:
                 ye_value[n][:, yi] = V[n]
 
-    return MCResult(years, dep_year, ye_value, inc_all, inc_bucket, wd_year, a_year, fx, block, paths, int(fallback_any.sum()))
+    return MCResult(years, dep_year, ye_value, inc_all, inc_bucket, wd_year, a_year, fx, block, paths, int(fallback_any.sum()), bench_income)
 
 
 def depletion_prob(res: MCResult, name: str, age: int) -> float:

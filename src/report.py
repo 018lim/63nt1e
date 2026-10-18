@@ -50,7 +50,14 @@ def income_coverage(out) -> dict:
     y25 = m[m.index.year == 2025]
     annual_wd_2026 = 12 * av.a_value(2026) * config.WITHDRAW_MULT / config.FX_FIXED
     y26 = m[m.index.year == 2026]
+    bench = {}
+    rates = benchmarks.benchmark_income_rates(out["inc"])
+    for c in ("60/40", "stock100", "cash100"):
+        v_prev = out["bench_values"][c].shift(1)
+        inc25 = (v_prev * rates[c])[v_prev.index.year == 2025].sum()
+        bench[c] = float(inc25 / annual_wd_2026)
     return {
+        "bench_retire": bench,
         "retire_all": y25["income_all"].sum() / annual_wd_2026,
         "retire_bucket": y25["income_bucket"].sum() / annual_wd_2026,
         "2026_actual_all": y26["income_all"].sum() / y26["withdrawal"].sum(),
@@ -85,7 +92,7 @@ def compute_results(base=None) -> dict:
     strict = run_everything(income_fallback=False)
     return {
         "accumulation": acc.to_dict(),
-        "coverage": {k: float(v) for k, v in cov.items()},
+        "coverage": {k: (float(v) if not isinstance(v, dict) else {kk: float(vv) for kk, vv in v.items()}) for k, v in cov.items()},
         "cash_years": float(config.CASH_W * bt.monthly.loc["2025-12-31", "total"] / annual_wd),
         "risk_log_count": len(bt.risk_log), "backtest_fallback_months": len(bt.fallback_months),
         "mc_fallback_paths": {"base": res.fallback_paths, "block6": s6["mc"].fallback_paths},

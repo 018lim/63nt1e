@@ -11,7 +11,7 @@
     --page: #f9f9f7; --surface: #fcfcfb;
     --ink: #221714; --ink2: #5b4e49; --muted: #756f69;
     --grid: #e1e0d9; --baseline: #c3c2b7; --ring: rgba(34,23,20,.10);
-    --brand: #6D361B; --glide: #5078A5; --logo-bg: transparent;
+    --brand: #6D361B; --glide: #5078A5; --logo-bg: transparent; --fade: .3;
     --s-strategy: #6D361B; --s-6040: #2a78d6; --s-stock100: #1baf7a; --s-tdf: #e87ba4; --s-cash100: #898781;
     --w-equity: #6D361B; --w-long_bond: #9c5a3a; --w-gold: #cfa58a;
     --w-dividend: #2f4f75; --w-mid_bond: #5078A5; --w-reit: #9db8d6; --w-cash: #b9b7ae;
@@ -22,7 +22,7 @@
       --page: #0d0d0d; --surface: #1a1a19;
       --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09d96;
       --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
-      --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb;
+      --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb; --fade: .55;
       --s-strategy: #b8734a; --s-6040: #3987e5; --s-stock100: #199e70; --s-tdf: #d55181; --s-cash100: #898781;
       --w-equity: #d08f68; --w-long_bond: #a8704c; --w-gold: #8a5c40;
       --w-dividend: #9cbce0; --w-mid_bond: #6f98c8; --w-reit: #4a6f9c; --w-cash: #5a5955;
@@ -33,7 +33,7 @@
     --page: #0d0d0d; --surface: #1a1a19;
     --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09d96;
     --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
-    --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb;
+    --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb; --fade: .55;
     --s-strategy: #b8734a; --s-6040: #3987e5; --s-stock100: #199e70; --s-tdf: #d55181; --s-cash100: #898781;
     --w-equity: #d08f68; --w-long_bond: #a8704c; --w-gold: #8a5c40;
     --w-dividend: #9cbce0; --w-mid_bond: #6f98c8; --w-reit: #4a6f9c; --w-cash: #5a5955;
@@ -93,7 +93,7 @@
 
   /* 차트 */
   .chart { position: relative; width: 100%; }
-  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
   .chart svg text { font-family: inherit; }
   .tip { position: absolute; pointer-events: none; z-index: 4; background: var(--surface); border: 1px solid var(--ring);
     border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.14); min-width: 140px; opacity: 0; transition: opacity .08s; }
@@ -118,6 +118,28 @@
   .tbl-wrap { overflow-x: auto; }
   .tbl-wrap .tbl { min-width: 440px; }
   .tbl td:first-child, .tbl th:first-child { white-space: nowrap; }
+  .tbl-wrap .tbl td:first-child, .tbl-wrap .tbl th:first-child { position: sticky; left: 0; background: var(--surface); }
+  .hint { display: none; font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+  .opts { display: flex; gap: 16px; flex-wrap: wrap; margin: 4px 0 2px; font-size: 13px; color: var(--ink2); }
+  .opts label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .two .val { font-size: 26px; font-weight: 650; line-height: 1.2; }
+  .two .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .cmp { font-size: 13px; color: var(--ink2); margin-top: 6px; }
+  header .sub a { color: var(--glide); }
+  @media (max-width: 700px) {
+    .hint { display: block; }
+    #lifeHelp { display: none; }
+    .ctl { padding: 8px 12px 2px; }
+    .ctl-top label { font-size: 13px; }
+    .sl { height: 56px; }
+    .controls.compact .ctl-top label, .controls.compact .quick { display: none; }
+    .controls.compact .ctl-top { justify-content: flex-end; }
+    .controls.compact .flag { display: none; }
+    .controls.compact .sl { height: 44px; }
+    .controls.compact .tick { top: 30px; }
+    .controls.compact .sl input { top: 8px; }
+  }
   ul.lim { color: var(--ink2); font-size: 13px; padding-left: 18px; }
   ul.lim li { margin: 3px 0; }
   .src { color: var(--muted); font-size: 12px; margin-top: 8px; }
@@ -129,7 +151,8 @@
     <img src="../assets/63nt1e_logo.svg" alt="63nt1e">
     <div>
       <h1>6·3·1 Gentle Glide 대시보드</h1>
-      <p class="sub">30세 6:3:1에서 90세 3:6:1까지 매년 0.5%p씩 움직이는 생애주기 자산배분 · 1995년 30세 시작, 2026년 61세 은퇴 시나리오</p>
+      <p class="sub">30세 6:3:1에서 90세 3:6:1까지, 그 이후에도 같은 속도(매년 0.5%p)로 계속 움직이는 생애주기 자산배분 · 1995년 30세 시작, 2026년 61세 은퇴 시나리오</p>
+      <p class="sub">데이터 기준 <span id="hdrEnd"></span> · 자세한 설명은 <a href="../README.md">README</a></p>
     </div>
   </header>
 
@@ -159,6 +182,7 @@
 
   <!-- 핵심 숫자 -->
   <div class="kpis" id="kpis"></div>
+  <p class="src" id="aFoot"></p>
 
   <h2>적립기: 1995-01 ~ 2025-12 (30~60세)</h2>
   <p class="lead">실제 시장 데이터로 재현한 31년. 매월 그해 A값의 1/3을 납입했고, 모든 비교 대상에 같은 시드·같은 납입을 적용했습니다.</p>
@@ -166,6 +190,7 @@
   <div class="card">
     <h3>적립금 추이</h3>
     <p class="cap">고정 환율 기준 억 원. 2026-01부터는 인출이 시작되어 곡선이 꺾입니다(데이터 끝 <span id="dataEnd"></span>).</p>
+    <div class="opts"><label><input type="checkbox" id="hideStock"> 주식 100% 숨기기 (63nt1e와 60/40 비교를 크게 보기)</label></div>
     <div class="legend" id="lgBt"></div>
     <div class="chart" id="chBt"></div>
     <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbBt"></div></details>
@@ -176,6 +201,7 @@
       <h3>지표 비교</h3>
       <p class="cap">1995-01 ~ 2025-12, 시간가중수익률 기준</p>
       <div class="tbl-wrap" id="tbMetrics"></div>
+      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
     </div>
     <div class="card">
       <h3>고점 대비 하락률</h3>
@@ -188,7 +214,7 @@
 
   <div class="card">
     <h3>나이별 자산 비중 (글라이드패스)</h3>
-    <p class="cap">위쪽 자본이득(갈색 계열) · 인컴(파란 계열) · 현금(회색). 진할수록 6, 연할수록 1에 해당합니다. 세로선은 은퇴(61세)와 선택한 기대수명입니다.</p>
+    <p class="cap">아래에서 위로: 자본이득(갈색 계열: 주식지수·장기채·금), 인컴(파란 계열: 배당성장·중기채·리츠), 현금(맨 위 회색). 각 계열 안에서 아래부터 6·3·1 순서입니다. 90세에 3:6:1에 도달한 뒤에도 같은 속도로 100세까지 계속 이동합니다(100세 위험자산 31.5%). 세로선은 은퇴(61세)와 선택한 기대수명입니다.</p>
     <div class="legend" id="lgW"></div>
     <div class="chart" id="chW"></div>
     <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbW"></div></details>
@@ -210,15 +236,25 @@
       <p class="cap">바닥난 경로는 0으로 포함했습니다. 값은 그 시점 A값의 배수입니다.</p>
       <div class="chart" id="chResid"></div>
       <div class="tbl-wrap" id="tbCompare"></div>
+      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
     </div>
   </div>
 
   <div class="card">
     <h3>인컴 커버리지: 인출액 중 배당·이자가 채우는 비율</h3>
-    <p class="cap">선으로 이은 값은 중앙값, 옅은 면은 하위 10%~중앙값입니다. 해당 나이까지 바닥나지 않은 경로만 셉니다. 점은 2026-01~09 실제 값입니다.</p>
+    <p class="cap">선은 중앙값, 옅은 면은 하위 10%~중앙값입니다. 점은 2026-01~09 실제 값입니다. 인컴 버킷은 배당성장·중기채·리츠가 낸 이자·배당만, 전체는 주식·장기채·금·현금 등 다른 자산의 이자·배당까지 합친 값입니다.</p>
+    <p class="cap">읽을 때 주의: ① 61세는 실제 값 하나라 불확실성이 없어서, 62세부터 하위 10% 띠가 갑자기 넓어집니다. ② 해당 나이까지 바닥난 경로는 빼고 세므로, 나이가 들수록 하위 10%는 실제 위험보다 좋게 보입니다(살아남은 경로만 남기 때문입니다).</p>
     <div class="legend" id="lgCov"></div>
     <div class="chart" id="chCov"></div>
     <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCov"></div></details>
+  </div>
+
+  <div class="card">
+    <h3>벤치마크와 인컴 커버리지 비교</h3>
+    <p class="cap">보유 자산 전체의 이자·배당 ÷ 인출액, 중앙값. 해당 나이까지 바닥나지 않은 경로만 셉니다. TDF는 분배금에 자본이득이 섞여 있어 계산하지 않았습니다. 그래프는 200%까지만 보이며, 그 위로 올라간 값은 잘려 보입니다(주식 100%는 자산이 크게 불어 늦은 나이에 인컴이 인출액의 수 배가 됩니다). 실제 값은 마우스를 올리거나 탭하면, 또는 표에서 볼 수 있습니다.</p>
+    <div class="legend" id="lgCmp"></div>
+    <div class="chart" id="chCmp"></div>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCmp"></div></details>
   </div>
 
   <h2>가정과 한계</h2>
@@ -228,6 +264,7 @@
     <li>1995~2011년 일부 구간은 대리 자산(뮤추얼펀드·금 현물)입니다. 주식 100%의 고갈 확률이 가장 낮은 것은 1995~2026년이 미국 주식에 유리한 구간이기 때문입니다.</li>
     <li>벤치마크는 배당 재투자 방식이며, TDF는 과거 수익률을 그대로 재사용하므로 은퇴 후 비중 변화가 반영되지 않습니다.</li>
     <li>몬테카를로 결과는 블록 길이(12개월)에 민감합니다. 자세한 내용은 README를 보세요.</li>
+    <li id="limFallback"></li>
   </ul>
   <p class="src">과거 데이터 기반 시뮬레이션은 미래 성과를 보장하지 않습니다.</p>
 </div>
@@ -276,9 +313,14 @@
   function dateX(s) { var p = s.split("-"); return +p[0] + (+p[1] - 1) / 12; }
 
   /* ---------- 툴팁 ---------- */
+  var allTips = [], clipSeq = 0;
+  document.addEventListener("pointerdown", function (e) {      // 차트 밖을 누르면 툴팁을 닫는다 (터치용)
+    allTips.forEach(function (tp) { if (!tp.host.contains(e.target)) tp.hide(); });
+  });
   function tipFor(host) {
     var t = html("div", "tip", null, host);
-    return {
+    var api = {
+      host: host, onHide: null,
       show: function (header, rows, x, y) {
         t.textContent = "";
         html("div", "h", header, t);
@@ -293,8 +335,10 @@
         var left = x + 14; if (left + w > hw) left = x - w - 14;
         t.style.left = Math.max(0, left) + "px"; t.style.top = Math.max(0, y - 10) + "px";
       },
-      hide: function () { t.classList.remove("on"); }
+      hide: function () { t.classList.remove("on"); if (api.onHide) api.onHide(); }
     };
+    allTips.push(api);
+    return api;
   }
 
   /* ---------- 공통: 축·눈금 ---------- */
@@ -330,17 +374,21 @@
   /* 선 차트 (+ 옅은 면, 십자선, 키보드) */
   function lineChart(host, o) {
     var f = frame(host, o), tip = tipFor(host);
+    var clipId = "clip" + (++clipSeq);
+    var defs = sv("defs", {}, f.svg), cp = sv("clipPath", { id: clipId }, defs);
+    sv("rect", { x: f.pad.l, y: f.pad.t - 1, width: f.iw, height: f.ih + 2 }, cp);
+    var plot = sv("g", { "clip-path": "url(#" + clipId + ")" }, f.svg);
     (o.bands || []).forEach(function (b) {
       var d = "";
       b.hi.forEach(function (v, i) { d += (i ? "L" : "M") + f.x(o.xs[i]) + "," + f.y(v); });
       for (var i = b.lo.length - 1; i >= 0; i--) d += "L" + f.x(o.xs[i]) + "," + f.y(b.lo[i]);
-      sv("path", { d: d + "Z", fill: b.color, opacity: 0.12 }, f.svg);
+      sv("path", { d: d + "Z", fill: b.color, opacity: 0.12 }, plot);
     });
     o.series.forEach(function (s) {
       var d = "";
       s.y.forEach(function (v, i) { d += (i ? "L" : "M") + f.x(o.xs[i]).toFixed(1) + "," + f.y(v).toFixed(1); });
-      sv("path", { d: d, fill: "none", stroke: s.color, "stroke-width": s.w || 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, f.svg);
-      if (s.endLabel) {
+      sv("path", { d: d, fill: "none", stroke: s.color, "stroke-width": s.w || 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, plot);
+      if (s.endLabel && s.y[s.y.length - 1] <= o.y1) {
         var li = s.y.length - 1;
         sv("circle", { cx: f.x(o.xs[li]), cy: f.y(s.y[li]), r: 4, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, f.svg);
         var tx = sv("text", { x: f.x(o.xs[li]) + 9, y: f.y(s.y[li]) + 4, "font-size": 11.5, fill: css("--ink2") }, f.svg);
@@ -358,18 +406,20 @@
       var px = f.x(o.xs[i]);
       cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("opacity", 0.6);
       var ymid = 0;
-      o.series.forEach(function (s, k) { dots[k].setAttribute("cx", px); dots[k].setAttribute("cy", f.y(s.y[i])); dots[k].setAttribute("opacity", 1); ymid += f.y(s.y[i]); });
+      o.series.forEach(function (s, k) { dots[k].setAttribute("cx", px); dots[k].setAttribute("cy", f.y(s.y[i])); dots[k].setAttribute("opacity", s.y[i] > o.y1 ? 0 : 1); ymid += f.y(Math.min(s.y[i], o.y1)); });
       var rows = o.series.map(function (s) { return { color: s.color, name: s.name, value: o.vFmt(s.y[i], s) }; });
       tip.show(o.hFmt(i), rows, px, ymid / o.series.length);
     }
     function off() { cross.setAttribute("opacity", 0); dots.forEach(function (d) { d.setAttribute("opacity", 0); }); tip.hide(); }
-    f.svg.addEventListener("pointermove", function (e) {
+    function move(e) {
       var r = f.svg.getBoundingClientRect(), px = (e.clientX - r.left) * (f.W / r.width);
       var v = o.x0 + (px - f.pad.l) / f.iw * (o.x1 - o.x0), best = 0, bd = 1e9;
       o.xs.forEach(function (xv, i) { var d = Math.abs(xv - v); if (d < bd) { bd = d; best = i; } });
       at(best);
-    });
-    f.svg.addEventListener("pointerleave", off);
+    }
+    f.svg.addEventListener("pointermove", move);
+    f.svg.addEventListener("pointerdown", move);                                  // 손가락 탭
+    f.svg.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
     f.svg.addEventListener("blur", off);
     f.svg.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { at(cur < 0 ? 0 : cur + 1); e.preventDefault(); }
@@ -388,8 +438,10 @@
       for (var i = n - 1; i >= 0; i--) d += "L" + f.x(o.xs[i]).toFixed(1) + "," + f.y(base[i]).toFixed(1);
       sv("path", { d: d + "Z", fill: L.color, stroke: css("--surface"), "stroke-width": 2, "stroke-linejoin": "round" }, f.svg);
       var mid = (base[n - 1] + top[n - 1]) / 2;
-      var tx = sv("text", { x: f.x(o.xs[n - 1]) + 8, y: f.y(mid) + 4, "font-size": 11.5, fill: css("--ink2") }, f.svg);
-      tx.textContent = L.name;
+      if (!o.noEndLabels) {
+        var tx = sv("text", { x: f.x(o.xs[n - 1]) + 8, y: f.y(mid) + 4, "font-size": 11.5, fill: css("--ink2") }, f.svg);
+        tx.textContent = L.name;
+      }
       L.base = base.slice(); base = top;
     });
     f.drawV();
@@ -402,11 +454,14 @@
       tip.show(o.hFmt(i), rows, px, f.pad.t + f.ih / 2);
     }
     function off() { cross.setAttribute("opacity", 0); tip.hide(); }
-    f.svg.addEventListener("pointermove", function (e) {
+    function move(e) {
       var r = f.svg.getBoundingClientRect(), px = (e.clientX - r.left) * (f.W / r.width);
       at(Math.round((px - f.pad.l) / f.iw * (n - 1)));
-    });
-    f.svg.addEventListener("pointerleave", off); f.svg.addEventListener("blur", off);
+    }
+    f.svg.addEventListener("pointermove", move);
+    f.svg.addEventListener("pointerdown", move);
+    f.svg.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
+    f.svg.addEventListener("blur", off);
     f.svg.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { at(cur < 0 ? 0 : cur + 1); e.preventDefault(); }
       if (e.key === "ArrowLeft") { at(cur < 0 ? n - 1 : cur - 1); e.preventDefault(); }
@@ -420,30 +475,34 @@
            "Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) + "V" + (y + h) + "Z";
   }
   function histChart(host, o) {
-    var f = frame(host, o), tip = tipFor(host), n = o.xs.length;
+    var f = frame(host, o), tip = tipFor(host), n = o.xs.length, barOffs = [];
+    tip.onHide = function () { barOffs.forEach(function (fn) { fn(true); }); };
     var band = f.iw / (o.x1 - o.x0), bw = Math.min(24, band * 0.72);
     o.xs.forEach(function (a, i) {
       var h = f.y(0) - f.y(o.ys[i]); if (h <= 0) return;
       var inside = a <= o.sel;
-      var p = sv("path", { d: barPath(f.x(a) - bw / 2, f.y(o.ys[i]), bw, h, 4), fill: css("--brand"), opacity: inside ? 1 : 0.3 }, f.svg);
+      var p = sv("path", { d: barPath(f.x(a) - bw / 2, f.y(o.ys[i]), bw, h, 4), fill: css("--brand"), opacity: inside ? 1 : +css("--fade") }, f.svg);
       var hit = sv("rect", { x: f.x(a) - Math.max(bw, 14) / 2 - 1, y: f.pad.t, width: Math.max(bw, 14) + 2, height: f.ih, fill: "transparent" }, f.svg);
       function on() { p.setAttribute("stroke", css("--ink")); p.setAttribute("stroke-width", 1);
         tip.show(a + "세", [{ name: "이 나이에 바닥난 경로", value: num(o.ys[i]) + "개" }, { name: "비율", value: pct(o.ys[i] / o.total, 2) }], f.x(a), f.y(o.ys[i])); }
-      function off() { p.removeAttribute("stroke"); tip.hide(); }
-      hit.addEventListener("pointermove", on); hit.addEventListener("pointerleave", off);
+      function off(fromHide) { p.removeAttribute("stroke"); if (fromHide !== true) tip.hide(); }
+      hit.addEventListener("pointermove", on); hit.addEventListener("pointerdown", on);
+      hit.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
+      barOffs.push(off);
     });
   }
 
   /* 분위수 범위 (p10-p90 얇은 선, p25-p75 굵은 띠, 중앙값 눈금) */
-  function rangeChart(host, q, unitFmt) {
+  function rangeChart(host, q) {
     host.textContent = "";
-    var W = Math.max(280, host.clientWidth), H = 150, padL = 16, padR = 16, top = 46, iw = W - padL - padR;
+    var W = Math.max(280, host.clientWidth), H = 178, padL = 16, padR = 16, top = 62, iw = W - padL - padR;
     var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "남은 자산 분포", tabindex: 0 }, host);
     svg.style.height = H + "px";
     var max = Math.max(q[4] * 1.08, 1), x = function (v) { return padL + v / max * iw; };
     niceTicks(0, max, 4).forEach(function (v) {
       sv("line", { x1: x(v), x2: x(v), y1: top - 6, y2: top + 44, stroke: css("--grid"), "stroke-width": 1 }, svg);
-      var t = sv("text", { x: x(v), y: top + 62, "text-anchor": "middle", "font-size": 11, fill: css("--muted") }, svg); t.textContent = num(v) + "A";
+      var t = sv("text", { x: x(v), y: top + 60, "text-anchor": "middle", "font-size": 11, fill: css("--muted") }, svg); t.textContent = num(v) + "A";
+      var t2 = sv("text", { x: x(v), y: top + 74, "text-anchor": "middle", "font-size": 10.5, fill: css("--muted") }, svg); t2.textContent = krw(aToKrw(v));
     });
     var cy = top + 20, col = css("--brand");
     sv("line", { x1: x(q[0]), x2: x(q[4]), y1: cy, y2: cy, stroke: col, "stroke-width": 3, "stroke-linecap": "round", opacity: 0.5 }, svg);
@@ -452,8 +511,9 @@
     [[0, "하위 10%"], [2, "중앙값"], [4, "상위 10%"]].forEach(function (p) {
       var anchor = p[0] === 0 ? "start" : p[0] === 4 ? "end" : "middle";
       var xx = p[0] === 0 ? Math.max(x(q[0]), padL) : p[0] === 4 ? Math.min(x(q[4]), W - padR) : x(q[2]);
-      var t1 = sv("text", { x: xx, y: 14, "text-anchor": anchor, "font-size": 11, fill: css("--muted") }, svg); t1.textContent = p[1];
-      var t2 = sv("text", { x: xx, y: 30, "text-anchor": anchor, "font-size": 13, "font-weight": 650, fill: css("--ink") }, svg); t2.textContent = num(q[p[0]], 1) + "A";
+      var t1 = sv("text", { x: xx, y: 12, "text-anchor": anchor, "font-size": 11, fill: css("--muted") }, svg); t1.textContent = p[1];
+      var t2 = sv("text", { x: xx, y: 29, "text-anchor": anchor, "font-size": 13, "font-weight": 650, fill: css("--ink") }, svg); t2.textContent = num(q[p[0]], 1) + "A";
+      var t3 = sv("text", { x: xx, y: 44, "text-anchor": anchor, "font-size": 11, fill: css("--ink2") }, svg); t3.textContent = "약 " + krw(aToKrw(q[p[0]]));
     });
   }
 
@@ -506,24 +566,33 @@
     function tile(cls, lab, val, note) {
       var t = html("div", "tile " + (cls || ""), null, host);
       html("div", "lab", lab, t); html("div", "val", val, t); html("div", "note", note, t);
+      return t;
     }
-    tile("hero", a + "세까지 자산이 바닥날 확률", pct(p, 2),
+    var hero = tile("hero", a + "세까지 자산이 바닥날 확률", pct(p, 2),
          M.mc_paths.toLocaleString("ko-KR") + "개 경로 중 " + k.toLocaleString("ko-KR") + "개. 61세부터 " + a + "세까지 매월 인출액을 계속 낼 수 있는지를 셉니다.");
+    var cmp = ["60/40", "tdf", "stock100"].map(function (id) { return LAB[id] + " " + pct(D.mc.series[id].dep_cum[i], 2); }).join(" · ");
+    html("div", "cmp", "같은 조건의 비교: " + cmp, hero);
     tile("", "61세 적립금", num(D.kpi.retire_balance_a, 1) + "A", "약 " + krw(D.kpi.retire_balance_krw) + " (고정 환율 " + num(M.fx) + "원/달러)");
-    tile("", a + "세 남은 자산 (중앙값)", num(q[2], 1) + "A", "약 " + krw(aToKrw(q[2])) + " · 하위 10%는 " + num(q[0], 1) + "A");
-    tile("", "인컴 커버리지 (은퇴 시점)", pct(D.coverage.retire.bucket, 0),
-         "인컴 버킷 3개 자산 기준. 현금 이자까지 합치면 " + pct(D.coverage.retire.all, 0));
+    tile("", a + "세 남은 자산 (중앙값)", num(q[2], 1) + "A", "약 " + krw(aToKrw(q[2])) + " · 하위 10%는 " + num(q[0], 1) + "A (약 " + krw(aToKrw(q[0])) + ")");
+    var cov = tile("", "인컴 커버리지 (은퇴 시점)", "", "");
+    cov.querySelector(".val").remove(); cov.querySelector(".note").remove();
+    var two = html("div", "two", null, cov);
+    [[pct(D.coverage.retire.bucket, 0), "인컴 버킷 3개 자산만 (배당성장·중기채·리츠)"], [pct(D.coverage.retire.all, 0), "다른 자산의 이자·배당까지 합치면"]].forEach(function (c) {
+      var d = html("div", null, null, two); html("div", "val", c[0], d); html("div", "note", c[1], d);
+    });
     $("lifeOut").textContent = a + "세";
   }
 
   /* ---------- 적립기 ---------- */
   function renderBacktest() {
     var host = $("chBt"), vl = [{ x: dateX("2026-01"), label: "은퇴·인출 시작", anchor: "end", dx: -6 }];
-    var series = IDS.map(function (id) {
+    var hide = $("hideStock").checked;
+    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
+    var series = ids.map(function (id) {
       return { id: id, name: LAB[id], color: seriesColor(id), y: bt.series[id], w: id === "strategy" ? 2.6 : 2,
-               endLabel: id === "strategy" || id === "stock100" ? LAB[id] : null };
+               endLabel: id === "strategy" || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
     });
-    var ymax = Math.max.apply(null, bt.series.stock100);
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
     lineChart(host, { height: 340, padL: 44, padR: 78, x0: 1995, x1: xsBt[xsBt.length - 1], y0: 0, y1: ymax * 1.05, zeroBase: true,
       xs: xsBt, series: series, vlines: vl, yFmt: function (v) { return num(v); }, xFmt: function (v) { return Math.round(v); },
       xTicks: [1995, 2000, 2005, 2010, 2015, 2020, 2025], label: "적립금 추이 선 차트",
@@ -562,9 +631,12 @@
       var j = w.assets.indexOf(k);
       return { key: k, name: M.asset_labels[k], color: css("--w-" + k), y: w.values.map(function (r) { return r[j]; }) };
     });
-    stackChart($("chW"), { vTop: true, height: 320, padL: 44, padR: 70, x0: 30, x1: 100, y0: 0, y1: 1, xs: w.ages, layers: layers,
-      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [30, 40, 50, 61, 70, 80, 90, 100],
-      vlines: [{ x: 61, label: "은퇴 61세", color: css("--glide"), opacity: 1, dy: 0 }, { x: state.age, label: "기대수명 " + state.age + "세", color: css("--ink"), opacity: 0.8, dy: 14 }],
+    var narrow = $("chW").clientWidth < 520;
+    stackChart($("chW"), { vTop: true, noEndLabels: narrow, height: 320, padL: 44, padR: narrow ? 12 : 70, x0: 30, x1: 100, y0: 0, y1: 1, xs: w.ages, layers: layers,
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: narrow ? [30, 50, 61, 80, 100] : [30, 40, 50, 61, 70, 80, 90, 100],
+      vlines: [{ x: 61, label: narrow ? "은퇴" : "은퇴 61세", color: css("--glide"), opacity: 1, dy: 0 },
+               { x: state.age, label: (narrow ? "수명 " : "기대수명 ") + state.age + "세", color: css("--ink"), opacity: 0.8, dy: 14,
+                 anchor: state.age > 90 ? "end" : "start", dx: state.age > 90 ? -4 : 4 }],
       label: "나이별 자산 비중 누적 면적 차트", hFmt: function (i) { return w.ages[i] + "세"; } });
     legend("lgW", layers.map(function (l) { return { name: l.name, color: l.color }; }), true);
     var rows = []; w.ages.forEach(function (a, i) { if (a % 5 === 0 || a === 61) rows.push({ cells: [a + "세"].concat(order.map(function (k) { return pct(w.values[i][w.assets.indexOf(k)], 2); })) }); });
@@ -598,8 +670,8 @@
     // 61세 점(2026 실제값)을 곡선 맨 앞에 붙여 이어 보이게 한다.
     var yb = [c.actual_2026.bucket].concat(c.bucket_p50), ya = [c.actual_2026.all].concat(c.all_p50);
     var lb = [c.actual_2026.bucket].concat(c.bucket_p10), la = [c.actual_2026.all].concat(c.all_p10);
-    var series = [{ name: "전체 (현금 이자 포함)", color: colA, y: ya, w: 2.2, endLabel: "전체" },
-                  { name: "인컴 버킷 3개 자산", color: colB, y: yb, w: 2.6, endLabel: "인컴 버킷" }];
+    var series = [{ name: "전체 (다른 자산의 이자·배당까지 합친 값)", color: colA, y: ya, w: 2.2, endLabel: "전체" },
+                  { name: "인컴 버킷 3개 자산 (배당성장·중기채·리츠)", color: colB, y: yb, w: 2.6, endLabel: "인컴 버킷" }];
     var ymax = Math.max.apply(null, ya) * 1.15;
     lineChart($("chCov"), { height: 300, padL: 44, padR: 78, x0: 61, x1: 100, y0: 0, y1: Math.max(1.2, ymax), zeroBase: true, xs: xs, series: series,
       bands: [{ lo: la, hi: ya, color: colA }, { lo: lb, hi: yb, color: colB }],
@@ -612,12 +684,36 @@
     var rows = []; xs.forEach(function (a, i) { if (a % 5 === 0 || a === 61) rows.push({ cells: [a + "세", pct(ya[i], 1), pct(yb[i], 1), pct(la[i], 1), pct(lb[i], 1)] }); });
     put("tbCov", table(["나이", "전체 중앙값", "버킷 중앙값", "전체 하위 10%", "버킷 하위 10%"], rows));
   }
+  function renderCompare() {
+    var c = D.coverage, ages = c.ages, ids = ["strategy", "60/40", "stock100", "cash100"];
+    var ys = { strategy: c.all_p50 };
+    ids.slice(1).forEach(function (id) { ys[id] = c.bench[id].p50; });
+    var series = ids.map(function (id) {
+      return { name: LAB[id], color: seriesColor(id), y: ys[id], w: id === "strategy" ? 2.6 : 2, endLabel: id === "strategy" ? LAB[id] : null };
+    });
+    lineChart($("chCmp"), { height: 270, padL: 44, padR: 78, x0: 62, x1: 100, y0: 0, y1: 2, zeroBase: true, xs: ages, series: series,
+      vlines: [{ x: state.age, label: "기대수명 " + state.age + "세", color: css("--ink"), opacity: 0.6 }],
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [65, 70, 80, 90, 100],
+      label: "벤치마크와 인컴 커버리지 비교 선 차트", hFmt: function (i) { return ages[i] + "세"; }, vFmt: function (v) { return pct(v, 1); } });
+    legend("lgCmp", series);
+    var rows = []; ages.forEach(function (a, i) { if (a % 5 === 0) rows.push({ cells: [a + "세"].concat(ids.map(function (id) { return pct(ys[id][i], 1); })) }); });
+    put("tbCmp", table(["나이"].concat(ids.map(function (id) { return LAB[id]; })), rows));
+  }
 
-  function update() { renderKpis(); renderWeights(); renderHist(); renderResid(); renderCoverage(); }
+  function update() { renderKpis(); renderWeights(); renderHist(); renderResid(); renderCoverage(); renderCompare(); }
   function renderAll() { renderBacktest(); renderMetrics(); renderDrawdown(); update(); }
 
   $("dataEnd").textContent = M.data_end;
   $("aWon").textContent = num(M.a2026);
+  $("hdrEnd").textContent = M.data_end;
+  $("aFoot").textContent = "A = A값(2026년 " + num(M.a2026) + "원, 약 " + Math.round(M.a2026 / 1e4) + "만 원). 예: " + num(D.kpi.retire_balance_a, 1) + "A ≈ " + krw(D.kpi.retire_balance_krw) + ".";
+  $("limFallback").textContent = "인출 때 현금과 시세차익 자산이 바닥나면 마지막 수단으로 인컴 자산까지 팔도록 구현했습니다. 몬테카를로 경로 " + num(M.mc_fallback_paths) + "개(" + pct(M.mc_fallback_paths / M.mc_paths, 1) + ")에서 이 경우가 있었습니다.";
+  $("hideStock").addEventListener("change", renderBacktest);
+  (function () {                       // 모바일: 스크롤하면 슬라이더만 남기고 설명을 접는다
+    var bar = document.querySelector(".controls");
+    function chk() { bar.classList.toggle("compact", window.innerWidth <= 700 && window.scrollY > 160); }
+    window.addEventListener("scroll", chk, { passive: true }); chk();
+  })();
   $("aExA").textContent = $("aExN").textContent = num(D.kpi.retire_balance_a, 1);
   $("aExK").textContent = krw(D.kpi.retire_balance_krw);
   buildSlider();

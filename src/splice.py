@@ -117,6 +117,7 @@ def build():
     # 벤치마크 구성요소 (TR만 필요)
     bench = pd.DataFrame(index=months)
     bench["vbmfx"] = frames["VBMFX"].loc[months, "tr"]
+    inc["vbmfx"] = frames["VBMFX"].loc[months, "income"]      # 60/40 인컴 커버리지 계산용 (자산 7개와 별개)
     tdf = pd.Series(np.nan, months)
     for m in months:
         if m >= pd.Period(config.TDF_SWITCH["VTTVX"], "M"):
