@@ -270,9 +270,9 @@
   <h2><span class="num">2</span>은퇴 시점이 나빴다면: 은퇴한 해에 따라 결과는 얼마나 달라지나</h2>
   <p class="concl" id="c2"></p>
   <div class="card">
-    <h3>은퇴 시점별 15년 뒤 잔액 비율 (상자 그림)</h3>
-    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>상자</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 상자가 짧을수록 은퇴 시점에 덜 좌우됩니다. 현금 100%는 그래프에서 뺐고 아래 표에는 있습니다.</p>
-    <div class="opts"><label><input type="checkbox" id="hideStockR" checked> 주식 100% 숨기기 (끄면 주식 100% 상자도 보입니다)</label></div>
+    <h3>은퇴 시점별 15년 뒤 잔액 비율 (박스 차트)</h3>
+    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>박스</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 박스가 짧을수록 은퇴 시점에 덜 좌우됩니다. 현금 100%는 그래프에서 뺐고 아래 표에는 있습니다.</p>
+    <div class="opts"><label><input type="checkbox" id="hideStockR" checked> 주식 100% 숨기기 (끄면 주식 100% 박스도 보입니다)</label></div>
     <div class="chart" id="chRl"></div>
     <div class="tbl-wrap" id="tbRl"></div>
     <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
@@ -778,7 +778,7 @@
     var a = arr.slice().sort(function (x, y) { return x - y; }), pos = (a.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
     return a[lo] + (a[hi] - a[lo]) * (pos - lo);
   }
-  /* 세로 상자 그림: 가로축 = 전략, 세로축 = 값. 상자 = 25~75%, 굵은 선 = 중앙값, 위·아래 선 = 최선·최악, 마름모 = 평균 */
+  /* 세로 박스 차트: 가로축 = 전략, 세로축 = 값. 박스 = 25~75%, 굵은 선 = 중앙값, 위·아래 선 = 최선·최악, 마름모 = 평균 */
   function boxChart(host, o) {
     host.textContent = "";
     var tip = tipFor(host);
@@ -831,8 +831,8 @@
   }
   function renderRolling() {
     var RL = D.rolling, hide = $("hideStockR").checked;
-    var ids = IDS.filter(function (id) { return id !== "cash100" && !(hide && id === "stock100"); });      // 상자 그림에서 현금 100%는 제외 (표에는 있음)
-    boxChart($("chRl"), { height: 360, ref: 100, label: "은퇴 시점별 15년 뒤 잔액 비율 상자 그림",
+    var ids = IDS.filter(function (id) { return id !== "cash100" && !(hide && id === "stock100"); });      // 박스 차트에서 현금 100%는 제외 (표에는 있음)
+    boxChart($("chRl"), { height: 360, ref: 100, label: "은퇴 시점별 15년 뒤 잔액 비율 박스 차트",
       items: ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), vals: RL.series[id] }; }) });
     var rows = IDS.map(function (id) {
       var s = RS[id], v = RL.series[id];
@@ -852,7 +852,7 @@
     var std1 = function (id) { return num(RS[id].std, 1) + "%p"; };
     var ratioTxt = OTH.filter(function (id) { return RS[id].std > RS[S].std * 1.2; }).map(function (id) { return LAB[id] + "은 약 " + num(RS[id].std / RS[S].std, 1) + "배"; }).join(", ");
     var rows = [
-      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 상자 그림은 15년 뒤 남은 돈이 시작 자산의 몇 %인지를 전략별로 보여 줍니다. 상자는 은퇴 시점 202개 결과의 가운데 절반이고, 상자가 짧을수록 '언제 은퇴하든 비슷한 결과'입니다. 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 결과가 흩어진 정도를 하나의 숫자로 요약한 값입니다." },
+      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 박스 차트은 15년 뒤 남은 돈이 시작 자산의 몇 %인지를 전략별로 보여 줍니다. 박스는 은퇴 시점 202개 결과의 가운데 절반이고, 박스가 짧을수록 '언제 은퇴하든 비슷한 결과'입니다. 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 결과가 흩어진 정도를 하나의 숫자로 요약한 값입니다." },
       { label: "해석", items: [
         "가장 나쁜 때 은퇴한 결과: " + [S].concat(OTH).map(function (id) { return LAB[id] + " " + num(RS[id].worst, 0) + "% (" + RS[id].worst_month + ")"; }).join(" · "),
         "은퇴 시점에 따른 흔들림: 63nt1e " + std1(S) + " — " + listCmp(OTH, std1) + (ratioTxt ? ". 63nt1e와 비교하면 " + ratioTxt + " 흔들립니다." : ""),
