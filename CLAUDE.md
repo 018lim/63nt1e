@@ -267,4 +267,4 @@ GOLD_FEE_ADJ = False
 - [x] 은퇴 시점별 롤링 분석 1단계(1995~ 데이터, 10·15·20년) → README·대시보드 반영 (`src/rolling.py`)
 - [ ] 롤링 분석 2단계: 1972년부터 확장 데이터를 추가해 같은 코드(`rolling.run_rolling`)로 재실행 (데이터 파일 안내 필요)
 - [x] GitHub 저장소 `018lim/63nt1e` 연결과 push (공개)
-- [ ] 대시보드 온라인 호스팅: GitHub Pages는 계정의 Actions 제재로 불가 → `site/` 폴더를 Netlify·Vercel 등에 올려 주소를 만들고 README 맨 위에 링크 추가
+- [x] 대시보드 온라인 호스팅: GitHub Pages `https://018lim.github.io/63nt1e/` (main 브랜치 루트에서 배포, 루트 index.html이 dashboard/ 로 이동). 대안으로 `site/` 묶음(파일 하나 버전 포함)도 둔다

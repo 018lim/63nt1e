@@ -5,7 +5,7 @@
 <h1 align="center">63nt1e — 6·3·1 Gentle Glide</h1>
 <p align="center"><b>은퇴 준비도 GENTLE하게</b></p>
 <p align="center">30세 6:3:1에서 90세 3:6:1까지, 매년 0.5%p씩 완만하게 이동하는 생애주기 퇴직연금 자산배분 전략</p>
-<p align="center"><b>대시보드: <code>site/63nt1e-dashboard.html</code> 파일을 내려받아 브라우저로 열면 바로 보입니다 (파일 하나, 인터넷 연결 불필요)</b></p>
+<p align="center"><b><a href="https://018lim.github.io/63nt1e/">▶ 대시보드 바로 보기</a></b> (파일로 받으려면 <code>site/63nt1e-dashboard.html</code>)</p>
 
 > **먼저, "A"가 뭔가요?**
 > A는 **A값**, 즉 국민연금 전체 가입자의 평균소득월액입니다(2026년 3,193,511원). 이 문서의 금액은 대부분 "A값의 몇 배"로 적습니다. 예를 들어 **255.6A는 A값의 255.6배**, 약 8.2억 원입니다.
