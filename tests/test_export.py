@@ -70,3 +70,14 @@ def test_rolling_block(data, results):
     assert all(len(v) == 202 for v in rl["series"].values())
     assert rl["stats"]["strategy"]["median"] == pytest.approx(results["rolling15"]["stats"]["63nt1e"]["median"], abs=0.01)
     assert rl["stats"]["strategy"]["worst"] == pytest.approx(min(rl["series"]["strategy"]), abs=0.01)
+
+
+def test_rolling_dispersion_stats(data):
+    import numpy as np
+    rl = data["rolling"]
+    for n, st in rl["stats"].items():
+        x = np.array(rl["series"][n])
+        assert st["std"] == pytest.approx(x.std(ddof=1), abs=0.02)
+        assert st["range"] == pytest.approx(x.max() - x.min(), abs=0.02)
+        assert st["mean"] == pytest.approx(x.mean(), abs=0.02)
+        assert st["cv"] == pytest.approx(x.std(ddof=1) / x.mean(), abs=0.005)

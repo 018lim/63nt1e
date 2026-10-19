@@ -100,7 +100,7 @@ def build(out=None) -> dict:
     idmap = {"63nt1e": "strategy", "60/40": "60/40", "stock100": "stock100", "cash100": "cash100", "tdf": "tdf"}
     roll = {"horizon": rb_["horizon"], "n_starts": rb_["n_starts"], "months": rb_["months"], "start_a": r(acc["63nt1e"]["balance_a_multiple"], 1),
             "series": {idmap[n]: [r(v, 2) for v in vals] for n, vals in rb_["series"].items()},
-            "stats": {idmap[n]: {k: (r(v, 2) if isinstance(v, float) else v) for k, v in st.items()} for n, st in rb_["stats"].items()}}
+            "stats": {idmap[n]: {k: (r(v, 4) if isinstance(v, float) else v) for k, v in st.items()} for n, st in rb_["stats"].items()}}
     c = report.income_coverage(out)
 
     data = {

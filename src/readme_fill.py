@@ -95,6 +95,26 @@ def build_rolling(r: dict) -> str:
         "",
         "- " + cmp("worst", "최악") + f"({st['63nt1e']['worst']:.1f}%, {st['63nt1e']['worst_month']} 은퇴). " + cmp("p10", "하위 10%") + ". " + cmp("median", "중앙값") + ". " + cmp("best", "최선") + ".",
         f"- 최악이었던 은퇴 시점은 전략마다 다릅니다: 63nt1e {st['63nt1e']['worst_month']}, 60/40 {st['60/40']['worst_month']}, 주식 100% {st['stock100']['worst_month']}, TDF {st['tdf']['worst_month']}.",
+    ]
+    lines += [
+        "",
+        "은퇴 시점에 따라 결과가 얼마나 흔들리는지(15년 뒤 잔액 비율이 시작 월마다 얼마나 달라지는지)입니다. 표준편차는 시작 월별 결과가 평균에서 흩어진 정도(%p), 변동폭은 최선에서 최악을 뺀 값, 변동계수는 표준편차를 평균으로 나눈 값(평균 크기를 감안한 상대 변동)입니다. 값이 작을수록 은퇴 시점의 운에 덜 좌우됩니다.",
+        "",
+        "| 전략 | 평균 | 표준편차 | 변동폭 (최선−최악) | 변동계수 |",
+        "|---|---|---|---|---|",
+    ]
+    for n in names:
+        s = st[n]
+        lines.append(f"| {L[n]} | {s['mean']:.1f}% | {s['std']:.1f}%p | {s['range']:.1f}%p | {s['cv']:.2f} |")
+    lower = lambda key: [L[n] for n in names if n not in ("63nt1e", "cash100") and st[n][key] < st["63nt1e"][key]]
+    lines += [
+        "",
+        f"- 표준편차 {st['63nt1e']['std']:.1f}%p(63nt1e)는 현금 100%를 뺀 비교 대상 중 " + ("가장 작습니다" if not lower("std") else "가장 작지 않습니다(더 작은 전략: " + ", ".join(lower("std")) + ")")
+        + f". 60/40 {st['60/40']['std']:.1f}, TDF {st['tdf']['std']:.1f}, 주식 100% {st['stock100']['std']:.1f}%p이고, 평균은 63nt1e {st['63nt1e']['mean']:.1f}%, 60/40 {st['60/40']['mean']:.1f}%입니다.",
+    ]
+
+    lines += [
+        "",
         f"- 한계: 인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, {b['n_starts']}개 시작 월은 독립된 {b['n_starts']}개 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.",
     ]
     return "\n".join(lines) + "\n"

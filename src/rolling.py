@@ -126,7 +126,9 @@ def report_block(res: dict, y: int = 15) -> dict:
         block["series"][n] = [float(v) for v in x]
         k = int(np.argmin(x))
         block["stats"][n] = {"worst": float(x.min()), "p10": float(np.quantile(x, 0.10)), "median": float(np.median(x)), "best": float(x.max()),
-                             "depleted_starts": int((x <= 0).sum()), "worst_month": res["months"][starts[k]]}
+                             "depleted_starts": int((x <= 0).sum()), "worst_month": res["months"][starts[k]],
+                             "mean": float(x.mean()), "std": float(x.std(ddof=1)), "range": float(x.max() - x.min()),
+                             "cv": float(x.std(ddof=1) / x.mean())}
     return block
 
 

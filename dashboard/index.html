@@ -239,6 +239,10 @@
     <div class="tbl-wrap" id="tbRl"></div>
     <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
     <p class="src">인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, 이 시작 월들은 서로 독립된 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.</p>
+    <h3 style="margin-top:14px;font-size:14px">은퇴 시점에 따라 얼마나 흔들리나</h3>
+    <p class="what"><b>보는 법</b>시작 월마다 달라지는 15년 뒤 잔액 비율이 평균에서 얼마나 흩어져 있는지입니다. 표준편차(%p)와 변동폭(최선−최악)이 작을수록, 변동계수(표준편차÷평균)가 작을수록 은퇴 시점의 운에 덜 좌우됩니다.</p>
+    <div class="tbl-wrap" id="tbRlVar"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
     <details><summary>표로 보기 (연 1회, 매년 1월 시작)</summary><div class="scroll" id="tbRl2"></div></details>
   </div>
 
@@ -685,6 +689,11 @@
       return { me: id === "strategy", cells: [LAB[id], num(s.worst, 1) + "%", num(s.p10, 1) + "%", num(s.median, 1) + "%", num(s.best, 1) + "%", String(s.depleted_starts), s.worst_month] };
     });
     put("tbRl", table(["전략", "최악", "하위 10%", "중앙값", "최선", "바닥난 시작 월 수", "최악 은퇴 시점"], rows));
+    var vrows = IDS.map(function (id) {
+      var s = RL.stats[id];
+      return { me: id === "strategy", cells: [LAB[id], num(s.mean, 1) + "%", num(s.std, 1) + "%p", num(s.range, 1) + "%p", s.cv.toFixed(2)] };
+    });
+    put("tbRlVar", table(["전략", "평균", "표준편차", "변동폭 (최선−최악)", "변동계수"], vrows));
     var yr = [];
     RL.months.forEach(function (m, i) { if (m.slice(5) === "01") yr.push({ cells: [m.slice(0, 4)].concat(IDS.map(function (id) { return num(RL.series[id][i], 1) + "%"; })) }); });
     put("tbRl2", table(["은퇴 시점(1월)"].concat(IDS.map(function (id) { return LAB[id]; })), yr));
