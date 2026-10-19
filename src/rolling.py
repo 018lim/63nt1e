@@ -133,7 +133,8 @@ def report_block(res: dict, y: int = 15) -> dict:
 
 
 def plot_block(block: dict, path) -> None:
-    """README용 그림(PNG): 왼쪽 전체, 오른쪽은 주식 100%를 뺀 확대. x = 은퇴 시점, y = 15년 뒤 잔액 비율(%)."""
+    """README용 그림(PNG): 박스 차트. 가로 = 전략, 세로 = 15년 뒤 잔액 비율(%).
+    박스 = 25~75%, 굵은 선 = 중앙값, 위·아래 선 = 최선·최악, 마름모 = 평균. 현금 100%는 뺀다. 왼쪽 전체, 오른쪽은 주식 100% 제외(확대)."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -145,20 +146,32 @@ def plot_block(block: dict, path) -> None:
             break
     plt.rcParams["axes.unicode_minus"] = False
     colors = {"63nt1e": "#6D361B", "60/40": "#2a78d6", "stock100": "#1baf7a", "cash100": "#898781", "tdf": "#e87ba4"}
-    x = pd.to_datetime([m + "-01" for m in block["months"]])
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), dpi=150)
-    for ax, names, title in ((axes[0], NAMES, "전체"), (axes[1], [n for n in NAMES if n != "stock100"], "주식 100% 제외 (확대)")):
-        for n in names:
-            ax.plot(x, block["series"][n], color=colors[n], lw=2.4 if n == "63nt1e" else 1.6, label=LABELS[n])
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.6), dpi=150, gridspec_kw={"width_ratios": [1.1, 1]})
+    panels = (("전체", ["63nt1e", "60/40", "stock100", "tdf"]), ("주식 100% 제외 (확대)", ["63nt1e", "60/40", "tdf"]))
+    for ax, (title, names) in zip(axes, panels):
+        data = [block["series"][n] for n in names]
+        bp = ax.boxplot(data, positions=range(1, len(names) + 1), widths=0.5, whis=(0, 100), patch_artist=True, showmeans=True,
+                        meanprops={"marker": "D", "markerfacecolor": "white", "markeredgecolor": "#221714", "markersize": 6},
+                        medianprops={"color": "#221714", "linewidth": 2.4}, flierprops={"markersize": 0})
+        for patch, n in zip(bp["boxes"], names):
+            patch.set_facecolor(colors[n]); patch.set_alpha(0.45); patch.set_edgecolor(colors[n]); patch.set_linewidth(1.8)
+        for i, n in enumerate(names):
+            for k in (2 * i, 2 * i + 1):
+                bp["whiskers"][k].set_color(colors[n]); bp["whiskers"][k].set_linewidth(1.6)
+                bp["caps"][k].set_color(colors[n]); bp["caps"][k].set_linewidth(1.6)
+            v = data[i]
+            ax.text(i + 1 + 0.3, float(np.median(v)), f"{np.median(v):.0f}%", va="center", fontsize=8, color="#5b4e49")
+            ax.text(i + 1, float(max(v)), f"최선 {max(v):.0f}%", ha="center", va="bottom", fontsize=8, color="#5b4e49")
+            ax.text(i + 1, float(min(v)), f"최악 {min(v):.0f}%", ha="center", va="top", fontsize=8, color="#5b4e49")
         ax.axhline(100, color="#221714", lw=0.8, alpha=0.6)
-        ax.text(x[-1], 100, "시작 자산(100%) ", va="bottom", ha="right", fontsize=8, color="#5b4e49")
+        ax.text(0.52, 98, "시작 자산(100%)", va="top", fontsize=8, color="#5b4e49")
+        ax.set_xticks(range(1, len(names) + 1)); ax.set_xticklabels([LABELS[n] for n in names], fontsize=10)
         ax.set_title(title, fontsize=11, color="#221714")
-        ax.set_xlabel("은퇴(인출 시작) 시점", fontsize=9)
         ax.set_ylabel(f"{block['horizon']}년 뒤 잔액 비율 (시작 자산 대비 %)", fontsize=9)
+        ax.set_ylim(bottom=0)
         ax.grid(axis="y", color="#e1e0d9", lw=0.8)
-        for s in ("top", "right"):
-            ax.spines[s].set_visible(False)
-        ax.legend(fontsize=8, frameon=False, loc="upper left")
+        for sp in ("top", "right"):
+            ax.spines[sp].set_visible(False)
     fig.tight_layout()
     fig.savefig(path)
     plt.close(fig)
