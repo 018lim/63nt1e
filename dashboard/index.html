@@ -196,6 +196,20 @@
   .card { margin-bottom: 14px; }
   .src a, header .sub a { color: var(--glide); }
 
+
+  /* 전략 선택 칩 (범례 겸 선택). 드로다운 줄에는 최대낙폭을 크게 표시 */
+  .seltog { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+  .seltog label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ring); border-radius: 10px; padding: 6px 10px; cursor: pointer;
+    font-size: 13px; color: var(--ink2); background: var(--page); user-select: none; }
+  .seltog label.on { border-color: var(--c); color: var(--ink); background: var(--surface); box-shadow: inset 3px 0 0 var(--c); }
+  .seltog label:focus-within { outline: 2px solid var(--glide); outline-offset: 2px; }
+  .seltog input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .seltog .sw { width: 14px; height: 0; border-top: 3px solid var(--c); border-radius: 2px; flex: none; }
+  .seltog .tx { display: flex; flex-direction: column; line-height: 1.25; }
+  .seltog .nm { font-weight: 600; }
+  .seltog .mdd { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .seltog .mdd small { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 4px; }
+  .seltog label:not(.on) .mdd { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -229,8 +243,8 @@
   <div class="card">
     <h3>적립금 추이</h3>
     <p class="cap">1995~2025년 매달 같은 돈을 넣었을 때 계좌에 쌓인 금액(고정 환율 기준 억 원)입니다. 2026-01부터는 인출이 시작되어 곡선이 꺾입니다(데이터 끝 <span id="dataEnd"></span>).</p>
-    <div class="opts"><label><input type="checkbox" id="hideStock"> 주식 100% 숨기기 (63nt1e와 60/40을 더 크게 보기)</label></div>
-    <div class="legend" id="lgBt"></div>
+    <p class="src" style="margin:0 0 6px">보고 싶은 전략을 체크하세요. 처음에는 63nt1e · 60/40 · TDF만 보입니다.</p>
+    <div class="seltog" id="tgBt"></div>
     <div class="chart" id="chBt"></div>
     <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbBt"></div></details>
   </div>
@@ -238,8 +252,8 @@
   <div class="grid2">
     <div class="card">
       <h3>고점 대비 하락률</h3>
-      <p class="cap">그때까지의 최고점에서 얼마나 내려와 있었는지입니다. 선이 깊이 내려갈수록 힘든 시기입니다.</p>
-      <div class="legend" id="lgDd"></div>
+      <p class="cap">그때까지의 최고점에서 얼마나 내려와 있었는지입니다. 선이 깊이 내려갈수록 힘든 시기이고, 아래 칸의 숫자는 각 전략의 <strong>최대낙폭</strong>(가장 깊은 하락)입니다. 점은 그 최저점입니다.</p>
+      <div class="seltog mddrow" id="tgDd"></div>
       <div class="chart" id="chDd"></div>
       <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbDd"></div></details>
     </div>
@@ -256,10 +270,9 @@
   <h2><span class="num">2</span>은퇴 시점이 나빴다면: 은퇴한 해에 따라 결과는 얼마나 달라지나</h2>
   <p class="concl" id="c2"></p>
   <div class="card">
-    <h3>은퇴 시점별 15년 뒤 잔액 비율</h3>
-    <p class="cap">가로축은 은퇴(인출 시작) 시점, 세로축은 15년 뒤 계좌에 남은 돈이 시작 자산(<span id="rlA"></span>A)의 몇 %인지입니다. 얇은 선(100%) 위면 15년 동안 쓰고도 시작 자산 이상이 남은 것입니다. 은퇴 시점은 <span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 <span id="rlN"></span>개월입니다.</p>
-    <div class="opts"><label><input type="checkbox" id="hideStockR"> 주식 100% 숨기기 (63nt1e와 60/40을 더 크게 보기)</label></div>
-    <div class="legend" id="lgRl"></div>
+    <h3>은퇴 시점별 15년 뒤 잔액 비율 (상자 그림)</h3>
+    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>상자</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 상자가 짧을수록 은퇴 시점에 덜 좌우됩니다.</p>
+    <div class="opts"><label><input type="checkbox" id="hideStockR"> 주식 100% 숨기기 (나머지 상자를 더 크게 보기)</label></div>
     <div class="chart" id="chRl"></div>
     <div class="tbl-wrap" id="tbRl"></div>
     <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
@@ -661,8 +674,8 @@
     tile(g1, "", "가입 31년 중 최대낙폭", pct(mdd(S), 1), listCmp(OTH, function (id) { return pct(mdd(id), 1); }), "계좌가 고점에서 가장 크게 떨어진 폭. 작을수록 안정적입니다.");
     tile(g1, "", "가장 나쁜 때 은퇴해도 (15년 뒤)", num(RS[S].worst, 0) + "%", listCmp(OTH, function (id) { return num(RS[id].worst, 0) + "%"; }), "시작 자산 대비 남은 돈. 100%면 시작 자산이 유지된 것입니다.");
     tile(g1, "", "은퇴 시점에 따른 흔들림", num(RS[S].std, 1) + "%p", listCmp(OTH, function (id) { return num(RS[id].std, 1) + "%p"; }), "언제 은퇴하느냐에 따라 결과가 달라지는 정도. 작을수록 안정적입니다.");
-    tile(g1, "", "생활비를 채우는 배당·이자", pct(COV.retire.bucket, 0), "다른 자산의 이자·배당까지 합치면 " + pct(COV.retire.all, 0) + " · 60/40 " + pct(COV.bench_retire["60/40"], 0),
-         "은퇴 시점 인출액 중 배당·이자로 충당되는 비율(큰 숫자는 인컴 버킷만).");
+    tile(g1, "", "생활비를 채우는 배당·이자", pct(COV.retire.all, 0), "인컴 버킷 3개 자산만 " + pct(COV.retire.bucket, 0) + " · 60/40 " + pct(COV.bench_retire["60/40"], 0) + " · 주식 100% " + pct(COV.bench_retire.stock100, 0),
+         "은퇴 시점 인출액 중 보유 자산 전체의 이자·배당으로 충당되는 비율입니다.");
     html("div", "grp", "대가: 안정성을 위해 내준 것", box);
     var g2 = html("div", "tiles two", null, box);
     tile(g2, "cost", "연평균 수익률 (적립기)", pct(cagr(S), 2), listCmp(OTH, function (id) { return pct(cagr(id), 2); }), "수익이 비교 대상보다 낮으면 61세 적립금도 적어집니다(" + num(bal(S), 1) + "A).");
@@ -672,33 +685,62 @@
   }
 
   /* ---------- 1. 적립기 ---------- */
+  /* 전략 선택 칩: 적립금 추이와 고점 대비 하락률이 같은 선택을 공유한다 (기본: 63nt1e · 60/40 · TDF) */
+  state.show = {}; IDS.forEach(function (id) { state.show[id] = (id === S || id === "60/40" || id === "tdf"); });
+  function renderToggles(hostId, withMdd) {
+    var host = $(hostId); host.textContent = "";
+    IDS.forEach(function (id) {
+      var lab = html("label", "tg", null, host);
+      lab.setAttribute("data-id", id); lab.style.setProperty("--c", seriesColor(id));
+      var cb = html("input", null, null, lab); cb.type = "checkbox";
+      html("span", "sw", null, lab);
+      var tx = html("span", "tx", null, lab);
+      html("span", "nm", LAB[id], tx);
+      if (withMdd) { var m = html("span", "mdd", pct(mdd(id), 1), tx); html("small", null, "최대낙폭", m); }
+      cb.addEventListener("change", function () {
+        state.show[id] = cb.checked;
+        if (!IDS.some(function (k) { return state.show[k]; })) state.show[S] = true;      // 최소 한 개는 보이게
+        syncToggles(); renderBacktest(); renderDrawdown();
+      });
+    });
+  }
+  function syncToggles() {
+    Array.prototype.forEach.call(document.querySelectorAll(".seltog label[data-id]"), function (lab) {
+      var on = !!state.show[lab.getAttribute("data-id")];
+      lab.classList.toggle("on", on); lab.querySelector("input").checked = on;
+    });
+  }
+  function visibleIds() { return IDS.filter(function (id) { return state.show[id]; }); }
+
   function renderBacktest() {
     var vl = [{ x: dateX("2026-01"), label: "은퇴·인출 시작", anchor: "end", dx: -6 }];
-    var hide = $("hideStock").checked;
-    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
+    var ids = visibleIds();
     var series = ids.map(function (id) {
       return { id: id, name: LAB[id], color: seriesColor(id), y: bt.series[id], w: id === S ? 2.6 : 2,
-               endLabel: id === S || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
+               endLabel: id === S || id === "60/40" || id === "stock100" ? LAB[id] : null };
     });
     var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
     lineChart($("chBt"), { height: 320, padL: 44, padR: 78, x0: 1995, x1: xsBt[xsBt.length - 1], y0: 0, y1: ymax * 1.05, zeroBase: true,
       xs: xsBt, series: series, vlines: vl, yFmt: function (v) { return num(v); }, xFmt: function (v) { return Math.round(v); },
       xTicks: [1995, 2000, 2005, 2010, 2015, 2020, 2025], label: "적립금 추이 선 차트",
       hFmt: function (i) { return bt.dates[i]; }, vFmt: function (v) { return num(v, 1) + "억 원"; } });
-    legend("lgBt", series);
     var rows = [];
     bt.dates.forEach(function (d, i) { if (d.slice(5) === "12" || i === bt.dates.length - 1) rows.push({ cells: [d].concat(IDS.map(function (id) { return num(bt.series[id][i], 1); })) }); });
     put("tbBt", table(["월말"].concat(IDS.map(function (id) { return LAB[id] + " (억 원)"; })), rows));
   }
   function renderDrawdown() {
-    var dd = D.drawdown, xs = dd.dates.map(dateX), series = IDS.map(function (id) {
+    var dd = D.drawdown, xs = dd.dates.map(dateX), ids = visibleIds();
+    var series = ids.map(function (id) {
       return { id: id, name: LAB[id], color: seriesColor(id), y: dd.series[id], w: id === S ? 2.4 : 1.6 };
     });
+    var points = series.map(function (s) {                       // 각 전략의 최저점(최대낙폭)을 점으로 표시
+      var k = 0; s.y.forEach(function (v, i) { if (v < s.y[k]) k = i; });
+      return { x: xs[k], y: s.y[k], color: s.color };
+    });
     lineChart($("chDd"), { height: 260, padL: 44, padR: 12, x0: 1995, x1: xs[xs.length - 1], y0: -55, y1: 0, zeroBase: true,
-      xs: xs, series: series, yFmt: function (v) { return v + "%"; }, xFmt: function (v) { return Math.round(v); },
+      xs: xs, series: series, points: points, yFmt: function (v) { return v + "%"; }, xFmt: function (v) { return Math.round(v); },
       xTicks: [1995, 2005, 2015, 2025], label: "고점 대비 하락률 선 차트",
       hFmt: function (i) { return dd.dates[i]; }, vFmt: function (v) { return v.toFixed(1) + "%"; } });
-    legend("lgDd", series);
     var rows = [];
     dd.dates.forEach(function (d, i) { if (d.slice(5) === "12") rows.push({ cells: [d.slice(0, 4)].concat(IDS.map(function (id) { return dd.series[id][i].toFixed(1) + "%"; })) }); });
     put("tbDd", table(["연말"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
@@ -732,26 +774,71 @@
   }
 
   /* ---------- 2. 롤링 ---------- */
+  function quantile(arr, q) {
+    var a = arr.slice().sort(function (x, y) { return x - y; }), pos = (a.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+  }
+  /* 세로 상자 그림: 가로축 = 전략, 세로축 = 값. 상자 = 25~75%, 굵은 선 = 중앙값, 위·아래 선 = 최선·최악, 마름모 = 평균 */
+  function boxChart(host, o) {
+    host.textContent = "";
+    var tip = tipFor(host);
+    var W = Math.max(300, host.clientWidth), H = o.height || 340, pad = { l: 52, r: 16, t: 16, b: 36 };
+    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": o.label, tabindex: 0 }, host);
+    svg.style.height = H + "px";
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b, n = o.items.length;
+    var st = o.items.map(function (it) {
+      var v = it.vals, mean = v.reduce(function (p, c) { return p + c; }, 0) / v.length;
+      var sd = Math.sqrt(v.reduce(function (p, c) { return p + (c - mean) * (c - mean); }, 0) / (v.length - 1));
+      return { it: it, mn: Math.min.apply(null, v), q1: quantile(v, 0.25), med: quantile(v, 0.5), q3: quantile(v, 0.75), mx: Math.max.apply(null, v), mean: mean, sd: sd };
+    });
+    var ymax = Math.max.apply(null, st.map(function (x) { return x.mx; })) * 1.08;
+    var y = function (v) { return pad.t + (1 - v / ymax) * ih; };
+    niceTicks(0, ymax, 6).forEach(function (v) {
+      sv("line", { x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: css("--grid"), "stroke-width": 1 }, svg);
+      var t = sv("text", { x: pad.l - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: css("--muted") }, svg); t.textContent = num(v) + "%";
+    });
+    sv("line", { x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0), stroke: css("--baseline"), "stroke-width": 1 }, svg);
+    sv("line", { x1: pad.l, x2: W - pad.r, y1: y(o.ref), y2: y(o.ref), stroke: css("--ink2"), "stroke-width": 1, opacity: 0.7 }, svg);
+    var rt = sv("text", { x: pad.l + 4, y: y(o.ref) - 5, "text-anchor": "start", "font-size": 11, fill: css("--ink2") }, svg); rt.textContent = "시작 자산 (100%)";
+    var band = iw / n, bw = Math.min(56, band * 0.46);
+    st.forEach(function (x, i) {
+      var cx = pad.l + band * (i + 0.5), c = x.it.color;
+      sv("line", { x1: cx, x2: cx, y1: y(x.mx), y2: y(x.mn), stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 4, x2: cx + bw / 4, y1: y(x.mx), y2: y(x.mx), stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 4, x2: cx + bw / 4, y1: y(x.mn), y2: y(x.mn), stroke: c, "stroke-width": 2 }, svg);
+      var bh = Math.max(2, y(x.q1) - y(x.q3));
+      sv("rect", { x: cx - bw / 2, y: y(x.q3), width: bw, height: bh, rx: 3, fill: c, opacity: 0.28, stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 2, x2: cx + bw / 2, y1: y(x.med), y2: y(x.med), stroke: c, "stroke-width": 4, "stroke-linecap": "round" }, svg);
+      var my = y(x.mean);
+      sv("path", { d: "M" + cx + "," + (my - 6) + "L" + (cx + 6) + "," + my + "L" + cx + "," + (my + 6) + "L" + (cx - 6) + "," + my + "Z", fill: c, stroke: css("--surface"), "stroke-width": 2 }, svg);
+      var lab = function (xx, yy, txt, anchor) { var t = sv("text", { x: xx, y: yy, "text-anchor": anchor, "font-size": 11, fill: css("--ink2") }, svg); t.textContent = txt; };
+      lab(cx + bw / 2 + 6, y(x.med) + 4, "중앙 " + num(x.med, 0) + "%", "start");
+      lab(cx, y(x.mx) - 6, "최선 " + num(x.mx, 0) + "%", "middle");
+      lab(cx, y(x.mn) + 15, "최악 " + num(x.mn, 0) + "%", "middle");
+      var nm = sv("text", { x: cx, y: H - 12, "text-anchor": "middle", "font-size": 12.5, "font-weight": 650, fill: css("--ink") }, svg); nm.textContent = x.it.name;
+      var hit = sv("rect", { x: cx - band / 2, y: pad.t, width: band, height: ih, fill: "transparent" }, svg);
+      var show = function () {
+        tip.show(x.it.name + " (" + x.it.vals.length + "개 은퇴 시점)", [
+          { color: c, name: "최선", value: num(x.mx, 1) + "%" }, { color: c, name: "상위 25%", value: num(x.q3, 1) + "%" },
+          { color: c, name: "중앙값", value: num(x.med, 1) + "%" }, { color: c, name: "하위 25%", value: num(x.q1, 1) + "%" },
+          { color: c, name: "최악", value: num(x.mn, 1) + "%" }, { color: c, name: "평균", value: num(x.mean, 1) + "%" },
+          { color: c, name: "표준편차", value: num(x.sd, 1) + "%p" }], cx, y(x.med));
+      };
+      hit.addEventListener("pointermove", show); hit.addEventListener("pointerdown", show);
+      hit.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") tip.hide(); });
+    });
+    return st;
+  }
   function renderRolling() {
     var RL = D.rolling, hide = $("hideStockR").checked;
     var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
-    var xs = RL.months.map(dateX);
-    var series = ids.map(function (id) {
-      return { id: id, name: LAB[id], color: seriesColor(id), y: RL.series[id], w: id === S ? 2.6 : 1.8,
-               endLabel: id === S || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
-    });
-    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
-    lineChart($("chRl"), { height: 320, padL: 48, padR: 78, x0: 1995, x1: xs[xs.length - 1], y0: 0, y1: ymax * 1.06, zeroBase: true, xs: xs, series: series,
-      hlines: [{ y: 100, label: "시작 자산 (100%)" }],
-      yFmt: function (v) { return num(v) + "%"; }, xFmt: function (v) { return Math.round(v); }, xTicks: [1995, 2000, 2005, 2010],
-      label: "은퇴 시점별 15년 뒤 잔액 비율 선 차트",
-      hFmt: function (i) { return RL.months[i] + " 은퇴"; }, vFmt: function (v) { return num(v, 1) + "%"; } });
-    legend("lgRl", series);
+    boxChart($("chRl"), { height: 360, ref: 100, label: "은퇴 시점별 15년 뒤 잔액 비율 상자 그림",
+      items: ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), vals: RL.series[id] }; }) });
     var rows = IDS.map(function (id) {
-      var s = RS[id];
-      return { me: id === S, cells: [LAB[id], num(s.worst, 1) + "%", num(s.median, 1) + "%", num(s.best, 1) + "%", num(s.std, 1) + "%p", s.worst_month] };
+      var s = RS[id], v = RL.series[id];
+      return { me: id === S, cells: [LAB[id], num(s.worst, 1) + "%", num(quantile(v, 0.25), 1) + "%", num(s.median, 1) + "%", num(quantile(v, 0.75), 1) + "%", num(s.best, 1) + "%", num(s.std, 1) + "%p", s.worst_month] };
     });
-    put("tbRl", table(["전략", "최악", "중앙값", "최선", "흔들림 (표준편차)", "최악이었던 은퇴 시점"], rows));
+    put("tbRl", table(["전략", "최악", "하위 25%", "중앙값", "상위 25%", "최선", "흔들림 (표준편차)", "최악이었던 은퇴 시점"], rows));
     var yr = [];
     RL.months.forEach(function (m, i) { if (m.slice(5) === "01") yr.push({ cells: [m.slice(0, 4)].concat(IDS.map(function (id) { return num(RL.series[id][i], 1) + "%"; })) }); });
     put("tbRl2", table(["은퇴 시점(1월)"].concat(IDS.map(function (id) { return LAB[id]; })), yr));
@@ -765,7 +852,7 @@
     var std1 = function (id) { return num(RS[id].std, 1) + "%p"; };
     var ratioTxt = OTH.filter(function (id) { return RS[id].std > RS[S].std * 1.2; }).map(function (id) { return LAB[id] + "은 약 " + num(RS[id].std / RS[S].std, 1) + "배"; }).join(", ");
     var rows = [
-      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 그래프는 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 은퇴 시점에 따라 결과가 흩어진 정도로, 작을수록 '언제 은퇴하든 비슷한 결과'입니다." },
+      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 상자 그림은 15년 뒤 남은 돈이 시작 자산의 몇 %인지를 전략별로 보여 줍니다. 상자는 은퇴 시점 202개 결과의 가운데 절반이고, 상자가 짧을수록 '언제 은퇴하든 비슷한 결과'입니다. 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 결과가 흩어진 정도를 하나의 숫자로 요약한 값입니다." },
       { label: "해석", items: [
         "가장 나쁜 때 은퇴한 결과: " + [S].concat(OTH).map(function (id) { return LAB[id] + " " + num(RS[id].worst, 0) + "% (" + RS[id].worst_month + ")"; }).join(" · "),
         "은퇴 시점에 따른 흔들림: 63nt1e " + std1(S) + " — " + listCmp(OTH, std1) + (ratioTxt ? ". 63nt1e와 비교하면 " + ratioTxt + " 흔들립니다." : ""),
@@ -803,7 +890,7 @@
   }
   function readSection3() {
     var br = COV.bench_retire, allv = COV.retire.all, top = Math.max(br["60/40"], br.stock100, br.cash100);
-    setText("c3", "은퇴 시점의 생활비 중 " + pct(COV.retire.bucket, 0) + "는 인컴 버킷(배당성장·중기채·리츠)의 배당·이자가, 다른 자산의 이자·배당까지 합치면 " + pct(allv, 0) + "가 배당·이자로 채워집니다.");
+    setText("c3", "은퇴 시점의 생활비 중 " + pct(allv, 0) + "가 보유 자산 전체의 이자·배당으로 채워집니다(인컴 버킷 3개 자산만으로는 " + pct(COV.retire.bucket, 0) + ").");
     setRead("r3", [
       { label: "의미", text: "인컴 커버리지는 '1년 동안 받는 배당·이자 ÷ 1년 생활비(인출액)'입니다. 100%면 자산을 팔지 않고 배당·이자만으로 생활할 수 있다는 뜻입니다. 인컴 버킷은 배당성장·중기채·리츠가 낸 몫만, 전체는 주식지수·장기채·금·현금 등 다른 자산의 이자·배당까지 합친 값입니다." },
       { label: "해석", items: [
@@ -910,7 +997,7 @@
   $("aExK").textContent = krw(D.kpi.retire_balance_krw);
   $("limFallback").textContent = "인출 때 현금과 시세차익 자산이 바닥나면 마지막 수단으로 인컴 자산까지 팔도록 구현했습니다. 몬테카를로 경로 " + num(M.mc_fallback_paths) + "개(" + pct(M.mc_fallback_paths / M.mc_paths, 1) + ")에서 이 경우가 있었습니다.";
   $("rlA").textContent = num(D.rolling.start_a, 1); $("rlFrom").textContent = D.rolling.months[0]; $("rlTo").textContent = D.rolling.months[D.rolling.months.length - 1]; $("rlN").textContent = D.rolling.n_starts;
-  $("hideStock").addEventListener("change", renderBacktest);
+  renderToggles("tgBt", false); renderToggles("tgDd", true); syncToggles();
   $("hideStockR").addEventListener("change", renderRolling);
   buildSlider();
   renderAll();
