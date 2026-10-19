@@ -147,6 +147,55 @@
   ul.lim { color: var(--ink2); font-size: 13px; padding-left: 18px; }
   ul.lim li { margin: 3px 0; }
   .src { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+  /* ===== 개편(2차): 질문 → 결론 → 그래프 → 의미·해석·대가 ===== */
+  :root { --s-bucket: #b98b73; --ok: #1f7a4d; --warn: #9a5b00; }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --s-bucket: #d9a688; --ok: #5cc98f; --warn: #e0a64a; } }
+  :root[data-theme="dark"] { --s-bucket: #d9a688; --ok: #5cc98f; --warn: #e0a64a; }
+  h2 { display: flex; align-items: baseline; gap: 10px; margin: 44px 0 6px; font-size: 19px; line-height: 1.4; }
+  h2 .num { flex: none; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: var(--brand); color: var(--surface); font-size: 14px; font-weight: 650; }
+  h2.mini { margin: 0 0 6px; font-size: 15px; display: block; }
+  .primer { background: var(--surface); border: 1px solid var(--ring); border-left: 4px solid var(--glide); border-radius: 12px; padding: 14px 18px; margin: 10px 0 18px; }
+  .primer dl { margin: 0; }
+  .primer dt { font-weight: 650; font-size: 14px; margin-top: 8px; color: var(--ink); }
+  .primer dd { margin: 2px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .primer dd strong { color: var(--ink); }
+  .concl { font-size: 17px; font-weight: 650; color: var(--brand); margin: 2px 0 12px; line-height: 1.5; }
+  .read { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 6px 16px 10px; margin: 0 0 8px; }
+  .read .r { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 14px; line-height: 1.6; }
+  .read .r:last-child { border-bottom: 0; }
+  .read .r > b { font-size: 12px; font-weight: 650; text-align: center; border-radius: 999px; padding: 1px 0; height: 22px; line-height: 20px; border: 1px solid var(--glide); color: var(--glide); }
+  .read .r.cost > b { border-color: var(--warn); color: var(--warn); }
+  .read .r.good > b { border-color: var(--ok); color: var(--ok); }
+  .read ul { margin: 0; padding-left: 18px; }
+  .read li { margin: 2px 0; }
+  .read .nums { color: var(--ink2); font-size: 13px; }
+  @media (max-width: 600px) { .read .r { grid-template-columns: minmax(0, 1fr); gap: 4px; } .read .r > b { width: 74px; } }
+
+  /* 한눈에 보기 */
+  .hero2 { background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; padding: 18px 18px 14px; margin: 0 0 8px; }
+  .hero2 h2 { margin: 0 0 4px; font-size: 21px; display: block; }
+  .hero2 .lead2 { margin: 0 0 14px; color: var(--ink2); font-size: 14px; }
+  .hero2 .grp { font-size: 12.5px; font-weight: 650; color: var(--ink2); margin: 12px 0 6px; letter-spacing: .02em; }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .tiles, .tiles.two { grid-template-columns: minmax(0, 1fr); } }
+  .st { border: 1px solid var(--ring); border-radius: 10px; padding: 11px 13px; background: var(--page); min-width: 0; }
+  .st .lab { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .st .big { font-size: 28px; font-weight: 700; line-height: 1.25; margin: 2px 0; color: var(--brand); letter-spacing: -.01em; }
+  .st.cost .big { color: var(--ink); }
+  .st .cmp2 { font-size: 12.5px; color: var(--ink2); }
+  .st .mean { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* 인출기 위쪽 숫자 */
+  .kpis4 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; margin: 0 0 12px; }
+  @media (max-width: 720px) { .kpis4 { grid-template-columns: minmax(0, 1fr); } }
+  .kpis4 > * { min-width: 0; }
+  .ctl { margin: 6px 0 12px; }
+  .card { margin-bottom: 14px; }
+  .src a, header .sub a { color: var(--glide); }
+
 </style>
 </head>
 <body>
@@ -154,58 +203,33 @@
   <header>
     <img src="../assets/63nt1e_logo.svg" alt="63nt1e">
     <div>
-      <h1>6·3·1 Gentle Glide 대시보드</h1>
-      <p class="sub">30세 6:3:1에서 90세 3:6:1까지, 그 이후에도 같은 속도(매년 0.5%p)로 계속 움직이는 생애주기 자산배분 · 1995년 30세 시작, 2026년 61세 은퇴 시나리오</p>
-      <p class="sub">데이터 기준 <span id="hdrEnd"></span> · 자세한 설명은 <a href="../README.md">README</a></p>
+      <h1>63nt1e 대시보드</h1>
+      <p class="sub">30세에 시작해 61세에 은퇴하고 100세까지 인출하는 생애주기 자산배분 전략의 검증 결과 · 데이터 기준 <span id="hdrEnd"></span> · <a href="../README.md">README</a></p>
     </div>
   </header>
 
-  <!-- 용어 설명: 화면에서 가장 먼저 보이게 -->
-  <div class="aNote">
-    <strong>먼저, "A"가 뭔가요?</strong>
-    A는 <strong>A값</strong>, 국민연금 전체 가입자의 평균소득월액(2026년 <span id="aWon"></span>원)입니다. 이 화면의 금액은 대부분 "A값의 몇 배"로 표시합니다.
-    예: <strong><span id="aExA"></span>A = A값의 <span id="aExN"></span>배 ≈ <span id="aExK"></span></strong>. 납입은 매월 A값의 1/3, 인출은 매월 A값의 2/3입니다.
-    A값은 해마다 오르므로, 시기가 다른 금액도 "평균 근로자 소득 대비 얼마인지"로 같은 잣대에서 비교할 수 있습니다.
-  </div>
+  <section class="primer" aria-label="읽기 전에">
+    <h2 class="mini">읽기 전에: 세 가지만 알면 됩니다</h2>
+    <dl>
+      <dt>A는 무엇인가요?</dt>
+      <dd><strong>A값</strong>은 국민연금 전체 가입자의 평균소득월액입니다(2026년 <span id="aWon"></span>원). 이 화면의 금액은 대부분 "A값의 몇 배"로 적습니다. 예: <strong><span id="aExA"></span>A = A값의 <span id="aExN"></span>배 ≈ <span id="aExK"></span></strong>. 납입은 매월 A값의 1/3, 인출은 매월 A값의 2/3이고, A값은 해마다 오르므로 시기가 다른 돈도 "평균 근로자 소득 대비 얼마인지"로 같이 비교할 수 있습니다.</dd>
+      <dt>무엇과 비교하나요?</dt>
+      <dd>모두 같은 시드·납입·인출을 적용했습니다. <strong>60/40</strong>은 주식 60%(VFINX, 미국 S&amp;P 500 인덱스펀드)와 중기 국채 40%(VFITX, 2007-02부터 IEI)를 매월 비율로 되돌린 것, <strong>주식 100%</strong>는 VFINX만 보유, <strong>현금 100%</strong>는 미국 3개월 국채 금리(원리금보장형 대용)입니다. <strong>TDF</strong>는 Target Date Fund(타깃데이트펀드), 은퇴 예정 연도에 맞춰 주식 비중을 알아서 줄여 주는 펀드로, Fidelity Freedom 2020(FFFDX, 1996-11~2003-10)에 이어 Vanguard Target Retirement 2025(VTTVX, 2003-11~)를 이어 붙였고 1995-01~1996-10은 60/40으로 채웠습니다.</dd>
+      <dt>인출기 숫자는 어떻게 만들었나요?</dt>
+      <dd><strong>몬테카를로</strong>는 과거(1995~2026) 월별 수익률을 12개월 덩어리로 섞어 <strong>10,000번의 가상 은퇴</strong>를 만들어 보는 시뮬레이션입니다. "몇 %의 경우에 돈이 바닥났나"를 세는 데 씁니다.</dd>
+    </dl>
+  </section>
 
-  <div class="aNote bNote">
-    <strong>비교 대상은 무엇인가요?</strong> 모두 같은 시드·같은 납입·같은 인출을 적용했습니다.
-    <strong>60/40</strong> = 주식 60%(VFINX, 미국 S&amp;P 500 인덱스펀드) + 중기 국채 40%(VFITX, 2007-02부터 IEI. 63nt1e의 중기채와 같은 자산)를 매월 비율로 되돌림.
-    <strong>주식 100%</strong> = VFINX만 보유.
-    <strong>현금 100%</strong> = 미국 3개월 국채 금리(원리금보장형 대용).
-    <strong>TDF</strong> = Target Date Fund(타깃데이트펀드), 은퇴 예정 연도에 맞춰 주식 비중을 알아서 줄여 주는 펀드입니다.
-    Fidelity Freedom 2020(FFFDX, 1996-11~2003-10)에 이어 Vanguard Target Retirement 2025(VTTVX, 2003-11~)를 이어 붙였고,
-    1995-01~1996-10은 60/40으로 채웠습니다. 은퇴 연도 2026에 가장 가까운 빈티지이며, 초기에 쓴 2020 빈티지는 상대적으로 보수적입니다.
-  </div>
+  <section id="hero" aria-label="한눈에 보기"></section>
 
-  <!-- 필터 줄 -->
-  <div class="controls">
-    <div class="ctl">
-      <div class="ctl-top">
-        <label for="life">기대수명 (몇 세까지 살면 돈이 남아 있을까?)</label>
-        <span><output id="lifeOut">90세</output>
-          <span class="quick"><button type="button" id="qM">남성 평균</button><button type="button" id="qF">여성 평균</button></span>
-        </span>
-      </div>
-      <div class="sl" id="sl">
-        <input id="life" type="range" min="80" max="100" step="1" value="90" aria-describedby="lifeHelp">
-      </div>
-      <p id="lifeHelp" class="src" style="margin:0 0 6px">표시선: 남성 86.3세 · 여성 90.7세 (보험개발원 제10회 경험생명표, 2024). 인출액과 시드는 고정입니다.</p>
-    </div>
-  </div>
-
-  <!-- 핵심 숫자 -->
-  <div class="kpis" id="kpis"></div>
-  <p class="src" id="aFoot"></p>
-
-  <h2>적립기: 1995-01 ~ 2025-12 (30~60세)</h2>
-  <p class="lead">실제 시장 데이터로 재현한 31년. 매월 그해 A값의 1/3을 납입했고, 모든 비교 대상에 같은 시드·같은 납입을 적용했습니다.</p>
+  <!-- 1. 적립기 -->
+  <h2><span class="num">1</span>가입 기간(30~60세): 계좌는 얼마나 흔들렸나</h2>
+  <p class="concl" id="c1"></p>
 
   <div class="card">
     <h3>적립금 추이</h3>
-    <p class="what"><b>보는 법</b>30~60세 동안 매달 같은 돈을 넣었을 때 계좌가 얼마나 불어났는지를, 63nt1e와 다른 선택지(60/40, 주식 100%, 현금 100%, TDF)로 나란히 비교합니다. 선이 위에 있을수록 돈이 더 많이 쌓인 것입니다.</p>
-    <p class="cap">고정 환율 기준 억 원. 2026-01부터는 인출이 시작되어 곡선이 꺾입니다(데이터 끝 <span id="dataEnd"></span>).</p>
-    <div class="opts"><label><input type="checkbox" id="hideStock"> 주식 100% 숨기기 (63nt1e와 60/40 비교를 크게 보기)</label></div>
+    <p class="cap">1995~2025년 매달 같은 돈을 넣었을 때 계좌에 쌓인 금액(고정 환율 기준 억 원)입니다. 2026-01부터는 인출이 시작되어 곡선이 꺾입니다(데이터 끝 <span id="dataEnd"></span>).</p>
+    <div class="opts"><label><input type="checkbox" id="hideStock"> 주식 100% 숨기기 (63nt1e와 60/40을 더 크게 보기)</label></div>
     <div class="legend" id="lgBt"></div>
     <div class="chart" id="chBt"></div>
     <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbBt"></div></details>
@@ -213,97 +237,98 @@
 
   <div class="grid2">
     <div class="card">
-      <h3>지표 비교</h3>
-      <p class="what"><b>보는 법</b>같은 31년의 성적표입니다. 수익률은 높을수록, 변동성(수익률이 출렁이는 정도)과 최대낙폭(고점에서 가장 크게 떨어진 폭)은 작을수록 좋습니다. 회복 기간은 그 낙폭을 되찾는 데 걸린 시간, 수익 ÷ 변동성과 샤프 비율은 "위험 한 단위당 얼마를 벌었나"입니다.</p>
-      <p class="cap">1995-01 ~ 2025-12, 시간가중수익률 기준</p>
-      <div class="tbl-wrap" id="tbMetrics"></div>
-      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
-    </div>
-    <div class="card">
       <h3>고점 대비 하락률</h3>
-      <p class="what"><b>보는 법</b>계좌가 그때까지의 최고점에서 얼마나 내려와 있었는지 보여줍니다. 선이 깊이 내려갈수록 힘든 시기이고, 큰 골짜기는 닷컴 버블 붕괴, 2008년 금융위기, 2020년 코로나, 2022년 금리 급등기에 해당합니다.</p>
-      <p class="cap">낮을수록 깊은 하락입니다.</p>
+      <p class="cap">그때까지의 최고점에서 얼마나 내려와 있었는지입니다. 선이 깊이 내려갈수록 힘든 시기입니다.</p>
       <div class="legend" id="lgDd"></div>
       <div class="chart" id="chDd"></div>
       <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbDd"></div></details>
     </div>
+    <div class="card">
+      <h3>31년 성적표</h3>
+      <p class="cap">1995-01 ~ 2025-12, 시간가중수익률 기준. 위쪽 세 줄이 안정성, 아래쪽 두 줄이 수익입니다.</p>
+      <div class="tbl-wrap" id="tbMetrics"></div>
+      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    </div>
   </div>
+  <div class="read" id="r1"></div>
 
+  <!-- 2. 롤링 -->
+  <h2><span class="num">2</span>은퇴 시점이 나빴다면: 은퇴한 해에 따라 결과는 얼마나 달라지나</h2>
+  <p class="concl" id="c2"></p>
   <div class="card">
-    <h3>은퇴 시점별 15년 뒤 잔액 비율 (롤링 분석)</h3>
-    <p class="what"><b>보는 법</b>매월 은퇴했다고 가정하고, 같은 시작 자산(<span id="rlA"></span>A)에서 15년 동안 매달 같은 생활비를 뽑았을 때 15년 뒤 계좌에 남은 돈이 시작 자산의 몇 %인지 보여줍니다. 가로축이 은퇴 시점입니다. 얇은 선(100%) 위면 15년 동안 쓰고도 시작 자산 이상이 남은 것입니다.</p>
-    <p class="cap">인출액은 월 A값의 2/3로 시작해 매년 4.32%씩 늘고, 63nt1e는 61세 비중으로 시작해 기존 규칙을 그대로 씁니다(수익 재투자, 명목 기준). 은퇴 시점은 <span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 <span id="rlN"></span>개월입니다(15년을 채울 수 있는 마지막 시작 월까지).</p>
-    <div class="opts"><label><input type="checkbox" id="hideStockR"> 주식 100% 숨기기 (63nt1e와 60/40 비교를 크게 보기)</label></div>
+    <h3>은퇴 시점별 15년 뒤 잔액 비율</h3>
+    <p class="cap">가로축은 은퇴(인출 시작) 시점, 세로축은 15년 뒤 계좌에 남은 돈이 시작 자산(<span id="rlA"></span>A)의 몇 %인지입니다. 얇은 선(100%) 위면 15년 동안 쓰고도 시작 자산 이상이 남은 것입니다. 은퇴 시점은 <span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 <span id="rlN"></span>개월입니다.</p>
+    <div class="opts"><label><input type="checkbox" id="hideStockR"> 주식 100% 숨기기 (63nt1e와 60/40을 더 크게 보기)</label></div>
     <div class="legend" id="lgRl"></div>
     <div class="chart" id="chRl"></div>
     <div class="tbl-wrap" id="tbRl"></div>
     <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
-    <p class="src">인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, 이 시작 월들은 서로 독립된 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.</p>
-    <h3 style="margin-top:14px;font-size:14px">은퇴 시점에 따라 얼마나 흔들리나</h3>
-    <p class="what"><b>보는 법</b>시작 월마다 달라지는 15년 뒤 잔액 비율이 평균에서 얼마나 흩어져 있는지입니다. 표준편차(%p)와 변동폭(최선−최악)이 작을수록, 변동계수(표준편차÷평균)가 작을수록 은퇴 시점의 운에 덜 좌우됩니다.</p>
-    <div class="tbl-wrap" id="tbRlVar"></div>
-    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
-    <details><summary>표로 보기 (연 1회, 매년 1월 시작)</summary><div class="scroll" id="tbRl2"></div></details>
+    <details><summary>표로 보기 (매년 1월 은퇴)</summary><div class="scroll" id="tbRl2"></div></details>
   </div>
+  <div class="read" id="r2"></div>
 
+  <!-- 3. 인컴 -->
+  <h2><span class="num">3</span>은퇴 후 생활비: 배당·이자가 얼마나 채워 주나</h2>
+  <p class="concl" id="c3"></p>
+  <div class="card">
+    <h3>인컴 커버리지: 생활비 중 배당·이자가 채우는 비율</h3>
+    <p class="cap">몬테카를로 경로의 중앙값입니다(해당 나이까지 바닥나지 않은 경로만 셉니다). 100%를 넘으면 배당·이자만으로 생활비가 해결됩니다. 그래프는 200%까지만 보이고 그 위는 잘립니다.</p>
+    <div class="legend" id="lgCov"></div>
+    <div class="chart" id="chCov"></div>
+    <div class="tbl-wrap" id="tbCovNow"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCov"></div></details>
+  </div>
+  <div class="read" id="r3"></div>
+
+  <!-- 4. 인출기 -->
+  <h2><span class="num">4</span>오래 살면 돈이 남을까: 기대수명을 골라 보세요</h2>
+  <div class="ctl" id="ctlBox">
+    <div class="ctl-top">
+      <label for="life">기대수명 (몇 세까지 살면 돈이 남아 있을까?)</label>
+      <span><output id="lifeOut">90세</output>
+        <span class="quick"><button type="button" id="qM">남성 평균</button><button type="button" id="qF">여성 평균</button></span>
+      </span>
+    </div>
+    <div class="sl" id="sl">
+      <input id="life" type="range" min="80" max="100" step="1" value="90" aria-describedby="lifeHelp">
+    </div>
+    <p id="lifeHelp" class="src" style="margin:0 0 6px">표시선: 남성 86.3세 · 여성 90.7세 (보험개발원 제10회 경험생명표, 2024). 인출액과 시드는 고정입니다.</p>
+  </div>
+  <p class="concl" id="c4"></p>
+  <div class="kpis4" id="kpis4"></div>
+  <div class="card">
+    <h3>나이별 누적 고갈 확률</h3>
+    <p class="cap">61세부터 해당 나이까지 한 번이라도 생활비를 못 낸 가상 은퇴의 비율입니다. 세로선이 선택한 기대수명입니다. 현금 100%는 일찍 바닥나서 그래프에서 뺐습니다(아래 표에는 있음).</p>
+    <div class="legend" id="lgDep"></div>
+    <div class="chart" id="chDep"></div>
+    <div class="tbl-wrap" id="tbCompare"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbDep"></div></details>
+  </div>
+  <div class="read" id="r4"></div>
+
+  <!-- 5. 자산 배분 -->
+  <h2><span class="num">5</span>이 안정성은 어디서 나오나: 나이에 따라 줄어드는 위험</h2>
+  <p class="concl" id="c5"></p>
   <div class="card">
     <h3>나이별 자산 비중 (글라이드패스)</h3>
-    <p class="what"><b>보는 법</b>나이에 따라 자산을 몇 %씩 들고 있어야 하는지(목표 비중)를 보여줍니다. 나이가 들수록 아래쪽 주식형이 줄고 위쪽 채권이 늘어, 계좌가 점점 안전한 쪽으로 옮겨 갑니다.</p>
-    <p class="cap">아래에서 위로: 자본이득(갈색 계열: 주식지수·장기채·금), 인컴(파란 계열: 배당성장·중기채·리츠), 현금(맨 위 회색). 각 계열 안에서 아래부터 6·3·1 순서입니다. 90세에 3:6:1에 도달한 뒤에도 같은 속도로 100세까지 계속 이동합니다(100세 위험자산 31.5%). 세로선은 은퇴(61세)와 선택한 기대수명입니다.</p>
+    <p class="cap">아래에서 위로: 자본이득(갈색 계열: 주식지수·장기채·금), 인컴(파란 계열: 배당성장·중기채·리츠), 현금(맨 위 회색). 각 계열 안에서 아래부터 6·3·1 순서입니다. 세로선은 은퇴(61세)와 선택한 기대수명입니다.</p>
     <div class="legend" id="lgW"></div>
     <div class="chart" id="chW"></div>
     <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbW"></div></details>
   </div>
-
-  <h2>인출기: 2026-10 ~ 100세 (몬테카를로)</h2>
-  <p class="lead">2026-09 말 잔고에서 시작해 매월 그해 A값의 2/3을 인출합니다. 과거 월별 수익률을 12개월 덩어리로 다시 뽑은 10,000개의 경로가 근거입니다.</p>
-
-  <div class="grid2">
-    <div class="card">
-      <h3>자산이 바닥나는 나이</h3>
-      <p class="what"><b>보는 법</b>10,000번의 가상 은퇴 중 몇 번이 몇 세에 자산이 바닥났는지 세어 보여줍니다. 막대가 작고 오른쪽(높은 나이)에 치우쳐 있을수록 오래 버틴다는 뜻입니다.</p>
-      <p class="cap">진한 막대는 선택한 나이까지, 연한 막대는 그 이후입니다. 이 분포를 슬라이더가 읽어서 고갈 확률을 계산합니다.</p>
-      <div class="chart" id="chHist"></div>
-      <p class="src" id="histNote"></p>
-      <details><summary>표로 보기</summary><div class="scroll" id="tbHist"></div></details>
-    </div>
-    <div class="card">
-      <h3 id="residTitle">선택한 나이의 남은 자산</h3>
-      <p class="what"><b>보는 법</b>선택한 나이에 계좌에 남아 있을 돈의 범위입니다. 굵은 눈금이 중앙값(절반은 이보다 많고 절반은 적음), 넓은 띠가 가운데 절반, 가는 선이 하위 10%~상위 10%입니다. 아래 표에서는 같은 나이의 다른 선택지와 비교합니다.</p>
-      <p class="cap">바닥난 경로는 0으로 포함했습니다. 값은 그 시점 A값의 배수입니다.</p>
-      <div class="chart" id="chResid"></div>
-      <div class="tbl-wrap" id="tbCompare"></div>
-      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>인컴 커버리지: 인출액 중 배당·이자가 채우는 비율</h3>
-    <p class="what"><b>보는 법</b>은퇴 후 매달 필요한 생활비 중 배당·이자가 몇 %를 채워 주는지 보여줍니다. 100%이면 자산을 팔지 않고 배당·이자만으로 생활비를 낼 수 있다는 뜻입니다.</p>
-    <p class="cap">선은 중앙값, 옅은 면은 하위 10%~중앙값입니다. 점은 2026-01~09 실제 값입니다. 인컴 버킷은 배당성장·중기채·리츠가 낸 이자·배당만, 전체는 주식·장기채·금·현금 등 다른 자산의 이자·배당까지 합친 값입니다.</p>
-    <p class="cap">읽을 때 주의: ① 61세는 실제 값 하나라 불확실성이 없어서, 62세부터 하위 10% 띠가 갑자기 넓어집니다. ② 해당 나이까지 바닥난 경로는 빼고 세므로, 나이가 들수록 하위 10%는 실제 위험보다 좋게 보입니다(살아남은 경로만 남기 때문입니다).</p>
-    <div class="legend" id="lgCov"></div>
-    <div class="chart" id="chCov"></div>
-    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCov"></div></details>
-  </div>
-
-  <div class="card">
-    <h3>벤치마크와 인컴 커버리지 비교</h3>
-    <p class="what"><b>보는 법</b>같은 질문(배당·이자가 생활비의 몇 %를 채우나?)을 다른 선택지와 비교합니다. 63nt1e가 다른 선택지보다 얼마나 "현금흐름" 쪽에 가까운지 볼 수 있습니다.</p>
-    <p class="cap">보유 자산 전체의 이자·배당 ÷ 인출액, 중앙값. 해당 나이까지 바닥나지 않은 경로만 셉니다. TDF는 분배금에 자본이득이 섞여 있어 계산하지 않았습니다. 그래프는 200%까지만 보이며, 그 위로 올라간 값은 잘려 보입니다(주식 100%는 자산이 크게 불어 늦은 나이에 인컴이 인출액의 수 배가 됩니다). 실제 값은 마우스를 올리거나 탭하면, 또는 표에서 볼 수 있습니다.</p>
-    <div class="legend" id="lgCmp"></div>
-    <div class="chart" id="chCmp"></div>
-    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCmp"></div></details>
-  </div>
+  <div class="read" id="r5"></div>
 
   <h2>가정과 한계</h2>
   <ul class="lim">
-    <li>A값은 국민연금 전체 가입자 평균소득월액이며, 현재는 3년 평균인 적용 A값을 씁니다(2026년 3,193,511원). 잔여자산의 원화 환산은 이 값을 곱한 2026년 가치입니다.</li>
+    <li>A값은 3년 평균인 적용 A값입니다(2026년 3,193,511원). 잔여자산의 원화 환산은 이 값을 곱한 2026년 가치입니다.</li>
     <li>미국 자산 데이터를 고정 환율로 환산했고, 세금·매매 비용·국민연금은 반영하지 않았습니다.</li>
-    <li>1995~2011년 일부 구간은 대리 자산(뮤추얼펀드·금 현물)입니다. 주식 100%의 고갈 확률이 가장 낮은 것은 1995~2026년이 미국 주식에 유리한 구간이기 때문입니다.</li>
+    <li>1995~2011년 일부 구간은 대리 자산(뮤추얼펀드·금 현물)입니다. 데이터가 31년뿐이라 1995~2026년이 미국 주식에 유리한 구간이었다는 영향이 몬테카를로 결과(특히 주식 100%)에 들어 있습니다.</li>
     <li>벤치마크는 배당 재투자 방식이며, TDF는 과거 수익률을 그대로 재사용하므로 은퇴 후 비중 변화가 반영되지 않습니다.</li>
     <li>몬테카를로 결과는 블록 길이(12개월)에 민감합니다. 자세한 내용은 README를 보세요.</li>
     <li id="limFallback"></li>
+    <li>은퇴 시점별 롤링 분석은 인접한 시작 월이 거의 같은 구간을 겹쳐 쓰므로, 시작 월 202개는 서로 독립된 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.</li>
   </ul>
   <p class="src">과거 데이터 기반 시뮬레이션은 미래 성과를 보장하지 않습니다.</p>
 </div>
@@ -583,12 +608,212 @@
     });
   }
 
-  /* ---------- 데이터 준비 ---------- */
+  /* ===================== 개편(2차) 화면 로직 ===================== */
   var bt = D.backtest, xsBt = bt.dates.map(dateX);
   var ageIdx = {}; D.mc.ages.forEach(function (a, i) { ageIdx[a] = i; });
-  var A = M.a2026;
+  var S = "strategy", OTH = ["60/40", "tdf", "stock100"];       // 비교 대상 (현금 100%는 위험 비교에서 제외)
+  var MM = D.metrics, RS = D.rolling.stats, COV = D.coverage;
 
-  /* ---------- 슬라이더 ---------- */
+  /* ---------- 문장 만들기 도구 (모든 해석 문장은 데이터에서 계산한다) ---------- */
+  function names(ids) { return ids.map(function (id) { return LAB[id]; }).join(", "); }
+  function listCmp(ids, f) { return ids.map(function (id) { return LAB[id] + " " + f(id); }).join(" · "); }
+  function better(ids, f, higher) {          // 전략보다 더 나은 값을 가진 비교 대상
+    var s = f(S);
+    return ids.filter(function (id) { var v = f(id); return v != null && (higher ? v > s : v < s); });
+  }
+  function mdd(id) { return MM[id].mdd; }
+  function vol(id) { return MM[id].vol; }
+  function rec(id) { var x = MM[id].recovery_months; return x == null ? Infinity : x; }
+  function cagr(id) { return MM[id].cagr; }
+  function bal(id) { return MM[id].balance_a_multiple; }
+  function dep(id, age) { return D.mc.series[id].dep_cum[ageIdx[age]]; }
+  function resid(id, age) { return D.mc.series[id].resid[String(age)]; }
+  function riskShare(age) {
+    var W = D.weights, i = W.ages.indexOf(age), row = W.values[i];
+    return ["equity", "gold", "dividend", "reit"].reduce(function (s, k) { return s + row[W.assets.indexOf(k)]; }, 0);
+  }
+  function recTxt(id) { var r = rec(id); return r === Infinity ? "미회복" : r + "개월"; }
+
+  function setText(id, text) { $(id).textContent = text; }
+  function setRead(id, rows) {
+    var host = $(id); host.textContent = "";
+    rows.forEach(function (r) {
+      var d = html("div", "r " + (r.cls || ""), null, host);
+      html("b", null, r.label, d);
+      var body = html("div", null, null, d);
+      if (r.text) html("div", null, r.text, body);
+      if (r.items) { var ul = html("ul", null, null, body); r.items.forEach(function (t) { html("li", null, t, ul); }); }
+    });
+  }
+
+  /* ---------- 한눈에 보기 ---------- */
+  function renderHero() {
+    var host = $("hero"); host.textContent = "";
+    var box = html("div", "hero2", null, host);
+    html("h2", null, "63nt1e의 핵심은 안정성입니다", box);
+    html("p", "lead2", "수익을 최대로 키우는 전략이 아니라, 나쁜 시기에도 덜 무너지고 은퇴하는 해의 운에 덜 좌우되도록 만든 전략입니다. 아래가 그 근거이고, 그 대가도 함께 적었습니다. (비교 대상: 60/40 · TDF · 주식 100%)", box);
+    function tile(parent, cls, lab, big, cmp, mean) {
+      var t = html("div", "st " + cls, null, parent);
+      html("div", "lab", lab, t); html("div", "big", big, t); html("div", "cmp2", cmp, t); html("div", "mean", mean, t);
+    }
+    html("div", "grp", "안정성의 근거 4가지", box);
+    var g1 = html("div", "tiles", null, box);
+    tile(g1, "", "가입 31년 중 최대낙폭", pct(mdd(S), 1), listCmp(OTH, function (id) { return pct(mdd(id), 1); }), "계좌가 고점에서 가장 크게 떨어진 폭. 작을수록 안정적입니다.");
+    tile(g1, "", "가장 나쁜 때 은퇴해도 (15년 뒤)", num(RS[S].worst, 0) + "%", listCmp(OTH, function (id) { return num(RS[id].worst, 0) + "%"; }), "시작 자산 대비 남은 돈. 100%면 시작 자산이 유지된 것입니다.");
+    tile(g1, "", "은퇴 시점에 따른 흔들림", num(RS[S].std, 1) + "%p", listCmp(OTH, function (id) { return num(RS[id].std, 1) + "%p"; }), "언제 은퇴하느냐에 따라 결과가 달라지는 정도. 작을수록 안정적입니다.");
+    tile(g1, "", "생활비를 채우는 배당·이자", pct(COV.retire.bucket, 0), "다른 자산의 이자·배당까지 합치면 " + pct(COV.retire.all, 0) + " · 60/40 " + pct(COV.bench_retire["60/40"], 0),
+         "은퇴 시점 인출액 중 배당·이자로 충당되는 비율(큰 숫자는 인컴 버킷만).");
+    html("div", "grp", "대가: 안정성을 위해 내준 것", box);
+    var g2 = html("div", "tiles two", null, box);
+    tile(g2, "cost", "연평균 수익률 (적립기)", pct(cagr(S), 2), listCmp(OTH, function (id) { return pct(cagr(id), 2); }), "수익이 비교 대상보다 낮으면 61세 적립금도 적어집니다(" + num(bal(S), 1) + "A).");
+    var a = 90;
+    tile(g2, "cost", a + "세까지 자산이 바닥날 확률", pct(dep(S, a), 2), listCmp(OTH, function (id) { return pct(dep(id, a), 2); }) + " · 100세까지는 " + pct(dep(S, 100), 2) + " vs 60/40 " + pct(dep("60/40", 100), 2),
+         "아주 오래 살수록 위험자산을 줄인 영향이 드러납니다(4절).");
+  }
+
+  /* ---------- 1. 적립기 ---------- */
+  function renderBacktest() {
+    var vl = [{ x: dateX("2026-01"), label: "은퇴·인출 시작", anchor: "end", dx: -6 }];
+    var hide = $("hideStock").checked;
+    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
+    var series = ids.map(function (id) {
+      return { id: id, name: LAB[id], color: seriesColor(id), y: bt.series[id], w: id === S ? 2.6 : 2,
+               endLabel: id === S || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
+    });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chBt"), { height: 320, padL: 44, padR: 78, x0: 1995, x1: xsBt[xsBt.length - 1], y0: 0, y1: ymax * 1.05, zeroBase: true,
+      xs: xsBt, series: series, vlines: vl, yFmt: function (v) { return num(v); }, xFmt: function (v) { return Math.round(v); },
+      xTicks: [1995, 2000, 2005, 2010, 2015, 2020, 2025], label: "적립금 추이 선 차트",
+      hFmt: function (i) { return bt.dates[i]; }, vFmt: function (v) { return num(v, 1) + "억 원"; } });
+    legend("lgBt", series);
+    var rows = [];
+    bt.dates.forEach(function (d, i) { if (d.slice(5) === "12" || i === bt.dates.length - 1) rows.push({ cells: [d].concat(IDS.map(function (id) { return num(bt.series[id][i], 1); })) }); });
+    put("tbBt", table(["월말"].concat(IDS.map(function (id) { return LAB[id] + " (억 원)"; })), rows));
+  }
+  function renderDrawdown() {
+    var dd = D.drawdown, xs = dd.dates.map(dateX), series = IDS.map(function (id) {
+      return { id: id, name: LAB[id], color: seriesColor(id), y: dd.series[id], w: id === S ? 2.4 : 1.6 };
+    });
+    lineChart($("chDd"), { height: 260, padL: 44, padR: 12, x0: 1995, x1: xs[xs.length - 1], y0: -55, y1: 0, zeroBase: true,
+      xs: xs, series: series, yFmt: function (v) { return v + "%"; }, xFmt: function (v) { return Math.round(v); },
+      xTicks: [1995, 2005, 2015, 2025], label: "고점 대비 하락률 선 차트",
+      hFmt: function (i) { return dd.dates[i]; }, vFmt: function (v) { return v.toFixed(1) + "%"; } });
+    legend("lgDd", series);
+    var rows = [];
+    dd.dates.forEach(function (d, i) { if (d.slice(5) === "12") rows.push({ cells: [d.slice(0, 4)].concat(IDS.map(function (id) { return dd.series[id][i].toFixed(1) + "%"; })) }); });
+    put("tbDd", table(["연말"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+  }
+  function renderMetrics() {
+    var defs = [
+      ["변동성 (연)", function (id) { return pct(vol(id), 1); }],
+      ["최대낙폭", function (id) { return pct(mdd(id), 1); }],
+      ["낙폭 회복 기간", function (id) { return recTxt(id); }],
+      ["연평균 수익률", function (id) { return pct(cagr(id), 2); }],
+      ["61세 적립금", function (id) { return num(bal(id), 1) + "A"; }]];
+    var rows = defs.map(function (d) { return { cells: [d[0]].concat(IDS.map(function (id) { return d[1](id); })) }; });
+    put("tbMetrics", table([""].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+  }
+  function readSection1() {
+    var bv = better(OTH, vol, false), bm = better(OTH, mdd, true), br = better(OTH, rec, false);
+    var stable = [bv, bm, br].filter(function (b) { return b.length === 0; }).length;
+    setText("c1", "가입 31년 동안 63nt1e의 계좌는 고점에서 최대 " + pct(Math.abs(mdd(S)), 1) + " 내려갔고, " +
+      (bm.length === 0 ? "비교 대상(현금 100% 제외) 중 하락 폭이 가장 작았습니다." : names(bm) + "보다는 하락 폭이 컸습니다."));
+    var cb = better(OTH, cagr, true), bb = better(OTH, bal, true), rows = [
+      { label: "의미", text: "변동성은 수익률이 출렁이는 정도, 최대낙폭은 계좌가 직전 최고점에서 가장 크게 떨어진 폭, 낙폭 회복 기간은 그 하락을 만회하는 데 걸린 시간입니다. 셋 다 작을수록 안정적입니다." },
+      { label: "해석", items: [
+        "변동성 " + pct(vol(S), 1) + ": " + (bv.length === 0 ? "비교 대상 중 가장 낮습니다" : names(bv) + "보다 높습니다") + " (" + listCmp(OTH, function (id) { return pct(vol(id), 1); }) + ")",
+        "최대낙폭 " + pct(mdd(S), 1) + ": " + (bm.length === 0 ? "가장 작습니다" : names(bm) + "보다 깊습니다") + " (" + listCmp(OTH, function (id) { return pct(mdd(id), 1); }) + ")",
+        "낙폭 회복 " + recTxt(S) + ": " + (br.length === 0 ? "가장 빨랐습니다" : names(br) + "보다 느렸습니다") + " (" + listCmp(OTH, recTxt) + ")",
+        (stable === 3 ? "세 지표 모두에서 63nt1e가 비교 대상(현금 100% 제외) 중 가장 안정적이었습니다." : stable + "개 지표에서 63nt1e가 가장 안정적이었습니다.")] },
+      { label: "대가", cls: "cost", text: cb.length === 0 ? "연평균 수익률(" + pct(cagr(S), 2) + ")도 비교 대상 중 가장 높았습니다." :
+        "연평균 수익률 " + pct(cagr(S), 2) + "는 " + names(cb) + "보다 낮고(" + listCmp(cb, function (id) { return pct(cagr(id), 2); }) + "), 61세 적립금 " + num(bal(S), 1) + "A도 " +
+        (bb.length ? names(bb) + "보다 적습니다(" + listCmp(bb, function (id) { return num(bal(id), 1) + "A"; }) + ")" : "비교 대상 중 가장 많습니다") + ". 안정성을 얻는 대신 수익 일부를 포기한 구조입니다." }];
+    setRead("r1", rows);
+  }
+
+  /* ---------- 2. 롤링 ---------- */
+  function renderRolling() {
+    var RL = D.rolling, hide = $("hideStockR").checked;
+    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
+    var xs = RL.months.map(dateX);
+    var series = ids.map(function (id) {
+      return { id: id, name: LAB[id], color: seriesColor(id), y: RL.series[id], w: id === S ? 2.6 : 1.8,
+               endLabel: id === S || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
+    });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chRl"), { height: 320, padL: 48, padR: 78, x0: 1995, x1: xs[xs.length - 1], y0: 0, y1: ymax * 1.06, zeroBase: true, xs: xs, series: series,
+      hlines: [{ y: 100, label: "시작 자산 (100%)" }],
+      yFmt: function (v) { return num(v) + "%"; }, xFmt: function (v) { return Math.round(v); }, xTicks: [1995, 2000, 2005, 2010],
+      label: "은퇴 시점별 15년 뒤 잔액 비율 선 차트",
+      hFmt: function (i) { return RL.months[i] + " 은퇴"; }, vFmt: function (v) { return num(v, 1) + "%"; } });
+    legend("lgRl", series);
+    var rows = IDS.map(function (id) {
+      var s = RS[id];
+      return { me: id === S, cells: [LAB[id], num(s.worst, 1) + "%", num(s.median, 1) + "%", num(s.best, 1) + "%", num(s.std, 1) + "%p", s.worst_month] };
+    });
+    put("tbRl", table(["전략", "최악", "중앙값", "최선", "흔들림 (표준편차)", "최악이었던 은퇴 시점"], rows));
+    var yr = [];
+    RL.months.forEach(function (m, i) { if (m.slice(5) === "01") yr.push({ cells: [m.slice(0, 4)].concat(IDS.map(function (id) { return num(RL.series[id][i], 1) + "%"; })) }); });
+    put("tbRl2", table(["은퇴 시점(1월)"].concat(IDS.map(function (id) { return LAB[id]; })), yr));
+  }
+  function readSection2() {
+    var w = function (id) { return RS[id].worst; }, md = function (id) { return RS[id].median; }, bs = function (id) { return RS[id].best; };
+    var bw = better(OTH, w, true), hm = better(OTH, md, true), hb = better(OTH, bs, true);
+    var below = OTH.filter(function (id) { return RS[id].worst < 100; });
+    setText("c2", "가장 나쁜 시기(" + RS[S].worst_month + ")에 은퇴해도 15년 뒤 시작 자산의 " + num(RS[S].worst, 0) + "%가 남았습니다" +
+      (bw.length === 0 ? " — 비교 대상 중 가장 높은 값입니다." : "."));
+    var std1 = function (id) { return num(RS[id].std, 1) + "%p"; };
+    var ratioTxt = OTH.filter(function (id) { return RS[id].std > RS[S].std * 1.2; }).map(function (id) { return LAB[id] + "은 약 " + num(RS[id].std / RS[S].std, 1) + "배"; }).join(", ");
+    var rows = [
+      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 그래프는 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 은퇴 시점에 따라 결과가 흩어진 정도로, 작을수록 '언제 은퇴하든 비슷한 결과'입니다." },
+      { label: "해석", items: [
+        "가장 나쁜 때 은퇴한 결과: " + [S].concat(OTH).map(function (id) { return LAB[id] + " " + num(RS[id].worst, 0) + "% (" + RS[id].worst_month + ")"; }).join(" · "),
+        "은퇴 시점에 따른 흔들림: 63nt1e " + std1(S) + " — " + listCmp(OTH, std1) + (ratioTxt ? ". 63nt1e와 비교하면 " + ratioTxt + " 흔들립니다." : ""),
+        "평균은 " + listCmp([S].concat(OTH), function (id) { return num(RS[id].mean, 0) + "%"; }) + ". " + (RS[S].std < RS["60/40"].std && Math.abs(RS[S].mean - RS["60/40"].mean) / RS["60/40"].mean < 0.1 ? "63nt1e와 60/40은 평균이 비슷한데 결과의 폭은 63nt1e가 훨씬 좁습니다." : ""),
+        below.length ? "시작 자산(100%) 아래로 내려간 비교 대상: " + below.map(function (id) { return LAB[id] + " (" + RS[id].worst_month + " 은퇴, " + num(RS[id].worst, 0) + "%)"; }).join(" · ") : "비교 대상 모두 시작 자산 이상이 남았습니다."] },
+      { label: "대가", cls: "cost", text: (hm.length || hb.length) ?
+        "대표값(중앙값)은 63nt1e " + num(RS[S].median, 0) + "%인데 " + (hm.length ? names(hm) + "는 더 높습니다(" + listCmp(hm, function (id) { return num(RS[id].median, 0) + "%"; }) + ")" : "비교 대상 중 가장 높습니다") +
+        ". 운이 좋은 때 은퇴한 최선 결과는 " + (hb.length ? names(hb) + "가 더 높습니다(" + listCmp(hb, function (id) { return num(RS[id].best, 0) + "%"; }) + ")" : "가장 높습니다") + ". 63nt1e는 나쁜 때를 막는 대신 좋은 때의 이익도 덜 가져갑니다." :
+        "중앙값과 최선 결과도 비교 대상 중 가장 높았습니다." },
+      { label: "주의", text: "인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, " + D.rolling.n_starts + "개 시작 월은 서로 독립된 사례가 아닙니다. 숫자의 정밀한 크기보다 전략 사이의 차이를 보세요. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다." }];
+    setRead("r2", rows);
+  }
+
+  /* ---------- 3. 인컴 ---------- */
+  function renderCoverage() {
+    var ages = COV.ages;
+    var series = [
+      { name: "63nt1e (다른 자산의 이자·배당까지 합친 전체)", color: css("--s-strategy"), y: COV.all_p50, w: 2.6, endLabel: "63nt1e 전체" },
+      { name: "63nt1e (인컴 버킷 3개 자산만)", color: css("--s-bucket"), y: COV.bucket_p50, w: 2, endLabel: "인컴 버킷만" },
+      { name: LAB["60/40"], color: seriesColor("60/40"), y: COV.bench["60/40"].p50, w: 1.8 },
+      { name: LAB.stock100, color: seriesColor("stock100"), y: COV.bench.stock100.p50, w: 1.8 },
+      { name: LAB.cash100, color: seriesColor("cash100"), y: COV.bench.cash100.p50, w: 1.8 }];
+    lineChart($("chCov"), { height: 300, padL: 44, padR: 92, x0: 62, x1: 100, y0: 0, y1: 2, zeroBase: true, xs: ages, series: series,
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [65, 70, 80, 90, 100],
+      label: "인컴 커버리지 선 차트", hFmt: function (i) { return ages[i] + "세"; }, vFmt: function (v) { return pct(v, 1); } });
+    legend("lgCov", series);
+    var i90 = ages.indexOf(90);
+    var now = [
+      ["63nt1e (전체)", COV.retire.all, COV.all_p50[i90]], ["63nt1e (인컴 버킷만)", COV.retire.bucket, COV.bucket_p50[i90]],
+      [LAB["60/40"], COV.bench_retire["60/40"], COV.bench["60/40"].p50[i90]], [LAB.stock100, COV.bench_retire.stock100, COV.bench.stock100.p50[i90]],
+      [LAB.cash100, COV.bench_retire.cash100, COV.bench.cash100.p50[i90]]];
+    put("tbCovNow", table(["", "은퇴 시점 (2025년 인컴 ÷ 2026년 인출액)", "90세 (중앙값)"], now.map(function (r, i) { return { me: i < 2, cells: [r[0], pct(r[1], 1), pct(r[2], 1)] }; })));
+    var rows = []; ages.forEach(function (a, i) { if (a % 5 === 0) rows.push({ cells: [a + "세"].concat(series.map(function (s) { return pct(s.y[i], 1); })) }); });
+    put("tbCov", table(["나이", "63nt1e 전체", "63nt1e 인컴 버킷", "60/40", "주식 100%", "현금 100%"], rows));
+  }
+  function readSection3() {
+    var br = COV.bench_retire, allv = COV.retire.all, top = Math.max(br["60/40"], br.stock100, br.cash100);
+    setText("c3", "은퇴 시점의 생활비 중 " + pct(COV.retire.bucket, 0) + "는 인컴 버킷(배당성장·중기채·리츠)의 배당·이자가, 다른 자산의 이자·배당까지 합치면 " + pct(allv, 0) + "가 배당·이자로 채워집니다.");
+    setRead("r3", [
+      { label: "의미", text: "인컴 커버리지는 '1년 동안 받는 배당·이자 ÷ 1년 생활비(인출액)'입니다. 100%면 자산을 팔지 않고 배당·이자만으로 생활할 수 있다는 뜻입니다. 인컴 버킷은 배당성장·중기채·리츠가 낸 몫만, 전체는 주식지수·장기채·금·현금 등 다른 자산의 이자·배당까지 합친 값입니다." },
+      { label: "해석", items: [
+        "은퇴 시점: 63nt1e 전체 " + pct(allv, 0) + " (인컴 버킷만 " + pct(COV.retire.bucket, 0) + ") · 60/40 " + pct(br["60/40"], 0) + " · 주식 100% " + pct(br.stock100, 0) + " · 현금 100% " + pct(br.cash100, 0) + (allv >= top ? ". 63nt1e가 가장 높습니다." : "."),
+        "배당·이자로 채워지는 몫이 클수록 주가가 내려갔을 때 팔아야 하는 자산이 줄어, 하락기에 덜 취약합니다.",
+        "63nt1e의 현금 10%는 인출액 약 " + num(D.kpi.cash_years, 1) + "년치입니다. 하락 직후 몇 년은 주식을 팔지 않고 현금과 배당·이자로 버틸 수 있도록 설계했습니다."] },
+      { label: "주의", text: "그래프의 선은 그 나이까지 바닥나지 않은 경로만의 중앙값이라 나이가 들수록 실제보다 좋게 보일 수 있습니다. 60/40과 주식 100%는 자산이 크게 불어 늦은 나이에 인컴이 인출액의 수 배가 되어 그래프 위로 잘립니다. TDF는 분배금에 자본이득이 섞여 있어 계산하지 않았습니다." }]);
+  }
+
+  /* ---------- 4. 인출기 (슬라이더) ---------- */
   function buildSlider() {
     var sl = $("sl"), thumb = 20, frac = function (v) { return (v - 80) / 20; };
     function pos(v) { return "calc(" + thumb / 2 + "px + (100% - " + thumb + "px) * " + frac(v) + ")"; }
@@ -602,102 +827,48 @@
   }
   function setAge(a) { state.age = a; $("life").value = a; update(); }
 
-  /* ---------- 위쪽 핵심 숫자 ---------- */
-  function renderKpis() {
-    var a = state.age, S = D.mc.series.strategy, i = ageIdx[a];
-    var p = S.dep_cum[i], k = Math.round(p * M.mc_paths), q = S.resid[a];
-    var host = $("kpis"); host.textContent = "";
-    function tile(cls, lab, val, note) {
-      var t = html("div", "tile " + (cls || ""), null, host);
-      html("div", "lab", lab, t); html("div", "val", val, t); html("div", "note", note, t);
-      return t;
-    }
-    var hero = tile("hero", a + "세까지 자산이 바닥날 확률", pct(p, 2),
-         M.mc_paths.toLocaleString("ko-KR") + "개 경로 중 " + k.toLocaleString("ko-KR") + "개. 61세부터 " + a + "세까지 매월 인출액을 계속 낼 수 있는지를 셉니다.");
-    var cmp = ["60/40", "tdf", "stock100"].map(function (id) { return LAB[id] + " " + pct(D.mc.series[id].dep_cum[i], 2); }).join(" · ");
-    html("div", "cmp", "같은 조건의 비교: " + cmp, hero);
-    tile("", "61세 적립금", num(D.kpi.retire_balance_a, 1) + "A", "약 " + krw(D.kpi.retire_balance_krw) + " (고정 환율 " + num(M.fx) + "원/달러)");
-    tile("", a + "세 남은 자산 (중앙값)", num(q[2], 1) + "A", "약 " + krw(aToKrw(q[2])) + " · 하위 10%는 " + num(q[0], 1) + "A (약 " + krw(aToKrw(q[0])) + ")");
-    var cov = tile("", "인컴 커버리지 (은퇴 시점)", "", "");
-    cov.querySelector(".val").remove(); cov.querySelector(".note").remove();
-    var two = html("div", "two", null, cov);
-    [[pct(D.coverage.retire.bucket, 0), "인컴 버킷 3개 자산만 (배당성장·중기채·리츠)"], [pct(D.coverage.retire.all, 0), "다른 자산의 이자·배당까지 합치면"]].forEach(function (c) {
-      var d = html("div", null, null, two); html("div", "val", c[0], d); html("div", "note", c[1], d);
-    });
+  function renderWithdraw() {
+    var a = state.age, i = ageIdx[a], p = dep(S, a), k = Math.round(p * M.mc_paths), q = resid(S, a);
     $("lifeOut").textContent = a + "세";
+    setText("c4", a + "세까지 자산이 바닥날 확률은 " + pct(p, 2) + "입니다(" + num(M.mc_paths) + "번의 가상 은퇴 중 " + num(k) + "번). 같은 조건에서 60/40은 " + pct(dep("60/40", a), 2) + "입니다.");
+    var host = $("kpis4"); host.textContent = "";
+    function tile(lab, big, cmp, mean, cls) {
+      var t = html("div", "st " + (cls || ""), null, host);
+      html("div", "lab", lab, t); html("div", "big", big, t); html("div", "cmp2", cmp, t); html("div", "mean", mean, t);
+    }
+    tile(a + "세까지 바닥날 확률 (63nt1e)", pct(p, 2), listCmp(OTH, function (id) { return pct(dep(id, a), 2); }), "61세부터 " + a + "세까지 매월 생활비를 계속 낼 수 있었는지를 센 비율입니다.");
+    tile(a + "세 남은 자산 (중앙값)", num(q[2], 1) + "A", "약 " + krw(aToKrw(q[2])), "그 나이에 계좌에 남은 돈의 가운데 값입니다(바닥난 경우는 0으로 포함).");
+    tile("운이 나쁜 10%의 경계 (하위 10%)", num(q[0], 1) + "A", "약 " + krw(aToKrw(q[0])), "이보다 적게 남은 경우가 10%라는 뜻입니다.");
+
+    var xs = D.mc.ages, ids = [S].concat(OTH);
+    var series = ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), y: D.mc.series[id].dep_cum, w: id === S ? 2.6 : 1.8, endLabel: id === S ? LAB[id] : null }; });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chDep"), { height: 280, padL: 50, padR: 78, x0: 61, x1: 100, y0: 0, y1: Math.max(ymax * 1.12, 0.02), zeroBase: true, xs: xs, series: series,
+      vlines: [{ x: a, label: "기대수명 " + a + "세", color: css("--ink"), opacity: 0.6, anchor: a > 92 ? "end" : "start", dx: a > 92 ? -4 : 4 }],
+      yFmt: function (v) { return (v * 100).toFixed(v < 0.1 ? 1 : 0) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [61, 70, 80, 90, 100],
+      label: "나이별 누적 고갈 확률 선 차트", hFmt: function (j) { return xs[j] + "세까지"; }, vFmt: function (v) { return pct(v, 2); } });
+    legend("lgDep", series);
+    put("tbCompare", table([a + "세 기준", "바닥날 확률", "남은 자산 중앙값", "하위 10%"], IDS.map(function (id) {
+      var r = resid(id, a);
+      return { me: id === S, cells: [LAB[id], pct(dep(id, a), 2), num(r[2], 1) + "A", num(r[0], 1) + "A"] };
+    })));
+    var rows = []; xs.forEach(function (x, j) { if (x % 5 === 0 || x === 61) rows.push({ cells: [x + "세"].concat(IDS.map(function (id) { return pct(D.mc.series[id].dep_cum[j], 2); })) }); });
+    put("tbDep", table(["나이"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+
+    var higher = OTH.filter(function (id) { return dep(id, a) > p; }), lower = OTH.filter(function (id) { return dep(id, a) < p; });
+    var p100 = dep(S, 100), q100 = dep("60/40", 100);
+    setRead("r4", [
+      { label: "의미", text: "과거 월별 수익률을 12개월 덩어리로 섞어 만든 " + num(M.mc_paths) + "번의 가상 은퇴에서, 61세부터 선택한 나이가 되기 전에 매달 생활비를 낼 수 없게 된 비율입니다. 남은 자산은 그 나이에 계좌에 남은 돈이고, A값의 배수로 표시합니다." },
+      { label: "해석", items: [
+        a + "세까지 63nt1e의 고갈 확률은 " + pct(p, 2) + "로 " + [lower.length ? names(lower) + "보다는 높고" : "", higher.length ? names(higher) + "보다는 낮습니다" : ""].filter(Boolean).join(" ") + ". (" + listCmp(OTH, function (id) { return pct(dep(id, a), 2); }) + ")",
+        "바닥나지 않은 경우를 포함한 중앙값은 " + num(q[2], 1) + "A(약 " + krw(aToKrw(q[2])) + ")이고, 운이 나쁜 10%에서는 " + num(q[0], 1) + "A(약 " + krw(aToKrw(q[0])) + ") 이하가 남습니다."] },
+      { label: "대가", cls: "cost", text: p100 > q100 ?
+        "아주 오래 사는 경우(100세까지)에는 63nt1e " + pct(p100, 2) + ", 60/40 " + pct(q100, 2) + "입니다. 위험자산을 " + pct(riskShare(61), 0) + "(61세)에서 " + pct(riskShare(100), 1) + "(100세)까지 줄이는 안정성의 대가로 자산이 덜 불어나서, 장수할수록 고갈 확률이 60/40보다 높아집니다. 이것이 이 전략의 약점입니다." :
+        "100세까지도 63nt1e(" + pct(p100, 2) + ")가 60/40(" + pct(q100, 2) + ")보다 낮거나 같습니다." },
+      { label: "주의", text: "이 시뮬레이션은 1995~2026년 시장에서 뽑았고 그 기간은 미국 주식에 유리했습니다." + (dep("stock100", a) <= Math.min(p, dep("60/40", a), dep("tdf", a)) ? " 그래서 주식 100%의 고갈 확률이 가장 낮게 나오지만, 앞으로도 같다는 보장은 없습니다." : " 앞으로도 같은 결과가 나온다는 보장은 없습니다.") }]);
   }
 
-  /* ---------- 적립기 ---------- */
-  function renderBacktest() {
-    var host = $("chBt"), vl = [{ x: dateX("2026-01"), label: "은퇴·인출 시작", anchor: "end", dx: -6 }];
-    var hide = $("hideStock").checked;
-    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
-    var series = ids.map(function (id) {
-      return { id: id, name: LAB[id], color: seriesColor(id), y: bt.series[id], w: id === "strategy" ? 2.6 : 2,
-               endLabel: id === "strategy" || id === "stock100" || (hide && id === "60/40") ? LAB[id] : null };
-    });
-    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
-    lineChart(host, { height: 340, padL: 44, padR: 78, x0: 1995, x1: xsBt[xsBt.length - 1], y0: 0, y1: ymax * 1.05, zeroBase: true,
-      xs: xsBt, series: series, vlines: vl, yFmt: function (v) { return num(v); }, xFmt: function (v) { return Math.round(v); },
-      xTicks: [1995, 2000, 2005, 2010, 2015, 2020, 2025], label: "적립금 추이 선 차트",
-      hFmt: function (i) { return bt.dates[i]; }, vFmt: function (v) { return num(v, 1) + "억 원"; } });
-    legend("lgBt", series);
-    var rows = [];
-    bt.dates.forEach(function (d, i) { if (d.slice(5) === "12" || i === bt.dates.length - 1) rows.push({ cells: [d].concat(IDS.map(function (id) { return num(bt.series[id][i], 1); })) }); });
-    put("tbBt", table(["월말"].concat(IDS.map(function (id) { return LAB[id] + " (억 원)"; })), rows));
-  }
-  function renderMetrics() {
-    var m = D.metrics, defs = [
-      ["연평균 수익률", function (x) { return pct(x.cagr, 2); }], ["변동성 (연)", function (x) { return pct(x.vol, 2); }],
-      ["최대낙폭", function (x) { return pct(x.mdd, 2); }], ["회복 기간", function (x) { return x.recovery_months == null ? "미회복" : x.recovery_months + "개월"; }],
-      ["수익 ÷ 변동성", function (x) { return x.return_per_vol.toFixed(2); }],
-      ["샤프 비율", function (x) { return x.sharpe == null ? "–" : x.sharpe.toFixed(2); }],
-      ["61세 적립금", function (x) { return num(x.balance_a_multiple, 1) + "A"; }]];
-    var rows = defs.map(function (d) { return { cells: [d[0]].concat(IDS.map(function (id) { return d[1](m[id]); })) }; });
-    put("tbMetrics", table([""].concat(IDS.map(function (id) { return LAB[id]; })), rows));
-  }
-  function renderDrawdown() {
-    var dd = D.drawdown, xs = dd.dates.map(dateX), series = IDS.map(function (id) {
-      return { id: id, name: LAB[id], color: seriesColor(id), y: dd.series[id], w: id === "strategy" ? 2.4 : 1.6 };
-    });
-    lineChart($("chDd"), { height: 250, padL: 44, padR: 12, x0: 1995, x1: xs[xs.length - 1], y0: -55, y1: 0, zeroBase: true,
-      xs: xs, series: series, yFmt: function (v) { return v + "%"; }, xFmt: function (v) { return Math.round(v); },
-      xTicks: [1995, 2005, 2015, 2025], label: "고점 대비 하락률 선 차트",
-      hFmt: function (i) { return dd.dates[i]; }, vFmt: function (v) { return v.toFixed(1) + "%"; } });
-    legend("lgDd", series);
-    var rows = [];
-    dd.dates.forEach(function (d, i) { if (d.slice(5) === "12") rows.push({ cells: [d.slice(0, 4)].concat(IDS.map(function (id) { return dd.series[id][i].toFixed(1) + "%"; })) }); });
-    put("tbDd", table(["연말"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
-  }
-  function renderRolling() {
-    var RL = D.rolling, hide = $("hideStockR").checked;
-    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
-    var xs = RL.months.map(dateX);
-    var series = ids.map(function (id) {
-      return { id: id, name: LAB[id], color: seriesColor(id), y: RL.series[id], w: id === "strategy" ? 2.6 : 1.8,
-               endLabel: id === "strategy" || (id === "stock100") || (hide && id === "60/40") ? LAB[id] : null };
-    });
-    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
-    lineChart($("chRl"), { height: 320, padL: 48, padR: 78, x0: 1995, x1: xs[xs.length - 1], y0: 0, y1: ymax * 1.06, zeroBase: true, xs: xs, series: series,
-      hlines: [{ y: 100, label: "시작 자산 (100%)" }],
-      yFmt: function (v) { return num(v) + "%"; }, xFmt: function (v) { return Math.round(v); }, xTicks: [1995, 2000, 2005, 2010],
-      label: "은퇴 시점별 15년 뒤 잔액 비율 선 차트",
-      hFmt: function (i) { return RL.months[i] + " 은퇴"; }, vFmt: function (v) { return num(v, 1) + "%"; } });
-    legend("lgRl", series);
-    var rows = IDS.map(function (id) {
-      var s = RL.stats[id];
-      return { me: id === "strategy", cells: [LAB[id], num(s.worst, 1) + "%", num(s.p10, 1) + "%", num(s.median, 1) + "%", num(s.best, 1) + "%", String(s.depleted_starts), s.worst_month] };
-    });
-    put("tbRl", table(["전략", "최악", "하위 10%", "중앙값", "최선", "바닥난 시작 월 수", "최악 은퇴 시점"], rows));
-    var vrows = IDS.map(function (id) {
-      var s = RL.stats[id];
-      return { me: id === "strategy", cells: [LAB[id], num(s.mean, 1) + "%", num(s.std, 1) + "%p", num(s.range, 1) + "%p", s.cv.toFixed(2)] };
-    });
-    put("tbRlVar", table(["전략", "평균", "표준편차", "변동폭 (최선−최악)", "변동계수"], vrows));
-    var yr = [];
-    RL.months.forEach(function (m, i) { if (m.slice(5) === "01") yr.push({ cells: [m.slice(0, 4)].concat(IDS.map(function (id) { return num(RL.series[id][i], 1) + "%"; })) }); });
-    put("tbRl2", table(["은퇴 시점(1월)"].concat(IDS.map(function (id) { return LAB[id]; })), yr));
-  }
+  /* ---------- 5. 글라이드패스 ---------- */
   function renderWeights() {
     var w = D.weights, order = ["equity", "long_bond", "gold", "dividend", "mid_bond", "reit", "cash"];
     var layers = order.map(function (k) {
@@ -706,95 +877,46 @@
     });
     var narrow = $("chW").clientWidth < 520;
     stackChart($("chW"), { vTop: true, noEndLabels: narrow, height: 320, padL: 44, padR: narrow ? 12 : 70, x0: 30, x1: 100, y0: 0, y1: 1, xs: w.ages, layers: layers,
-      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: narrow ? [30, 50, 61, 80, 100] : [30, 40, 50, 61, 70, 80, 90, 100],
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; },
+      xTicks: narrow ? [30, 50, 61, 80, 100] : [30, 40, 50, 61, 70, 80, 90, 100],
       vlines: [{ x: 61, label: narrow ? "은퇴" : "은퇴 61세", color: css("--glide"), opacity: 1, dy: 0 },
-               { x: state.age, label: (narrow ? "수명 " : "기대수명 ") + state.age + "세", color: css("--ink"), opacity: 0.8, dy: 14,
-                 anchor: state.age > 90 ? "end" : "start", dx: state.age > 90 ? -4 : 4 }],
+               { x: state.age, label: (narrow ? "수명 " : "기대수명 ") + state.age + "세", color: css("--ink"), opacity: 0.8, dy: 14, anchor: state.age > 90 ? "end" : "start", dx: state.age > 90 ? -4 : 4 }],
       label: "나이별 자산 비중 누적 면적 차트", hFmt: function (i) { return w.ages[i] + "세"; } });
     legend("lgW", layers.map(function (l) { return { name: l.name, color: l.color }; }), true);
     var rows = []; w.ages.forEach(function (a, i) { if (a % 5 === 0 || a === 61) rows.push({ cells: [a + "세"].concat(order.map(function (k) { return pct(w.values[i][w.assets.indexOf(k)], 2); })) }); });
     put("tbW", table(["나이"].concat(order.map(function (k) { return M.asset_labels[k]; })), rows));
   }
-
-  /* ---------- 인출기 ---------- */
-  function renderHist() {
-    var S = D.mc.series.strategy, total = M.mc_paths, a = state.age;
-    histChart($("chHist"), { height: 270, padL: 50, padR: 12, x0: 60, x1: 101, y0: 0, y1: Math.max.apply(null, S.dep_hist) * 1.15 || 10,
-      xs: D.mc.ages, ys: S.dep_hist, sel: a, total: total, yFmt: function (v) { return num(v); }, xFmt: function (v) { return v + "세"; },
-      xTicks: [61, 70, 80, 90, 100], label: "고갈 나이 분포 막대 차트" });
-    var alive = total - Math.round(S.dep_cum[S.dep_cum.length - 1] * total);
-    $("histNote").textContent = M.max_age + "세까지 버틴 경로: " + pct(alive / total, 1) + " (" + num(alive) + "개). 막대 높이는 해당 나이에 처음 바닥난 경로 수입니다.";
-    var rows = D.mc.ages.map(function (age, i) { return { cells: [age + "세", num(S.dep_hist[i]), pct(S.dep_cum[i], 2)] }; });
-    put("tbHist", table(["나이", "그 나이에 바닥난 경로", "누적 고갈 확률"], rows));
-  }
-  function renderResid() {
-    var a = state.age, q = D.mc.series.strategy.resid[a];
-    $("residTitle").textContent = a + "세에 남은 자산 (63nt1e)";
-    rangeChart($("chResid"), q);
-    var rows = IDS.map(function (id) {
-      var S = D.mc.series[id], i = ageIdx[a], r = S.resid[a];
-      return { me: id === "strategy", cells: [LAB[id], pct(S.dep_cum[i], 2), num(r[2], 1) + "A", num(r[0], 1) + "A"] };
-    });
-    put("tbCompare", table([a + "세 기준", "바닥날 확률", "남은 자산 중앙값", "하위 10%"], rows));
-  }
-  function renderCoverage() {
-    var c = D.coverage, ages = c.ages.slice(), xs = [61].concat(ages);
-    var colB = css("--brand"), colA = css("--glide");
-    // 61세 점(2026 실제값)을 곡선 맨 앞에 붙여 이어 보이게 한다.
-    var yb = [c.actual_2026.bucket].concat(c.bucket_p50), ya = [c.actual_2026.all].concat(c.all_p50);
-    var lb = [c.actual_2026.bucket].concat(c.bucket_p10), la = [c.actual_2026.all].concat(c.all_p10);
-    var series = [{ name: "전체 (다른 자산의 이자·배당까지 합친 값)", color: colA, y: ya, w: 2.2, endLabel: "전체" },
-                  { name: "인컴 버킷 3개 자산 (배당성장·중기채·리츠)", color: colB, y: yb, w: 2.6, endLabel: "인컴 버킷" }];
-    var ymax = Math.max.apply(null, ya) * 1.15;
-    lineChart($("chCov"), { height: 300, padL: 44, padR: 78, x0: 61, x1: 100, y0: 0, y1: Math.max(1.2, ymax), zeroBase: true, xs: xs, series: series,
-      bands: [{ lo: la, hi: ya, color: colA }, { lo: lb, hi: yb, color: colB }],
-      points: [{ x: 61, y: c.actual_2026.all, color: colA }, { x: 61, y: c.actual_2026.bucket, color: colB }],
-      vlines: [{ x: state.age, label: "기대수명 " + state.age + "세", color: css("--ink"), opacity: 0.6 }],
-      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [61, 70, 80, 90, 100],
-      label: "인컴 커버리지 선 차트", hFmt: function (i) { return xs[i] + "세" + (i === 0 ? " (2026-01~09 실제)" : ""); },
-      vFmt: function (v) { return pct(v, 1); } });
-    legend("lgCov", series);
-    var rows = []; xs.forEach(function (a, i) { if (a % 5 === 0 || a === 61) rows.push({ cells: [a + "세", pct(ya[i], 1), pct(yb[i], 1), pct(la[i], 1), pct(lb[i], 1)] }); });
-    put("tbCov", table(["나이", "전체 중앙값", "버킷 중앙값", "전체 하위 10%", "버킷 하위 10%"], rows));
-  }
-  function renderCompare() {
-    var c = D.coverage, ages = c.ages, ids = ["strategy", "60/40", "stock100", "cash100"];
-    var ys = { strategy: c.all_p50 };
-    ids.slice(1).forEach(function (id) { ys[id] = c.bench[id].p50; });
-    var series = ids.map(function (id) {
-      return { name: LAB[id], color: seriesColor(id), y: ys[id], w: id === "strategy" ? 2.6 : 2, endLabel: id === "strategy" ? LAB[id] : null };
-    });
-    lineChart($("chCmp"), { height: 270, padL: 44, padR: 78, x0: 62, x1: 100, y0: 0, y1: 2, zeroBase: true, xs: ages, series: series,
-      vlines: [{ x: state.age, label: "기대수명 " + state.age + "세", color: css("--ink"), opacity: 0.6 }],
-      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [65, 70, 80, 90, 100],
-      label: "벤치마크와 인컴 커버리지 비교 선 차트", hFmt: function (i) { return ages[i] + "세"; }, vFmt: function (v) { return pct(v, 1); } });
-    legend("lgCmp", series);
-    var rows = []; ages.forEach(function (a, i) { if (a % 5 === 0) rows.push({ cells: [a + "세"].concat(ids.map(function (id) { return pct(ys[id][i], 1); })) }); });
-    put("tbCmp", table(["나이"].concat(ids.map(function (id) { return LAB[id]; })), rows));
+  function readSection5() {
+    setText("c5", "위험자산(주식지수·금·배당성장·리츠) 비중이 30세 " + pct(riskShare(30), 0) + " → 61세 " + pct(riskShare(61), 0) + " → 90세 " + pct(riskShare(90), 0) + "로, 해마다 0.5%p씩 낮아집니다.");
+    setRead("r5", [
+      { label: "의미", text: "글라이드패스는 나이에 맞춘 목표 비중을 정해 두고 따라가는 규칙입니다. 대분류(자본이득·인컴)와 그 안(주식형·채권·대체자산)이 모두 매년 0.5%p씩 6에서 3으로 옮겨 가고, 3·6·9·12월 말에 전체를 목표 비중으로 되돌립니다. 현금은 평생 10%로 고정합니다." },
+      { label: "해석", items: [
+        "젊을 때는 주식형 비중이 커서 자산을 키우고, 나이가 들수록 채권 비중이 늘어 같은 폭의 주가 하락이 계좌에 주는 충격이 작아집니다.",
+        "앞에서 본 작은 낙폭(1절)과 은퇴 시점에 덜 흔들리는 결과(2절)는 이 구조를 바탕으로 한 결과입니다.",
+        "고정된 현금 10%는 하락기에 주식을 서둘러 팔지 않고 생활비를 낼 수 있는 완충입니다(3절)."] },
+      { label: "대가", cls: "cost", text: "위험을 계속 줄이므로 오래 살수록 자산이 불어나는 속도가 느려집니다. 장수했을 때 고갈 확률이 60/40보다 높아지는 부분이 그 결과입니다(4절)." }]);
   }
 
-  function update() { renderKpis(); renderWeights(); renderHist(); renderResid(); renderCoverage(); renderCompare(); }
-  function renderAll() { renderBacktest(); renderMetrics(); renderDrawdown(); renderRolling(); update(); }
+  function update() { renderWithdraw(); renderWeights(); }
+  function renderAll() {
+    renderHero(); renderBacktest(); renderMetrics(); renderDrawdown(); readSection1();
+    renderRolling(); readSection2(); renderCoverage(); readSection3(); update(); readSection5();
+  }
 
   $("dataEnd").textContent = M.data_end;
-  $("aWon").textContent = num(M.a2026);
   $("hdrEnd").textContent = M.data_end;
-  $("aFoot").textContent = "A = A값(2026년 " + num(M.a2026) + "원, 약 " + Math.round(M.a2026 / 1e4) + "만 원). 예: " + num(D.kpi.retire_balance_a, 1) + "A ≈ " + krw(D.kpi.retire_balance_krw) + ".";
-  $("limFallback").textContent = "인출 때 현금과 시세차익 자산이 바닥나면 마지막 수단으로 인컴 자산까지 팔도록 구현했습니다. 몬테카를로 경로 " + num(M.mc_fallback_paths) + "개(" + pct(M.mc_fallback_paths / M.mc_paths, 1) + ")에서 이 경우가 있었습니다.";
-  $("hideStock").addEventListener("change", renderBacktest);
-  $("hideStockR").addEventListener("change", renderRolling);
-  $("rlA").textContent = num(D.rolling.start_a, 1); $("rlFrom").textContent = D.rolling.months[0]; $("rlTo").textContent = D.rolling.months[D.rolling.months.length - 1]; $("rlN").textContent = D.rolling.n_starts;
-  (function () {                       // 모바일: 스크롤하면 슬라이더만 남기고 설명을 접는다
-    var bar = document.querySelector(".controls");
-    function chk() { bar.classList.toggle("compact", window.innerWidth <= 700 && window.scrollY > 160); }
-    window.addEventListener("scroll", chk, { passive: true }); chk();
-  })();
+  $("aWon").textContent = num(M.a2026);
   $("aExA").textContent = $("aExN").textContent = num(D.kpi.retire_balance_a, 1);
   $("aExK").textContent = krw(D.kpi.retire_balance_krw);
+  $("limFallback").textContent = "인출 때 현금과 시세차익 자산이 바닥나면 마지막 수단으로 인컴 자산까지 팔도록 구현했습니다. 몬테카를로 경로 " + num(M.mc_fallback_paths) + "개(" + pct(M.mc_fallback_paths / M.mc_paths, 1) + ")에서 이 경우가 있었습니다.";
+  $("rlA").textContent = num(D.rolling.start_a, 1); $("rlFrom").textContent = D.rolling.months[0]; $("rlTo").textContent = D.rolling.months[D.rolling.months.length - 1]; $("rlN").textContent = D.rolling.n_starts;
+  $("hideStock").addEventListener("change", renderBacktest);
+  $("hideStockR").addEventListener("change", renderRolling);
   buildSlider();
   renderAll();
   var tmr; window.addEventListener("resize", function () { clearTimeout(tmr); tmr = setTimeout(renderAll, 120); });
   if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+
 })();
 </script>
 </body>
