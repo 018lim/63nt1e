@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>63nt1e 대시보드</title>
+<style>
+  /* 색은 모두 여기 변수(토큰)로 둔다. 아래 두 곳(어두운 화면)만 바꾸면 전체가 바뀐다. */
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #221714; --ink2: #5b4e49; --muted: #756f69;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --ring: rgba(34,23,20,.10);
+    --brand: #6D361B; --glide: #5078A5; --logo-bg: transparent; --fade: .3;
+    --s-strategy: #6D361B; --s-6040: #2a78d6; --s-stock100: #1baf7a; --s-tdf: #e87ba4; --s-cash100: #898781;
+    --w-equity: #6D361B; --w-long_bond: #9c5a3a; --w-gold: #cfa58a;
+    --w-dividend: #2f4f75; --w-mid_bond: #5078A5; --w-reit: #9db8d6; --w-cash: #b9b7ae;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19;
+      --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09d96;
+      --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
+      --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb; --fade: .55;
+      --s-strategy: #b8734a; --s-6040: #3987e5; --s-stock100: #199e70; --s-tdf: #d55181; --s-cash100: #898781;
+      --w-equity: #d08f68; --w-long_bond: #a8704c; --w-gold: #8a5c40;
+      --w-dividend: #9cbce0; --w-mid_bond: #6f98c8; --w-reit: #4a6f9c; --w-cash: #5a5955;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #f0efec; --ink2: #c3c2b7; --muted: #a09d96;
+    --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
+    --brand: #b8734a; --glide: #6f98c8; --logo-bg: #fcfcfb; --fade: .55;
+    --s-strategy: #b8734a; --s-6040: #3987e5; --s-stock100: #199e70; --s-tdf: #d55181; --s-cash100: #898781;
+    --w-equity: #d08f68; --w-long_bond: #a8704c; --w-gold: #8a5c40;
+    --w-dividend: #9cbce0; --w-mid_bond: #6f98c8; --w-reit: #4a6f9c; --w-cash: #5a5955;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.55; -webkit-text-size-adjust: 100%; }
+  .wrap { max-width: 1080px; overflow-x: clip; margin: 0 auto; padding: 20px 16px 56px; }
+  header { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 8px; }
+  header img { height: 56px; width: auto; background: var(--logo-bg); border-radius: 10px; padding: 4px 10px; }
+  header .sub { color: var(--ink2); font-size: 14px; margin: 0; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  h2 { font-size: 18px; margin: 40px 0 4px; }
+  h2 + .lead { margin: 0 0 14px; color: var(--ink2); font-size: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 16px 16px 12px; margin-bottom: 16px; }
+  .card h3 { font-size: 15px; margin: 0 0 2px; }
+  .card .cap { color: var(--ink2); font-size: 13px; margin: 0 0 8px; }
+  .card .what { font-size: 14px; color: var(--ink); margin: 2px 0 8px; line-height: 1.55; }
+  .card .what b { display: inline-block; font-size: 11.5px; font-weight: 650; color: var(--glide); border: 1px solid var(--glide);
+    border-radius: 999px; padding: 0 8px; margin-right: 6px; line-height: 1.6; vertical-align: 1px; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  .grid2 > *, .kpis > *, .card, .tile { min-width: 0; }
+  @media (max-width: 820px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+
+  .aNote { background: var(--surface); border: 1px solid var(--ring); border-left: 4px solid var(--glide); border-radius: 12px;
+    padding: 10px 16px; margin: 10px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .aNote strong { color: var(--ink); }
+  .bNote { margin-top: 8px; border-left-color: var(--brand); }
+
+  /* 필터 줄: 슬라이더 */
+  .controls { position: sticky; top: 0; z-index: 5; background: var(--page); padding: 10px 0 6px; }
+  .ctl { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 12px 16px 6px; }
+  .ctl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .ctl label { font-size: 14px; font-weight: 600; }
+  .ctl output { font-size: 20px; font-weight: 650; color: var(--brand); }
+  .quick button { font: inherit; font-size: 12px; color: var(--ink2); background: transparent; border: 1px solid var(--ring);
+    border-radius: 999px; padding: 3px 10px; cursor: pointer; margin-left: 6px; }
+  .quick button:hover { background: var(--ring); }
+  .sl { position: relative; height: 66px; margin-top: 4px; --thumb: 20px; }
+  .sl input { position: absolute; left: 0; right: 0; top: 14px; width: 100%; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; height: 24px; }
+  .sl input::-webkit-slider-runnable-track { height: 4px; background: var(--grid); border-radius: 2px; }
+  .sl input::-moz-range-track { height: 4px; background: var(--grid); border-radius: 2px; }
+  .sl input::-webkit-slider-thumb { -webkit-appearance: none; width: var(--thumb); height: var(--thumb); margin-top: -8px; border-radius: 50%;
+    background: var(--brand); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--brand); }
+  .sl input::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--brand); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--brand); }
+  .sl input:focus-visible { outline: 2px solid var(--glide); outline-offset: 4px; }
+  .tick { position: absolute; top: 42px; white-space: nowrap; font-size: 11px; color: var(--muted); transform: translateX(-50%); }
+  .flag { position: absolute; top: -2px; transform: translateX(-50%); font-size: 11px; color: var(--ink2); text-align: center; white-space: nowrap; pointer-events: none; }
+  .flag::after { content: ""; display: block; width: 1px; height: 12px; background: var(--glide); margin: 1px auto 0; }
+
+  /* 핵심 숫자 */
+  .kpis { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  @media (max-width: 900px) { .kpis { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .kpis .hero { grid-column: 1 / -1; } }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+  .tile .lab { font-size: 13px; color: var(--ink2); }
+  .tile .val { font-size: 26px; font-weight: 650; margin-top: 2px; line-height: 1.2; }
+  .tile .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .hero .val { font-size: 56px; color: var(--brand); letter-spacing: -.01em; }
+  .hero .note { font-size: 13px; color: var(--ink2); }
+
+  /* 차트 */
+  .chart { position: relative; width: 100%; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+  .chart svg text { font-family: inherit; }
+  .tip { position: absolute; pointer-events: none; z-index: 4; background: var(--surface); border: 1px solid var(--ring);
+    border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.14); min-width: 140px; opacity: 0; transition: opacity .08s; }
+  .tip.on { opacity: 1; }
+  .tip .h { color: var(--ink2); margin-bottom: 4px; }
+  .tip .r { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+  .tip .k { width: 14px; height: 0; border-top: 3px solid; border-radius: 2px; flex: none; }
+  .tip .v { font-weight: 650; color: var(--ink); margin-left: auto; padding-left: 12px; font-variant-numeric: tabular-nums; }
+  .tip .n { color: var(--ink2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 2px; font-size: 12px; color: var(--ink2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 16px; height: 0; border-top: 3px solid; border-radius: 2px; }
+  .legend i.sw { width: 12px; height: 12px; border: 0; border-radius: 3px; }
+  details { margin-top: 8px; font-size: 13px; }
+  summary { cursor: pointer; color: var(--ink2); width: max-content; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .tbl th, .tbl td { padding: 6px 8px; border-bottom: 1px solid var(--grid); text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; }
+  .tbl th { color: var(--ink2); font-weight: 600; }
+  .tbl tr.me td { font-weight: 650; }
+  .scroll { overflow-x: auto; max-height: 340px; overflow-y: auto; }
+  .tbl-wrap { overflow-x: auto; }
+  .tbl-wrap .tbl { min-width: 440px; }
+  .tbl td:first-child, .tbl th:first-child { white-space: nowrap; }
+  .tbl-wrap .tbl td:first-child, .tbl-wrap .tbl th:first-child { position: sticky; left: 0; background: var(--surface); }
+  .hint { display: none; font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+  .opts { display: flex; gap: 16px; flex-wrap: wrap; margin: 4px 0 2px; font-size: 13px; color: var(--ink2); }
+  .opts label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .two .val { font-size: 26px; font-weight: 650; line-height: 1.2; }
+  .two .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .cmp { font-size: 13px; color: var(--ink2); margin-top: 6px; }
+  header .sub a { color: var(--glide); }
+  @media (max-width: 700px) {
+    .hint { display: block; }
+    #lifeHelp { display: none; }
+    .ctl { padding: 8px 12px 2px; }
+    .ctl-top label { font-size: 13px; }
+    .sl { height: 56px; }
+    .controls.compact .ctl-top label, .controls.compact .quick { display: none; }
+    .controls.compact .ctl-top { justify-content: flex-end; }
+    .controls.compact .flag { display: none; }
+    .controls.compact .sl { height: 44px; }
+    .controls.compact .tick { top: 30px; }
+    .controls.compact .sl input { top: 8px; }
+  }
+  ul.lim { color: var(--ink2); font-size: 13px; padding-left: 18px; }
+  ul.lim li { margin: 3px 0; }
+  .src { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+  /* ===== 개편(2차): 질문 → 결론 → 그래프 → 의미·해석·대가 ===== */
+  :root { --s-bucket: #b98b73; --ok: #1f7a4d; --warn: #9a5b00; }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --s-bucket: #d9a688; --ok: #5cc98f; --warn: #e0a64a; } }
+  :root[data-theme="dark"] { --s-bucket: #d9a688; --ok: #5cc98f; --warn: #e0a64a; }
+  h2 { display: flex; align-items: baseline; gap: 10px; margin: 44px 0 6px; font-size: 19px; line-height: 1.4; }
+  h2 .num { flex: none; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: var(--brand); color: var(--surface); font-size: 14px; font-weight: 650; }
+  h2.mini { margin: 0 0 6px; font-size: 15px; display: block; }
+  .primer { background: var(--surface); border: 1px solid var(--ring); border-left: 4px solid var(--glide); border-radius: 12px; padding: 14px 18px; margin: 10px 0 18px; }
+  .primer dl { margin: 0; }
+  .primer dt { font-weight: 650; font-size: 14px; margin-top: 8px; color: var(--ink); }
+  .primer dd { margin: 2px 0 0; font-size: 13.5px; color: var(--ink2); }
+  .primer dd strong { color: var(--ink); }
+  .concl { font-size: 17px; font-weight: 650; color: var(--brand); margin: 2px 0 12px; line-height: 1.5; }
+  .read { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 6px 16px 10px; margin: 0 0 8px; }
+  .read .r { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 14px; line-height: 1.6; }
+  .read .r:last-child { border-bottom: 0; }
+  .read .r > b { font-size: 12px; font-weight: 650; text-align: center; border-radius: 999px; padding: 1px 0; height: 22px; line-height: 20px; border: 1px solid var(--glide); color: var(--glide); }
+  .read .r.cost > b { border-color: var(--warn); color: var(--warn); }
+  .read .r.good > b { border-color: var(--ok); color: var(--ok); }
+  .read ul { margin: 0; padding-left: 18px; }
+  .read li { margin: 2px 0; }
+  .read .nums { color: var(--ink2); font-size: 13px; }
+  @media (max-width: 600px) { .read .r { grid-template-columns: minmax(0, 1fr); gap: 4px; } .read .r > b { width: 74px; } }
+
+  /* 한눈에 보기 */
+  .hero2 { background: var(--surface); border: 1px solid var(--ring); border-radius: 14px; padding: 18px 18px 14px; margin: 0 0 8px; }
+  .hero2 h2 { margin: 0 0 4px; font-size: 21px; display: block; }
+  .hero2 .lead2 { margin: 0 0 14px; color: var(--ink2); font-size: 14px; }
+  .hero2 .grp { font-size: 12.5px; font-weight: 650; color: var(--ink2); margin: 12px 0 6px; letter-spacing: .02em; }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .tiles, .tiles.two { grid-template-columns: minmax(0, 1fr); } }
+  .st { border: 1px solid var(--ring); border-radius: 10px; padding: 11px 13px; background: var(--page); min-width: 0; }
+  .st .lab { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+  .st .big { font-size: 28px; font-weight: 700; line-height: 1.25; margin: 2px 0; color: var(--brand); letter-spacing: -.01em; }
+  .st.cost .big { color: var(--ink); }
+  .st .cmp2 { font-size: 12.5px; color: var(--ink2); }
+  .st .mean { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* 인출기 위쪽 숫자 */
+  .kpis4 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; margin: 0 0 12px; }
+  @media (max-width: 720px) { .kpis4 { grid-template-columns: minmax(0, 1fr); } }
+  .kpis4 > * { min-width: 0; }
+  .ctl { margin: 6px 0 12px; }
+  .card { margin-bottom: 14px; }
+  .src a, header .sub a { color: var(--glide); }
+
+
+  /* 전략 선택 칩 (범례 겸 선택). 드로다운 줄에는 최대낙폭을 크게 표시 */
+  .seltog { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+  .seltog label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ring); border-radius: 10px; padding: 6px 10px; cursor: pointer;
+    font-size: 13px; color: var(--ink2); background: var(--page); user-select: none; }
+  .seltog label.on { border-color: var(--c); color: var(--ink); background: var(--surface); box-shadow: inset 3px 0 0 var(--c); }
+  .seltog label:focus-within { outline: 2px solid var(--glide); outline-offset: 2px; }
+  .seltog input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .seltog .sw { width: 14px; height: 0; border-top: 3px solid var(--c); border-radius: 2px; flex: none; }
+  .seltog .tx { display: flex; flex-direction: column; line-height: 1.25; }
+  .seltog .nm { font-weight: 600; }
+  .seltog .mdd { font-size: 17px; font-weight: 700; color: var(--ink); }
+  .seltog .mdd small { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 4px; }
+  .seltog label:not(.on) .mdd { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjMwIDgwIDk1MCAzMzUiIHdpZHRoPSI5NTAiIGhlaWdodD0iMzM1Ij4KICA8dGl0bGU+NjNudDFlIOKAlCBHRU5UTEU8L3RpdGxlPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyNCI+CiAgICA8IS0tIDYg4oaSIEcgOiBidWlsdCBsaWtlIHRoZSAzIChmbGF0IGFybXMsIHJvdW5kZWQgY29ybmVycyk7IG9wZW4gdXBwZXIgcmlnaHQgYW5kIHNob3J0IGNyb3NzYmFyIHJlYWQgRywgYm94eSBib2R5IGVjaG9lcyB0aGUgMyAtLT4KICAgIDxwYXRoIHN0cm9rZT0iIzZEMzYxQiIgZD0iTTIxMCwxMTIgSDk2IFE3NiwxMTIgNzYsMTMyIFYyODAgUTc2LDMwMCA5NiwzMDAgSDE5NiBRMjE2LDMwMCAyMTYsMjgwIFYyMzIgUTIxNiwyMDYgMTkwLDIwNiBIMTIwIi8+CiAgICA8IS0tIDMg4oaSIEUgOiB0aHJlZSBmbGF0IGFybXMgd2l0aCB0aGUgc3BpbmUgb24gdGhlIHJpZ2h0IC0tPgogICAgPHBhdGggc3Ryb2tlPSIjNkQzNjFCIiBkPSJNMjcyLDExMiBIMzkyIFE0MTIsMTEyIDQxMiwxMzIgVjE4MCBRNDEyLDIwNiAzODYsMjA2IEgzMDAgTTM4NiwyMDYgUTQxMiwyMDYgNDEyLDIzMiBWMjgwIFE0MTIsMzAwIDM5MiwzMDAgSDI3MiIvPgogICAgPCEtLSBuIC0tPgogICAgPHBhdGggc3Ryb2tlPSIjMjIxNzE0IiBkPSJNNDYyLDE5MiBWMzAwIE00NjIsMjQ0IFE0NjIsMTkyIDUxNiwxOTIgUTU3MCwxOTIgNTcwLDI0NCBWMzAwIi8+CiAgICA8IS0tIHQgLS0+CiAgICA8cGF0aCBzdHJva2U9IiMyMjE3MTQiIGQ9Ik02MzIsMTI4IFYyNjggUTYzMiwzMDAgNjY0LDMwMCBINjgwIE02MDAsMTk0IEg2NzYiLz4KICAgIDwhLS0gMSDihpIgbCA6IGZsYWcgb24gdG9wLCB0YWlsIGF0IHRoZSBmb290IC0tPgogICAgPHBhdGggc3Ryb2tlPSIjNTA3OEE1IiBkPSJNNzA4LDEyOCBMNzQ2LDEwNiBWMjcwIFE3NDYsMzAwIDc3NiwzMDAgSDc5MCIvPgogICAgPCEtLSBlIC0tPgogICAgPHBhdGggc3Ryb2tlPSIjMjIxNzE0IiBkPSJNODI4LDI0NiBIOTM4IEE1Niw1NiAwIDEsMCA5MjQsMjg0Ii8+CiAgPC9nPgogIDwhLS0gZ2VudGxlIGdsaWRlIHBhdGg6IGEgc2xvdyBkZXNjZW50IHVuZGVyIHRoZSB3b3JkIC0tPgogIDxwYXRoIGQ9Ik03MCwzNTYgQzMyMCwzNTYgNTYwLDM3MiA5NDAsMzkyIiBmaWxsPSJub25lIiBzdHJva2U9IiM1MDc4QTUiIHN0cm9rZS13aWR0aD0iNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIwLjU1Ii8+CiAgPGNpcmNsZSBjeD0iNzAiIGN5PSIzNTYiIHI9IjkiIGZpbGw9IiM1MDc4QTUiLz4KICA8Y2lyY2xlIGN4PSI5NDAiIGN5PSIzOTIiIHI9IjkiIGZpbGw9IiM1MDc4QTUiIG9wYWNpdHk9IjAuNTUiLz4KPC9zdmc+Cg==" alt="63nt1e">
+    <div>
+      <h1>63nt1e 대시보드</h1>
+      <p class="sub">30세에 시작해 61세에 은퇴하고 100세까지 인출하는 생애주기 자산배분 전략의 검증 결과 · 데이터 기준 <span id="hdrEnd"></span> · <a href="https://github.com/018lim/63nt1e#readme">README</a></p>
+    </div>
+  </header>
+
+  <section class="primer" aria-label="읽기 전에">
+    <h2 class="mini">읽기 전에: 세 가지만 알면 됩니다</h2>
+    <dl>
+      <dt>A는 무엇인가요?</dt>
+      <dd><strong>A값</strong>은 국민연금 전체 가입자의 평균소득월액입니다(2026년 <span id="aWon"></span>원). 이 화면의 금액은 대부분 "A값의 몇 배"로 적습니다. 예: <strong><span id="aExA"></span>A = A값의 <span id="aExN"></span>배 ≈ <span id="aExK"></span></strong>. 납입은 매월 A값의 1/3, 인출은 매월 A값의 2/3이고, A값은 해마다 오르므로 시기가 다른 돈도 "평균 근로자 소득 대비 얼마인지"로 같이 비교할 수 있습니다.</dd>
+      <dt>무엇과 비교하나요?</dt>
+      <dd>모두 같은 시드·납입·인출을 적용했습니다. <strong>60/40</strong>은 주식 60%(VFINX, 미국 S&amp;P 500 인덱스펀드)와 중기 국채 40%(VFITX, 2007-02부터 IEI)를 매월 비율로 되돌린 것, <strong>주식 100%</strong>는 VFINX만 보유, <strong>현금 100%</strong>는 미국 3개월 국채 금리(원리금보장형 대용)입니다. <strong>TDF</strong>는 Target Date Fund(타깃데이트펀드), 은퇴 예정 연도에 맞춰 주식 비중을 알아서 줄여 주는 펀드로, Fidelity Freedom 2020(FFFDX, 1996-11~2003-10)에 이어 Vanguard Target Retirement 2025(VTTVX, 2003-11~)를 이어 붙였고 1995-01~1996-10은 60/40으로 채웠습니다.</dd>
+      <dt>인출기 숫자는 어떻게 만들었나요?</dt>
+      <dd><strong>몬테카를로</strong>는 과거(1995~2026) 월별 수익률을 12개월 덩어리로 섞어 <strong>10,000번의 가상 은퇴</strong>를 만들어 보는 시뮬레이션입니다. "몇 %의 경우에 돈이 바닥났나"를 세는 데 씁니다.</dd>
+    </dl>
+  </section>
+
+  <section id="hero" aria-label="한눈에 보기"></section>
+
+  <!-- 1. 적립기 -->
+  <h2><span class="num">1</span>가입 기간(30~60세): 계좌는 얼마나 흔들렸나</h2>
+  <p class="concl" id="c1"></p>
+
+  <div class="card">
+    <h3>적립금 추이</h3>
+    <p class="cap">1995~2025년 매달 같은 돈을 넣었을 때 계좌에 쌓인 금액(고정 환율 기준 억 원)입니다. 2026-01부터는 인출이 시작되어 곡선이 꺾입니다(데이터 끝 <span id="dataEnd"></span>).</p>
+    <p class="src" style="margin:0 0 6px">보고 싶은 전략을 체크하세요. 처음에는 63nt1e · 60/40 · TDF만 보입니다.</p>
+    <div class="seltog" id="tgBt"></div>
+    <div class="chart" id="chBt"></div>
+    <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbBt"></div></details>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>고점 대비 하락률</h3>
+      <p class="cap">그때까지의 최고점에서 얼마나 내려와 있었는지입니다. 선이 깊이 내려갈수록 힘든 시기이고, 아래 칸의 숫자는 각 전략의 <strong>최대낙폭</strong>(가장 깊은 하락)입니다. 점은 그 최저점입니다.</p>
+      <div class="seltog mddrow" id="tgDd"></div>
+      <div class="chart" id="chDd"></div>
+      <details><summary>표로 보기 (연말)</summary><div class="scroll" id="tbDd"></div></details>
+    </div>
+    <div class="card">
+      <h3>31년 성적표</h3>
+      <p class="cap">1995-01 ~ 2025-12, 시간가중수익률 기준. 위쪽 세 줄이 안정성, 아래쪽 두 줄이 수익입니다.</p>
+      <div class="tbl-wrap" id="tbMetrics"></div>
+      <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    </div>
+  </div>
+  <div class="read" id="r1"></div>
+
+  <!-- 2. 롤링 -->
+  <h2><span class="num">2</span>은퇴 시점이 나빴다면: 은퇴한 해에 따라 결과는 얼마나 달라지나</h2>
+  <p class="concl" id="c2"></p>
+  <div class="card">
+    <h3>은퇴 시점별 15년 뒤 잔액 비율 (박스 차트)</h3>
+    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>박스</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 박스가 짧을수록 은퇴 시점에 덜 좌우됩니다. 현금 100%는 그래프에서 뺐고 아래 표에는 있습니다.</p>
+    <div class="opts"><label><input type="checkbox" id="hideStockR" checked> 주식 100% 숨기기 (끄면 주식 100% 박스도 보입니다)</label></div>
+    <div class="chart" id="chRl"></div>
+    <div class="tbl-wrap" id="tbRl"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <details><summary>표로 보기 (매년 1월 은퇴)</summary><div class="scroll" id="tbRl2"></div></details>
+  </div>
+  <div class="read" id="r2"></div>
+
+  <!-- 3. 인컴 -->
+  <h2><span class="num">3</span>은퇴 후 생활비: 배당·이자가 얼마나 채워 주나</h2>
+  <p class="concl" id="c3"></p>
+  <div class="card">
+    <h3>인컴 커버리지: 생활비 중 배당·이자가 채우는 비율</h3>
+    <p class="cap">몬테카를로 경로의 중앙값입니다(해당 나이까지 바닥나지 않은 경로만 셉니다). 100%를 넘으면 배당·이자만으로 생활비가 해결됩니다. 그래프는 200%까지만 보이고 그 위는 잘립니다.</p>
+    <div class="legend" id="lgCov"></div>
+    <div class="chart" id="chCov"></div>
+    <div class="tbl-wrap" id="tbCovNow"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbCov"></div></details>
+  </div>
+  <div class="read" id="r3"></div>
+
+  <!-- 4. 인출기 -->
+  <h2><span class="num">4</span>오래 살면 돈이 남을까: 기대수명을 골라 보세요</h2>
+  <div class="ctl" id="ctlBox">
+    <div class="ctl-top">
+      <label for="life">기대수명 (몇 세까지 살면 돈이 남아 있을까?)</label>
+      <span><output id="lifeOut">90세</output>
+        <span class="quick"><button type="button" id="qM">남성 평균</button><button type="button" id="qF">여성 평균</button></span>
+      </span>
+    </div>
+    <div class="sl" id="sl">
+      <input id="life" type="range" min="80" max="100" step="1" value="90" aria-describedby="lifeHelp">
+    </div>
+    <p id="lifeHelp" class="src" style="margin:0 0 6px">표시선: 남성 86.3세 · 여성 90.7세 (보험개발원 제10회 경험생명표, 2024). 인출액과 시드는 고정입니다.</p>
+  </div>
+  <p class="concl" id="c4"></p>
+  <div class="kpis4" id="kpis4"></div>
+  <div class="card">
+    <h3>나이별 누적 고갈 확률</h3>
+    <p class="cap">61세부터 해당 나이까지 한 번이라도 생활비를 못 낸 가상 은퇴의 비율입니다. 세로선이 선택한 기대수명입니다. 현금 100%는 일찍 바닥나서 그래프에서 뺐습니다(아래 표에는 있음).</p>
+    <div class="legend" id="lgDep"></div>
+    <div class="chart" id="chDep"></div>
+    <div class="tbl-wrap" id="tbCompare"></div>
+    <p class="hint">← 옆으로 밀어서 모든 열을 볼 수 있습니다 →</p>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbDep"></div></details>
+  </div>
+  <div class="read" id="r4"></div>
+
+  <!-- 5. 자산 배분 -->
+  <h2><span class="num">5</span>이 안정성은 어디서 나오나: 나이에 따라 줄어드는 위험</h2>
+  <p class="concl" id="c5"></p>
+  <div class="card">
+    <h3>나이별 자산 비중 (글라이드패스)</h3>
+    <p class="cap">아래에서 위로: 자본이득(갈색 계열: 주식지수·장기채·금), 인컴(파란 계열: 배당성장·중기채·리츠), 현금(맨 위 회색). 각 계열 안에서 아래부터 6·3·1 순서입니다. 세로선은 은퇴(61세)와 선택한 기대수명입니다.</p>
+    <div class="legend" id="lgW"></div>
+    <div class="chart" id="chW"></div>
+    <details><summary>표로 보기 (5세 간격)</summary><div class="scroll" id="tbW"></div></details>
+  </div>
+  <div class="read" id="r5"></div>
+
+  <h2>가정과 한계</h2>
+  <ul class="lim">
+    <li>A값은 3년 평균인 적용 A값입니다(2026년 3,193,511원). 잔여자산의 원화 환산은 이 값을 곱한 2026년 가치입니다.</li>
+    <li>미국 자산 데이터를 고정 환율로 환산했고, 세금·매매 비용·국민연금은 반영하지 않았습니다.</li>
+    <li>1995~2011년 일부 구간은 대리 자산(뮤추얼펀드·금 현물)입니다. 데이터가 31년뿐이라 1995~2026년이 미국 주식에 유리한 구간이었다는 영향이 몬테카를로 결과(특히 주식 100%)에 들어 있습니다.</li>
+    <li>벤치마크는 배당 재투자 방식이며, TDF는 과거 수익률을 그대로 재사용하므로 은퇴 후 비중 변화가 반영되지 않습니다.</li>
+    <li>몬테카를로 결과는 블록 길이(12개월)에 민감합니다. 자세한 내용은 README를 보세요.</li>
+    <li id="limFallback"></li>
+    <li>은퇴 시점별 롤링 분석은 인접한 시작 월이 거의 같은 구간을 겹쳐 쓰므로, 시작 월 202개는 서로 독립된 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.</li>
+  </ul>
+  <p class="src">과거 데이터 기반 시뮬레이션은 미래 성과를 보장하지 않습니다.</p>
+</div>
+
+<script>
+window.DATA = {"meta":{"fx":1300,"a2026":3193511.0,"birth_year":1965,"start_age":30,"retire_age":61,"life_male":86.3,"life_female":90.7,"life_default":90,"max_age":100,"mc_paths":10000,"mc_block":12,"mc_seed":631,"data_end":"2026-09","mc_start":"2026-10","mc_fallback_paths":862,"income_to_cash":true,"labels":{"strategy":"63nt1e","60/40":"60/40","stock100":"주식 100%","cash100":"현금 100%","tdf":"TDF"},"ids":["strategy","60/40","stock100","cash100","tdf"],"assets":["equity","long_bond","gold","dividend","mid_bond","reit","cash"],"asset_labels":{"equity":"주식지수","long_bond":"장기채","gold":"금","dividend":"배당성장","mid_bond":"중기채","reit":"리츠","cash":"현금"}},"backtest":{"dates":["1995-01","1995-02","1995-03","1995-04","1995-05","1995-06","1995-07","1995-08","1995-09","1995-10","1995-11","1995-12","1996-01","1996-02","1996-03","1996-04","1996-05","1996-06","1996-07","1996-08","1996-09","1996-10","1996-11","1996-12","1997-01","1997-02","1997-03","1997-04","1997-05","1997-06","1997-07","1997-08","1997-09","1997-10","1997-11","1997-12","1998-01","1998-02","1998-03","1998-04","1998-05","1998-06","1998-07","1998-08","1998-09","1998-10","1998-11","1998-12","1999-01","1999-02","1999-03","1999-04","1999-05","1999-06","1999-07","1999-08","1999-09","1999-10","1999-11","1999-12","2000-01","2000-02","2000-03","2000-04","2000-05","2000-06","2000-07","2000-08","2000-09","2000-10","2000-11","2000-12","2001-01","2001-02","2001-03","2001-04","2001-05","2001-06","2001-07","2001-08","2001-09","2001-10","2001-11","2001-12","2002-01","2002-02","2002-03","2002-04","2002-05","2002-06","2002-07","2002-08","2002-09","2002-10","2002-11","2002-12","2003-01","2003-02","2003-03","2003-04","2003-05","2003-06","2003-07","2003-08","2003-09","2003-10","2003-11","2003-12","2004-01","2004-02","2004-03","2004-04","2004-05","2004-06","2004-07","2004-08","2004-09","2004-10","2004-11","2004-12","2005-01","2005-02","2005-03","2005-04","2005-05","2005-06","2005-07","2005-08","2005-09","2005-10","2005-11","2005-12","2006-01","2006-02","2006-03","2006-04","2006-05","2006-06","2006-07","2006-08","2006-09","2006-10","2006-11","2006-12","2007-01","2007-02","2007-03","2007-04","2007-05","2007-06","2007-07","2007-08","2007-09","2007-10","2007-11","2007-12","2008-01","2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09"],"retire_index":372,"series":{"strategy":[0.143,0.15,0.156,0.162,0.171,0.176,0.181,0.186,0.194,0.198,0.207,0.214,0.222,0.223,0.226,0.23,0.236,0.241,0.239,0.244,0.256,0.265,0.281,0.281,0.291,0.297,0.292,0.305,0.319,0.331,0.351,0.343,0.36,0.359,0.372,0.381,0.389,0.405,0.421,0.426,0.427,0.44,0.439,0.416,0.44,0.459,0.478,0.493,0.504,0.495,0.507,0.528,0.524,0.538,0.532,0.532,0.535,0.554,0.559,0.572,0.564,0.561,0.598,0.597,0.601,0.614,0.618,0.644,0.639,0.648,0.64,0.658,0.669,0.655,0.641,0.665,0.675,0.673,0.681,0.674,0.661,0.673,0.693,0.699,0.701,0.709,0.721,0.715,0.722,0.707,0.686,0.703,0.679,0.703,0.729,0.725,0.72,0.721,0.724,0.761,0.802,0.808,0.801,0.817,0.831,0.853,0.865,0.902,0.917,0.934,0.941,0.915,0.927,0.945,0.941,0.965,0.978,0.997,1.021,1.049,1.045,1.062,1.054,1.063,1.09,1.107,1.123,1.133,1.138,1.126,1.158,1.175,1.202,1.215,1.219,1.236,1.224,1.232,1.256,1.286,1.311,1.343,1.375,1.383,1.401,1.408,1.416,1.456,1.475,1.46,1.453,1.484,1.528,1.556,1.55,1.551,1.537,1.522,1.535,1.559,1.562,1.506,1.512,1.531,1.493,1.356,1.367,1.438,1.332,1.253,1.323,1.377,1.419,1.421,1.489,1.539,1.587,1.572,1.644,1.637,1.625,1.658,1.706,1.749,1.712,1.706,1.769,1.777,1.851,1.878,1.875,1.928,1.94,1.993,2.002,2.067,2.084,2.059,2.074,2.096,2.085,2.192,2.211,2.238,2.298,2.325,2.347,2.377,2.364,2.412,2.462,2.486,2.508,2.488,2.507,2.506,2.559,2.589,2.65,2.709,2.682,2.637,2.702,2.658,2.705,2.785,2.8,2.816,2.824,2.902,2.923,2.964,3.016,3.055,3.037,3.132,3.093,3.16,3.231,3.254,3.315,3.334,3.322,3.31,3.316,3.247,3.305,3.219,3.222,3.359,3.351,3.335,3.34,3.394,3.509,3.518,3.546,3.661,3.748,3.73,3.728,3.656,3.63,3.673,3.711,3.804,3.805,3.843,3.893,3.909,3.953,4.002,4.021,4.076,4.157,4.212,4.278,4.153,4.15,4.129,4.201,4.227,4.293,4.372,4.362,4.222,4.309,4.217,4.389,4.454,4.562,4.622,4.57,4.753,4.797,4.925,4.953,5.0,5.061,5.107,5.207,5.1,4.925,5.249,5.354,5.398,5.62,5.723,5.636,5.563,5.886,5.999,5.926,5.956,6.08,6.254,6.341,6.408,6.538,6.616,6.431,6.642,6.644,6.823,6.615,6.538,6.547,6.211,6.231,5.978,6.219,6.025,5.647,5.815,6.124,5.967,6.243,6.059,6.216,6.253,6.155,6.318,6.407,6.325,6.069,5.945,6.334,6.659,6.652,6.723,6.895,6.657,6.84,6.948,7.188,7.342,7.473,7.364,7.577,7.307,7.431,7.591,7.516,7.411,7.483,7.669,7.692,7.872,8.023,8.075,8.188,8.162,8.365,8.608,8.285,8.527,8.625,8.544,8.547,8.693,8.376],"60/40":[0.144,0.151,0.157,0.164,0.174,0.18,0.186,0.19,0.198,0.202,0.212,0.218,0.226,0.228,0.232,0.236,0.242,0.247,0.244,0.25,0.263,0.274,0.291,0.289,0.304,0.308,0.303,0.319,0.335,0.348,0.372,0.362,0.379,0.378,0.392,0.401,0.41,0.431,0.448,0.455,0.456,0.473,0.474,0.443,0.47,0.495,0.516,0.539,0.558,0.545,0.564,0.581,0.574,0.597,0.589,0.591,0.588,0.615,0.626,0.651,0.634,0.634,0.68,0.672,0.668,0.689,0.688,0.723,0.707,0.712,0.688,0.702,0.724,0.693,0.672,0.704,0.712,0.707,0.714,0.695,0.672,0.69,0.719,0.724,0.723,0.723,0.737,0.722,0.726,0.704,0.683,0.697,0.664,0.702,0.728,0.713,0.705,0.708,0.716,0.757,0.793,0.802,0.803,0.817,0.826,0.854,0.863,0.897,0.915,0.931,0.932,0.915,0.926,0.943,0.933,0.947,0.959,0.976,0.998,1.027,1.019,1.033,1.025,1.025,1.055,1.063,1.086,1.092,1.097,1.088,1.119,1.129,1.151,1.158,1.167,1.18,1.165,1.171,1.187,1.217,1.245,1.278,1.303,1.314,1.33,1.327,1.343,1.387,1.416,1.408,1.397,1.425,1.465,1.489,1.477,1.478,1.447,1.434,1.44,1.474,1.484,1.419,1.421,1.445,1.379,1.254,1.225,1.247,1.183,1.11,1.183,1.25,1.293,1.297,1.365,1.405,1.446,1.436,1.504,1.512,1.496,1.532,1.589,1.615,1.554,1.522,1.599,1.571,1.664,1.711,1.711,1.771,1.806,1.847,1.851,1.902,1.907,1.893,1.891,1.849,1.779,1.901,1.907,1.93,1.993,2.045,2.087,2.096,2.033,2.088,2.117,2.153,2.193,2.172,2.189,2.204,2.275,2.306,2.365,2.403,2.431,2.405,2.487,2.442,2.506,2.586,2.64,2.673,2.638,2.718,2.731,2.755,2.809,2.849,2.826,2.911,2.887,2.946,3.008,3.006,2.986,3.08,3.067,3.09,3.12,3.084,3.138,3.03,3.005,3.158,3.165,3.138,3.078,3.089,3.225,3.237,3.276,3.312,3.393,3.393,3.405,3.366,3.418,3.465,3.516,3.61,3.621,3.66,3.705,3.721,3.779,3.805,3.847,3.905,3.978,4.011,4.137,4.046,4.002,4.006,4.083,4.105,4.199,4.3,4.311,4.142,4.214,4.023,4.232,4.317,4.402,4.516,4.384,4.592,4.636,4.639,4.688,4.762,4.866,4.958,5.001,4.8,4.499,4.855,5.008,5.077,5.265,5.501,5.379,5.291,5.65,5.79,5.757,5.835,5.977,6.188,6.23,6.322,6.445,6.564,6.367,6.622,6.61,6.785,6.544,6.423,6.492,6.11,6.143,5.829,6.2,5.99,5.598,5.867,6.124,5.907,6.189,6.052,6.265,6.349,6.35,6.581,6.719,6.663,6.447,6.361,6.787,7.044,7.133,7.332,7.495,7.269,7.533,7.733,7.866,8.026,8.171,8.067,8.38,8.242,8.406,8.408,8.152,8.173,8.467,8.772,8.886,9.056,9.269,9.427,9.479,9.486,9.546,9.537,9.173,9.728,10.009,9.933,9.886,10.028,9.903],"stock100":[0.144,0.152,0.16,0.167,0.177,0.184,0.193,0.196,0.207,0.209,0.221,0.229,0.239,0.245,0.25,0.257,0.267,0.271,0.262,0.27,0.289,0.3,0.326,0.322,0.346,0.352,0.341,0.364,0.39,0.411,0.447,0.425,0.452,0.44,0.464,0.475,0.484,0.522,0.553,0.562,0.556,0.582,0.58,0.5,0.536,0.583,0.622,0.662,0.694,0.677,0.708,0.739,0.726,0.77,0.751,0.751,0.735,0.785,0.805,0.858,0.819,0.808,0.891,0.868,0.855,0.881,0.872,0.93,0.885,0.886,0.82,0.829,0.862,0.788,0.742,0.804,0.813,0.798,0.794,0.748,0.692,0.709,0.768,0.779,0.772,0.761,0.794,0.75,0.748,0.699,0.65,0.658,0.591,0.647,0.691,0.653,0.64,0.635,0.645,0.703,0.745,0.758,0.776,0.795,0.791,0.84,0.852,0.901,0.922,0.939,0.93,0.92,0.937,0.96,0.933,0.941,0.956,0.975,1.019,1.058,1.037,1.064,1.05,1.035,1.073,1.079,1.124,1.119,1.133,1.119,1.166,1.171,1.208,1.216,1.236,1.258,1.227,1.233,1.246,1.281,1.319,1.367,1.398,1.423,1.449,1.426,1.447,1.517,1.575,1.554,1.511,1.539,1.602,1.633,1.57,1.564,1.476,1.433,1.433,1.508,1.533,1.409,1.403,1.429,1.307,1.093,1.02,1.037,0.956,0.86,0.941,1.037,1.101,1.109,1.199,1.248,1.3,1.282,1.364,1.397,1.352,1.4,1.49,1.52,1.404,1.336,1.436,1.377,1.505,1.568,1.574,1.685,1.731,1.796,1.803,1.862,1.847,1.822,1.791,1.7,1.586,1.765,1.767,1.791,1.877,1.964,2.035,2.028,1.913,1.998,2.031,2.083,2.143,2.109,2.128,2.153,2.271,2.308,2.4,2.453,2.516,2.489,2.621,2.551,2.637,2.765,2.855,2.933,2.838,2.974,3.005,3.034,3.111,3.182,3.144,3.276,3.236,3.321,3.417,3.415,3.319,3.516,3.467,3.507,3.558,3.496,3.576,3.366,3.289,3.573,3.59,3.539,3.37,3.372,3.608,3.628,3.7,3.716,3.86,3.872,3.88,3.816,3.964,4.048,4.132,4.303,4.314,4.365,4.434,4.468,4.566,4.587,4.689,4.805,4.959,5.021,5.315,5.126,5.003,5.029,5.157,5.195,5.396,5.578,5.617,5.24,5.353,4.877,5.275,5.451,5.565,5.797,5.436,5.826,5.917,5.831,5.947,6.083,6.312,6.509,6.514,5.985,5.251,5.932,6.223,6.353,6.719,7.224,6.943,6.765,7.513,7.81,7.739,7.96,8.317,8.768,8.837,9.05,9.272,9.562,9.124,9.77,9.71,10.152,9.634,9.354,9.708,8.87,8.894,8.167,8.928,8.572,7.79,8.429,8.908,8.402,8.938,8.729,9.058,9.208,9.256,9.876,10.202,10.048,9.577,9.384,10.25,10.724,10.913,11.504,11.883,11.406,11.98,12.418,12.578,12.891,13.175,13.064,13.839,13.518,13.903,13.731,12.965,12.887,13.706,14.412,14.744,15.051,15.609,15.983,16.031,16.049,16.259,16.112,15.286,16.867,17.731,17.539,17.504,17.957,17.872],"cash100":[0.141,0.145,0.148,0.152,0.155,0.159,0.163,0.166,0.17,0.173,0.177,0.181,0.184,0.188,0.192,0.196,0.2,0.204,0.208,0.212,0.216,0.22,0.224,0.228,0.232,0.237,0.241,0.245,0.25,0.254,0.259,0.263,0.268,0.272,0.277,0.281,0.286,0.291,0.296,0.301,0.306,0.311,0.316,0.321,0.326,0.331,0.336,0.341,0.346,0.352,0.357,0.363,0.368,0.374,0.38,0.385,0.391,0.397,0.403,0.409,0.415,0.421,0.427,0.434,0.44,0.446,0.453,0.46,0.466,0.473,0.48,0.486,0.492,0.499,0.505,0.511,0.516,0.522,0.528,0.534,0.539,0.544,0.549,0.554,0.559,0.565,0.57,0.575,0.58,0.585,0.59,0.595,0.601,0.606,0.611,0.615,0.62,0.625,0.63,0.635,0.64,0.645,0.65,0.655,0.66,0.665,0.67,0.675,0.68,0.685,0.69,0.696,0.701,0.706,0.712,0.718,0.723,0.729,0.735,0.741,0.747,0.754,0.761,0.767,0.774,0.781,0.788,0.796,0.803,0.81,0.818,0.826,0.834,0.842,0.85,0.859,0.867,0.876,0.885,0.894,0.903,0.912,0.921,0.929,0.939,0.948,0.957,0.967,0.976,0.985,0.994,1.003,1.012,1.021,1.029,1.037,1.045,1.052,1.059,1.066,1.073,1.08,1.087,1.094,1.101,1.107,1.113,1.118,1.124,1.13,1.136,1.142,1.148,1.154,1.16,1.166,1.172,1.178,1.184,1.19,1.196,1.202,1.208,1.214,1.221,1.227,1.233,1.239,1.245,1.251,1.257,1.263,1.27,1.276,1.282,1.288,1.294,1.3,1.307,1.313,1.319,1.325,1.331,1.337,1.343,1.35,1.356,1.363,1.369,1.375,1.382,1.388,1.395,1.401,1.408,1.414,1.42,1.427,1.434,1.44,1.447,1.453,1.46,1.466,1.473,1.479,1.486,1.492,1.499,1.505,1.512,1.519,1.525,1.532,1.539,1.545,1.552,1.559,1.565,1.572,1.579,1.586,1.592,1.599,1.606,1.613,1.62,1.627,1.634,1.64,1.647,1.655,1.662,1.669,1.677,1.684,1.692,1.699,1.706,1.714,1.721,1.729,1.736,1.744,1.752,1.76,1.769,1.777,1.786,1.794,1.803,1.812,1.821,1.83,1.839,1.848,1.858,1.868,1.878,1.888,1.899,1.909,1.92,1.931,1.942,1.953,1.964,1.976,1.988,1.999,2.011,2.023,2.035,2.046,2.058,2.069,2.08,2.091,2.101,2.112,2.123,2.134,2.142,2.151,2.159,2.167,2.176,2.184,2.192,2.201,2.209,2.217,2.226,2.234,2.243,2.251,2.26,2.269,2.277,2.286,2.294,2.303,2.311,2.32,2.329,2.339,2.349,2.359,2.37,2.382,2.395,2.409,2.424,2.441,2.458,2.476,2.495,2.514,2.533,2.553,2.574,2.594,2.615,2.636,2.658,2.679,2.7,2.722,2.743,2.765,2.787,2.81,2.832,2.854,2.876,2.899,2.92,2.941,2.962,2.982,3.003,3.024,3.045,3.066,3.087,3.108,3.129,3.15,3.171,3.191,3.212,3.232,3.22,3.208,3.197,3.185,3.173,3.162,3.15,3.139,3.128],"tdf":[0.144,0.151,0.157,0.164,0.174,0.18,0.186,0.19,0.198,0.202,0.212,0.218,0.226,0.228,0.232,0.236,0.242,0.247,0.244,0.25,0.263,0.274,0.291,0.29,0.303,0.307,0.299,0.313,0.334,0.35,0.377,0.365,0.387,0.377,0.388,0.396,0.405,0.434,0.453,0.46,0.457,0.474,0.477,0.418,0.444,0.471,0.5,0.532,0.553,0.543,0.568,0.586,0.578,0.61,0.609,0.614,0.61,0.64,0.669,0.725,0.711,0.75,0.778,0.754,0.736,0.776,0.77,0.818,0.793,0.787,0.735,0.753,0.768,0.726,0.69,0.736,0.744,0.739,0.731,0.708,0.658,0.686,0.724,0.735,0.732,0.726,0.749,0.732,0.732,0.698,0.66,0.672,0.632,0.669,0.702,0.683,0.677,0.678,0.688,0.733,0.772,0.786,0.797,0.818,0.826,0.865,0.879,0.913,0.932,0.95,0.953,0.936,0.946,0.965,0.952,0.967,0.983,1.002,1.034,1.066,1.058,1.076,1.067,1.063,1.091,1.105,1.13,1.141,1.151,1.138,1.168,1.186,1.219,1.225,1.24,1.258,1.234,1.239,1.25,1.282,1.309,1.354,1.39,1.411,1.436,1.43,1.453,1.505,1.551,1.54,1.513,1.535,1.593,1.635,1.588,1.583,1.512,1.491,1.49,1.555,1.583,1.484,1.474,1.486,1.372,1.173,1.121,1.163,1.086,1.005,1.083,1.182,1.255,1.262,1.353,1.399,1.456,1.437,1.504,1.534,1.502,1.541,1.619,1.646,1.55,1.507,1.604,1.561,1.679,1.735,1.733,1.826,1.856,1.909,1.918,1.982,1.971,1.952,1.937,1.856,1.743,1.891,1.881,1.891,1.98,2.05,2.083,2.08,1.977,2.047,2.074,2.118,2.17,2.16,2.184,2.221,2.299,2.317,2.374,2.424,2.43,2.392,2.488,2.446,2.541,2.623,2.665,2.707,2.659,2.76,2.776,2.798,2.853,2.907,2.875,2.957,2.897,2.949,2.996,2.983,2.972,3.084,3.07,3.112,3.126,3.078,3.11,2.98,2.928,3.076,3.078,3.039,2.949,2.946,3.107,3.144,3.167,3.189,3.291,3.308,3.329,3.28,3.301,3.354,3.418,3.497,3.529,3.58,3.637,3.661,3.73,3.758,3.812,3.873,3.933,3.981,4.109,3.998,3.98,3.992,4.03,4.029,4.112,4.157,4.162,3.96,4.018,3.862,4.079,4.158,4.227,4.326,4.197,4.393,4.414,4.408,4.464,4.542,4.623,4.721,4.73,4.549,4.132,4.442,4.596,4.703,4.88,5.042,4.97,4.908,5.292,5.46,5.446,5.51,5.587,5.746,5.811,5.88,5.937,6.023,5.867,6.04,5.971,6.1,5.896,5.785,5.791,5.456,5.483,5.196,5.469,5.289,4.931,5.092,5.409,5.254,5.547,5.411,5.56,5.62,5.576,5.757,5.884,5.785,5.613,5.507,5.876,6.142,6.145,6.269,6.406,6.242,6.433,6.517,6.669,6.797,6.929,6.797,6.976,6.843,6.982,7.033,6.918,6.994,7.189,7.409,7.453,7.611,7.788,7.899,7.931,7.976,8.095,8.201,7.854,8.201,8.382,8.357,8.264,8.365,8.195]}},"drawdown":{"dates":["1995-01","1995-02","1995-03","1995-04","1995-05","1995-06","1995-07","1995-08","1995-09","1995-10","1995-11","1995-12","1996-01","1996-02","1996-03","1996-04","1996-05","1996-06","1996-07","1996-08","1996-09","1996-10","1996-11","1996-12","1997-01","1997-02","1997-03","1997-04","1997-05","1997-06","1997-07","1997-08","1997-09","1997-10","1997-11","1997-12","1998-01","1998-02","1998-03","1998-04","1998-05","1998-06","1998-07","1998-08","1998-09","1998-10","1998-11","1998-12","1999-01","1999-02","1999-03","1999-04","1999-05","1999-06","1999-07","1999-08","1999-09","1999-10","1999-11","1999-12","2000-01","2000-02","2000-03","2000-04","2000-05","2000-06","2000-07","2000-08","2000-09","2000-10","2000-11","2000-12","2001-01","2001-02","2001-03","2001-04","2001-05","2001-06","2001-07","2001-08","2001-09","2001-10","2001-11","2001-12","2002-01","2002-02","2002-03","2002-04","2002-05","2002-06","2002-07","2002-08","2002-09","2002-10","2002-11","2002-12","2003-01","2003-02","2003-03","2003-04","2003-05","2003-06","2003-07","2003-08","2003-09","2003-10","2003-11","2003-12","2004-01","2004-02","2004-03","2004-04","2004-05","2004-06","2004-07","2004-08","2004-09","2004-10","2004-11","2004-12","2005-01","2005-02","2005-03","2005-04","2005-05","2005-06","2005-07","2005-08","2005-09","2005-10","2005-11","2005-12","2006-01","2006-02","2006-03","2006-04","2006-05","2006-06","2006-07","2006-08","2006-09","2006-10","2006-11","2006-12","2007-01","2007-02","2007-03","2007-04","2007-05","2007-06","2007-07","2007-08","2007-09","2007-10","2007-11","2007-12","2008-01","2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12"],"series":{"strategy":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.829,-0.79,-0.658,0.0,0.0,-2.097,-1.13,0.0,0.0,0.0,-1.1,0.0,0.0,-2.699,0.0,0.0,0.0,0.0,-3.09,0.0,-1.228,0.0,0.0,0.0,0.0,0.0,0.0,-0.788,0.0,-1.125,-7.176,-2.524,0.0,0.0,0.0,0.0,-2.485,-0.954,0.0,-1.616,0.0,-1.88,-2.629,-2.984,-0.202,-0.084,0.0,-2.265,-3.542,0.0,-0.948,-0.974,0.0,0.0,0.0,-1.403,-0.668,-2.574,-0.419,0.0,-2.737,-5.439,-2.571,-1.716,-2.628,-2.027,-3.66,-6.158,-5.006,-2.845,-2.538,-2.841,-2.429,-1.321,-2.681,-2.297,-4.997,-8.366,-6.692,-10.452,-7.829,-5.046,-6.132,-7.338,-7.787,-7.889,-3.723,0.0,0.0,-1.442,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.265,-2.509,-1.103,-2.069,-0.059,0.0,0.0,0.0,0.0,-0.875,0.0,-1.222,-0.787,0.0,0.0,0.0,0.0,0.0,-1.441,0.0,0.0,0.0,0.0,-0.055,0.0,-1.397,-1.109,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.412,-2.245,-0.516,0.0,0.0,-0.759,-1.035,-2.258,-3.572,-3.093,-1.925,-2.135,-5.946,-5.977,-5.13,-7.79,-16.626,-16.267,-12.27,-19.103,-24.231,-20.399,-17.501,-15.291,-15.548,-11.819,-9.2,-6.74,-7.943,-4.082,-4.849,-5.885,-4.337,-1.903,0.0,-2.464,-3.117,0.0,0.0,0.0,0.0,-0.5,0.0,0.0,0.0,0.0,0.0,0.0,-1.487,-1.026,-0.304,-1.092,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.845,0.0,0.0,0.0,0.0,-1.01,-0.508,-0.816,0.0,0.0,0.0,0.0,-1.222,-3.134,-0.969,-2.805,-1.328,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.818,0.0,-1.459,0.0,0.0,0.0,0.0,0.0,-0.56,-1.111,-1.145,-3.4,-1.876,-4.629,-4.753,-0.901,-1.348,-2.002,-2.077,-0.693,0.0,0.0,0.0,0.0,0.0,-0.665,-0.905,-3.004,-3.88,-2.926,-2.12,0.0,-0.176,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.107,-3.343,-4.007,-2.502,-2.076,-0.723,0.0,-0.397,-3.762,-1.961,-4.219,-0.496,0.0,0.0,0.0,-1.307,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.202,-5.725,0.0,0.0,0.0,0.0,0.0,-1.651,-3.067,0.0,0.0,-1.343,-0.999,0.0,0.0,0.0,0.0,0.0,0.0,-2.932,0.0,-0.1,0.0,-3.18,-4.447,-4.444,-9.478,-9.318,-13.123,-9.76,-12.699,-18.303,-16.005,-11.666,-14.062,-10.228,-13.01,-10.897,-10.497,-12.034,-9.848,-8.71,-10.023,-13.789,-15.693,-10.311,-5.839,-6.089,-5.223,-2.94,-6.421,-3.994,-2.625,0.0,0.0,0.0,-1.593,0.0,-3.696,-2.198,-0.223,-1.349,-2.85,-2.047,0.0,0.0,0.0,0.0,0.0,0.0,-0.433],"60/40":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.395,-0.245,0.0,0.0,0.0,-2.592,-1.5,0.0,0.0,0.0,-1.761,0.0,0.0,-3.003,0.0,0.0,0.0,0.0,-3.762,-0.039,-1.381,0.0,0.0,0.0,0.0,0.0,0.0,-0.655,0.0,-0.542,-7.907,-3.023,0.0,0.0,0.0,0.0,-3.1,-0.551,0.0,-1.979,0.0,-2.057,-2.374,-3.553,0.0,0.0,0.0,-3.2,-3.921,0.0,-1.904,-3.039,-0.737,-1.377,0.0,-2.815,-2.715,-6.475,-5.291,-2.772,-7.61,-10.948,-7.208,-6.762,-7.983,-7.563,-10.63,-14.109,-12.37,-9.159,-9.102,-9.741,-10.324,-9.135,-11.502,-11.537,-14.717,-17.759,-16.641,-21.076,-17.137,-14.565,-16.774,-18.246,-18.408,-17.998,-13.858,-10.193,-9.67,-10.125,-9.017,-8.479,-5.877,-5.418,-2.099,-0.709,0.0,-0.481,-2.716,-2.121,-0.776,-2.386,-1.352,-0.643,0.0,0.0,0.0,-1.248,-0.396,-1.65,-2.089,0.0,0.0,0.0,0.0,0.0,-1.322,0.0,0.0,0.0,0.0,0.0,0.0,-1.73,-1.613,-0.723,0.0,0.0,0.0,0.0,0.0,0.0,-0.608,0.0,0.0,0.0,-0.943,-2.131,-0.526,0.0,0.0,-1.18,-1.478,-3.88,-5.158,-5.117,-3.221,-2.951,-7.585,-7.78,-6.618,-11.23,-19.652,-21.874,-20.821,-25.223,-30.194,-26.027,-22.193,-19.874,-19.978,-16.168,-14.071,-11.898,-12.836,-9.076,-8.931,-10.279,-8.471,-5.454,-4.207,-8.221,-10.428,-6.278,-8.282,-3.204,-0.777,-1.158,0.0,0.0,0.0,-0.088,0.0,-0.039,-1.101,-1.513,-4.011,-7.961,-1.941,-1.99,-1.11,0.0,0.0,0.0,0.0,-3.274,-0.963,0.0,0.0,0.0,-1.247,-0.726,-0.353,0.0,0.0,0.0,0.0,0.0,-1.33,0.0,-2.056,0.0,0.0,0.0,0.0,-1.568,0.0,0.0,0.0,0.0,0.0,-1.019,0.0,-1.058,0.0,0.0,-0.3,-1.18,0.0,-0.639,-0.114,0.0,-1.346,0.0,-3.643,-4.667,-0.032,-0.026,-1.1,-3.204,-3.075,0.0,0.0,0.0,0.0,0.0,-0.21,-0.064,-1.413,-0.088,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.366,-3.631,-3.71,-2.042,-1.69,0.0,0.0,0.0,-4.083,-2.6,-7.194,-2.545,-0.76,0.0,0.0,-3.096,0.0,0.0,-0.117,0.0,0.0,0.0,0.0,0.0,-4.188,-10.362,-3.427,-0.548,0.0,0.0,0.0,-2.372,-4.108,0.0,0.0,-0.724,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.128,0.0,-0.308,0.0,-3.685,-5.599,-4.715,-10.457,-10.106,-14.831,-9.542,-12.726,-18.58,-14.797,-11.182,-14.459,-10.525,-12.64,-9.701,-8.635,-8.745,-5.572,-3.73,-4.667,-7.888,-9.262,-3.317,0.0,0.0,0.0,0.0,-3.151,0.0,0.0,0.0,0.0,0.0,-1.399,0.0,-1.758,0.0,-0.102,-3.265,-3.142,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.034],"stock100":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.364,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.42,-2.417,0.0,0.0,0.0,-1.968,0.0,0.0,-4.137,0.0,0.0,0.0,0.0,-5.609,-0.449,-3.784,0.0,0.0,0.0,0.0,0.0,0.0,-1.743,0.0,-1.054,-15.375,-9.949,-2.597,0.0,0.0,0.0,-3.124,0.0,0.0,-2.389,0.0,-3.13,-3.611,-6.252,-0.321,0.0,0.0,-5.032,-6.843,0.0,-3.006,-4.983,-2.621,-4.073,0.0,-5.29,-5.697,-13.126,-12.68,-9.585,-17.847,-23.073,-17.095,-16.556,-18.599,-19.412,-24.469,-30.585,-29.269,-23.855,-23.189,-24.321,-25.786,-23.009,-27.686,-28.231,-33.355,-38.5,-38.098,-44.838,-39.994,-36.299,-40.217,-41.786,-42.67,-42.123,-37.346,-34.048,-33.216,-32.052,-30.739,-31.482,-27.617,-26.992,-23.18,-21.781,-20.703,-21.904,-23.135,-22.092,-20.59,-23.219,-22.925,-22.102,-20.922,-17.723,-14.93,-17.018,-15.281,-16.772,-18.363,-15.777,-15.673,-12.547,-13.346,-12.657,-14.123,-10.89,-10.87,-8.513,-8.28,-7.143,-5.905,-8.63,-8.514,-7.958,-5.784,-3.37,-0.229,0.0,0.0,0.0,-1.969,-0.879,0.0,0.0,-1.674,-4.714,-3.287,0.0,0.0,-4.187,-4.849,-10.573,-13.48,-13.866,-9.678,-8.518,-16.249,-16.945,-15.744,-23.239,-36.129,-40.712,-40.077,-45.118,-50.966,-46.663,-41.564,-38.281,-38.145,-33.458,-31.063,-28.494,-29.83,-25.633,-24.185,-26.917,-24.658,-20.125,-18.865,-25.352,-29.271,-24.323,-27.751,-21.31,-18.329,-18.329,-12.881,-10.828,-7.782,-7.754,-5.035,-6.123,-7.694,-9.583,-14.508,-20.542,-11.87,-12.076,-11.177,-7.212,-3.215,-0.038,-0.677,-6.654,-2.815,-1.484,0.0,0.0,-1.859,-1.31,-0.426,0.0,0.0,0.0,0.0,0.0,-1.349,0.0,-2.912,0.0,0.0,0.0,0.0,-3.469,0.0,0.0,0.0,0.0,0.0,-1.388,0.0,-1.418,0.0,0.0,-0.254,-3.258,0.0,-1.589,-0.655,0.0,-1.935,0.0,-6.042,-8.389,-0.672,-0.388,-1.984,-6.862,-6.997,-0.694,-0.323,0.0,0.0,0.0,0.0,0.0,-1.833,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-3.698,-6.164,-5.814,-3.558,-2.979,0.0,0.0,0.0,-6.849,-4.961,-13.561,-6.644,-3.656,-1.792,0.0,-6.365,0.0,0.0,-1.591,0.0,0.0,0.0,0.0,-0.05,-8.287,-19.661,-9.366,-5.056,-3.19,0.0,0.0,-4.006,-6.57,0.0,0.0,-1.021,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-4.669,0.0,-0.703,0.0,-5.188,-8.034,-4.639,-12.964,-12.816,-20.028,-12.663,-16.236,-23.96,-17.815,-13.232,-18.244,-13.12,-15.248,-12.148,-10.785,-10.41,-4.501,-1.443,-3.022,-7.656,-9.609,-1.366,0.0,0.0,0.0,0.0,-4.096,0.0,0.0,0.0,0.0,0.0,-0.916,0.0,-2.394,0.0,-1.316,-6.89,-7.53,-1.722,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"cash100":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"tdf":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.395,-0.245,0.0,0.0,0.0,-2.592,-1.5,0.0,0.0,0.0,-1.249,0.0,0.0,-3.497,-0.189,0.0,0.0,0.0,-3.987,0.0,-3.629,-1.613,-0.298,0.0,0.0,0.0,0.0,-1.664,0.0,-0.075,-13.154,-8.595,-3.812,0.0,0.0,0.0,-2.571,0.0,0.0,-2.126,0.0,-1.004,-0.803,-2.075,0.0,0.0,0.0,-2.564,0.0,0.0,-3.762,-6.579,-1.978,-3.371,0.0,-3.497,-4.861,-11.618,-9.992,-8.693,-14.195,-18.955,-14.01,-13.625,-14.651,-16.062,-19.204,-25.36,-22.731,-18.883,-18.116,-18.962,-20.133,-18.051,-20.329,-20.853,-25.036,-29.48,-28.761,-33.401,-30.003,-26.996,-29.357,-30.486,-30.818,-30.287,-26.104,-22.639,-21.64,-21.04,-19.374,-19.041,-15.643,-14.725,-11.799,-10.456,-9.197,-9.281,-11.379,-10.876,-9.533,-11.212,-10.288,-9.197,-7.855,-5.337,-2.884,-4.077,-2.884,-4.163,-4.93,-2.884,-2.116,-0.326,0.0,0.0,-1.525,0.0,0.0,0.0,0.0,0.0,0.0,-2.282,-2.282,-1.875,0.0,0.0,0.0,0.0,0.0,0.0,-0.756,0.0,0.0,0.0,-1.065,-3.196,-2.131,0.0,0.0,-3.155,-3.795,-8.493,-10.106,-10.457,-6.881,-5.548,-11.789,-12.701,-12.35,-19.432,-31.423,-34.788,-32.663,-37.457,-42.469,-38.328,-33.026,-29.248,-29.176,-24.382,-22.13,-19.297,-20.677,-17.263,-15.953,-18.032,-16.25,-12.315,-11.202,-16.696,-19.294,-14.468,-17.067,-11.127,-8.454,-8.9,-4.325,-3.037,-0.611,-0.459,0.0,-0.887,-2.143,-3.178,-7.539,-13.452,-6.43,-7.243,-7.047,-2.956,0.0,0.0,-0.448,-5.676,-2.614,-1.643,0.0,0.0,-0.73,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.841,0.0,-1.941,0.0,0.0,0.0,0.0,-2.032,0.0,0.0,0.0,0.0,0.0,-1.32,0.0,-2.251,-0.711,0.0,-0.65,-1.251,0.0,-0.647,0.0,0.0,-1.751,-0.934,-5.312,-7.18,-2.685,-2.86,-4.294,-7.358,-7.664,-2.824,-1.904,-1.414,-0.924,0.0,0.0,0.0,-1.67,-1.252,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.886,-3.515,-3.41,-2.676,-2.886,-1.049,-0.157,-0.21,-5.247,-4.04,-7.933,-2.954,-1.276,0.0,0.0,-3.173,0.0,0.0,-0.313,0.0,0.0,0.0,0.0,0.0,-3.982,-12.954,-6.603,-3.528,-1.462,0.0,0.0,-1.58,-2.968,0.0,0.0,-0.418,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-2.726,0.0,-1.278,0.0,-3.491,-5.457,-5.506,-11.111,-10.816,-15.634,-11.357,-14.405,-20.354,-17.896,-12.93,-15.566,-11.01,-13.339,-11.112,-10.302,-11.162,-8.429,-6.556,-8.277,-11.162,-12.985,-7.315,-3.266,-3.371,-1.582,0.0,-2.725,0.0,0.0,0.0,0.0,0.0,-2.054,0.0,-2.046,-0.212,0.0,-1.775,-0.836,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"metrics":{"strategy":{"cagr":0.08162284294300393,"vol":0.0767739667059664,"mdd":-0.24231372663746586,"recovery_months":14.0,"return_per_vol":1.0631578182694148,"sharpe":0.7531929543621733,"balance_a_multiple":255.59576348840378,"balance_krw":816247882.2536159},"60/40":{"cagr":0.0870213264234514,"vol":0.09019409991623754,"mdd":-0.3019434186778346,"recovery_months":22.0,"return_per_vol":0.9648228265958342,"sharpe":0.7100045004394345,"balance_a_multiple":297.033978426129,"balance_krw":948581277.4776057},"stock100":{"cagr":0.11019605376731212,"vol":0.1508850152217049,"mdd":-0.5096649032457236,"recovery_months":42.0,"return_per_vol":0.7303313294921573,"sharpe":0.6139281281160787,"balance_a_multiple":502.55276864671316,"balance_krw":1604907794.7537336},"cash100":{"cagr":0.024148761898118876,"vol":0.006098055895399541,"mdd":0.0,"recovery_months":0.0,"return_per_vol":3.9600755244531363,"sharpe":null,"balance_a_multiple":101.19188417788618,"balance_krw":323157395.2328055},"tdf":{"cagr":0.081020120165469,"vol":0.11165879471446377,"mdd":-0.4246895196821039,"recovery_months":26.0,"return_per_vol":0.7256044664699755,"sharpe":0.5431398564711037,"balance_a_multiple":249.76154821491997,"balance_krw":797616251.6013772}},"weights":{"ages":[30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],"assets":["equity","long_bond","gold","dividend","mid_bond","reit","cash"],"values":[[0.36,0.18,0.06,0.18,0.09,0.03,0.1],[0.35402,0.18147,0.0595,0.18147,0.09302,0.0305,0.1],[0.3481,0.1829,0.059,0.1829,0.0961,0.031,0.1],[0.34222,0.18427,0.0585,0.18427,0.09923,0.0315,0.1],[0.3364,0.1856,0.058,0.1856,0.1024,0.032,0.1],[0.33062,0.18687,0.0575,0.18687,0.10563,0.0325,0.1],[0.3249,0.1881,0.057,0.1881,0.1089,0.033,0.1],[0.31922,0.18927,0.0565,0.18927,0.11222,0.0335,0.1],[0.3136,0.1904,0.056,0.1904,0.1156,0.034,0.1],[0.30802,0.19147,0.0555,0.19147,0.11902,0.0345,0.1],[0.3025,0.1925,0.055,0.1925,0.1225,0.035,0.1],[0.29702,0.19347,0.0545,0.19347,0.12602,0.0355,0.1],[0.2916,0.1944,0.054,0.1944,0.1296,0.036,0.1],[0.28622,0.19527,0.0535,0.19527,0.13322,0.0365,0.1],[0.2809,0.1961,0.053,0.1961,0.1369,0.037,0.1],[0.27563,0.19688,0.0525,0.19688,0.14062,0.0375,0.1],[0.2704,0.1976,0.052,0.1976,0.1444,0.038,0.1],[0.26522,0.19828,0.0515,0.19828,0.14822,0.0385,0.1],[0.2601,0.1989,0.051,0.1989,0.1521,0.039,0.1],[0.25503,0.19948,0.0505,0.19948,0.15603,0.0395,0.1],[0.25,0.2,0.05,0.2,0.16,0.04,0.1],[0.24502,0.20047,0.0495,0.20047,0.16402,0.0405,0.1],[0.2401,0.2009,0.049,0.2009,0.1681,0.041,0.1],[0.23522,0.20127,0.0485,0.20127,0.17222,0.0415,0.1],[0.2304,0.2016,0.048,0.2016,0.1764,0.042,0.1],[0.22562,0.20187,0.0475,0.20187,0.18062,0.0425,0.1],[0.2209,0.2021,0.047,0.2021,0.1849,0.043,0.1],[0.21622,0.20227,0.0465,0.20227,0.18923,0.0435,0.1],[0.2116,0.2024,0.046,0.2024,0.1936,0.044,0.1],[0.20702,0.20247,0.0455,0.20247,0.19802,0.0445,0.1],[0.2025,0.2025,0.045,0.2025,0.2025,0.045,0.1],[0.19802,0.20247,0.0445,0.20247,0.20702,0.0455,0.1],[0.1936,0.2024,0.044,0.2024,0.2116,0.046,0.1],[0.18922,0.20227,0.0435,0.20227,0.21622,0.0465,0.1],[0.1849,0.2021,0.043,0.2021,0.2209,0.047,0.1],[0.18062,0.20187,0.0425,0.20187,0.22562,0.0475,0.1],[0.1764,0.2016,0.042,0.2016,0.2304,0.048,0.1],[0.17222,0.20127,0.0415,0.20127,0.23522,0.0485,0.1],[0.1681,0.2009,0.041,0.2009,0.2401,0.049,0.1],[0.16402,0.20047,0.0405,0.20047,0.24502,0.0495,0.1],[0.16,0.2,0.04,0.2,0.25,0.05,0.1],[0.15602,0.19947,0.0395,0.19947,0.25503,0.0505,0.1],[0.1521,0.1989,0.039,0.1989,0.2601,0.051,0.1],[0.14822,0.19828,0.0385,0.19828,0.26522,0.0515,0.1],[0.1444,0.1976,0.038,0.1976,0.2704,0.052,0.1],[0.14062,0.19688,0.0375,0.19688,0.27563,0.0525,0.1],[0.1369,0.1961,0.037,0.1961,0.2809,0.053,0.1],[0.13322,0.19528,0.0365,0.19528,0.28623,0.0535,0.1],[0.1296,0.1944,0.036,0.1944,0.2916,0.054,0.1],[0.12602,0.19347,0.0355,0.19347,0.29702,0.0545,0.1],[0.1225,0.1925,0.035,0.1925,0.3025,0.055,0.1],[0.11902,0.19147,0.0345,0.19147,0.30802,0.0555,0.1],[0.1156,0.1904,0.034,0.1904,0.3136,0.056,0.1],[0.11222,0.18927,0.0335,0.18927,0.31922,0.0565,0.1],[0.1089,0.1881,0.033,0.1881,0.3249,0.057,0.1],[0.10562,0.18687,0.0325,0.18687,0.33062,0.0575,0.1],[0.1024,0.1856,0.032,0.1856,0.3364,0.058,0.1],[0.09922,0.18427,0.0315,0.18427,0.34222,0.0585,0.1],[0.0961,0.1829,0.031,0.1829,0.3481,0.059,0.1],[0.09302,0.18147,0.0305,0.18147,0.35402,0.0595,0.1],[0.09,0.18,0.03,0.18,0.36,0.06,0.1],[0.08702,0.17847,0.0295,0.17847,0.36602,0.0605,0.1],[0.0841,0.1769,0.029,0.1769,0.3721,0.061,0.1],[0.08122,0.17527,0.0285,0.17527,0.37822,0.0615,0.1],[0.0784,0.1736,0.028,0.1736,0.3844,0.062,0.1],[0.07562,0.17187,0.0275,0.17187,0.39062,0.0625,0.1],[0.0729,0.1701,0.027,0.1701,0.3969,0.063,0.1],[0.07022,0.16827,0.0265,0.16827,0.40323,0.0635,0.1],[0.0676,0.1664,0.026,0.1664,0.4096,0.064,0.1],[0.06502,0.16447,0.0255,0.16447,0.41603,0.0645,0.1],[0.0625,0.1625,0.025,0.1625,0.4225,0.065,0.1]]},"mc":{"ages":[61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],"series":{"strategy":{"dep_cum":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0001,0.0001,0.0002,0.0006,0.0008,0.0012,0.002,0.0034,0.0062,0.009,0.012,0.0169,0.0221,0.0283,0.0346,0.0424,0.0506,0.0599,0.071,0.0815],"dep_hist":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,4,2,4,8,14,28,28,30,49,52,62,63,78,82,93,111,105],"resid":{"61":[254.89,260.15,265.93,270.57,275.37],"62":[241.83,254.85,267.19,277.76,287.75],"63":[230.59,250.35,267.84,283.57,297.86],"64":[223.52,246.2,268.14,287.69,305.9],"65":[217.45,241.97,268.05,292.15,313.82],"66":[211.67,238.62,267.78,295.68,321.12],"67":[207.28,235.68,267.88,299.13,327.93],"68":[202.11,232.41,267.42,301.56,334.76],"69":[197.21,229.56,266.39,303.67,340.01],"70":[192.72,226.18,265.57,306.15,345.45],"71":[186.81,222.65,263.96,308.06,350.61],"72":[181.97,219.59,262.67,310.11,356.12],"73":[177.28,215.95,261.45,311.29,361.64],"74":[172.71,212.97,260.41,313.2,365.86],"75":[167.81,209.46,258.82,314.61,371.77],"76":[163.24,205.61,258.36,317.28,374.38],"77":[158.56,201.83,256.73,318.89,377.74],"78":[153.59,198.05,255.74,320.16,382.76],"79":[148.22,194.13,253.48,321.43,386.85],"80":[143.35,190.32,251.96,322.17,390.95],"81":[137.77,186.52,249.74,322.16,396.08],"82":[131.6,182.08,247.32,323.13,398.52],"83":[126.59,177.44,243.92,324.36,401.84],"84":[121.6,174.1,242.63,325.8,407.23],"85":[115.53,170.18,240.63,324.95,410.24],"86":[109.22,164.81,237.09,325.51,414.47],"87":[103.98,160.42,233.77,325.9,418.83],"88":[97.92,155.31,231.52,326.5,422.13],"89":[91.74,150.52,228.59,324.73,424.53],"90":[84.96,144.92,225.6,324.61,426.96],"91":[78.35,140.0,221.76,325.21,428.59],"92":[71.43,133.35,218.31,324.13,432.18],"93":[64.69,127.81,215.67,324.12,435.49],"94":[57.68,122.22,211.74,321.98,436.48],"95":[51.13,115.16,207.03,321.21,438.13],"96":[43.64,109.91,203.12,318.93,442.33],"97":[36.45,103.52,198.49,317.28,446.47],"98":[29.15,97.62,195.16,315.87,447.51],"99":[21.39,91.48,190.73,315.01,448.13],"100":[13.65,85.6,186.42,312.2,449.55]}},"60/40":{"dep_cum":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0001,0.0002,0.0002,0.0003,0.0006,0.0009,0.0013,0.0023,0.0029,0.0039,0.005,0.0067,0.0089,0.0109,0.0132,0.0149,0.0172,0.0187,0.0205,0.0235,0.0266],"dep_hist":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,3,3,4,10,6,10,11,17,22,20,23,17,23,15,18,30,31],"resid":{"61":[296.37,307.4,315.31,323.45,330.69],"62":[275.18,302.23,322.65,340.0,358.78],"63":[266.18,297.62,328.91,355.33,380.53],"64":[256.79,293.85,332.91,368.37,402.11],"65":[251.52,291.83,338.57,381.89,424.52],"66":[245.4,290.8,342.68,394.86,444.81],"67":[240.84,291.26,347.66,408.45,466.64],"68":[238.34,290.82,353.66,420.62,485.86],"69":[233.59,290.06,358.9,432.39,505.26],"70":[230.34,290.09,363.63,444.97,526.23],"71":[226.57,290.18,368.15,458.72,550.12],"72":[222.27,290.63,373.59,471.54,570.82],"73":[219.99,290.57,379.42,483.82,590.18],"74":[216.8,291.11,384.67,498.62,619.77],"75":[213.24,292.27,392.73,513.03,642.36],"76":[211.79,291.31,399.84,530.94,668.51],"77":[209.58,293.32,405.97,545.21,694.27],"78":[206.91,294.45,414.05,563.39,723.09],"79":[204.44,295.7,422.24,581.61,751.2],"80":[201.96,297.7,429.88,600.77,786.81],"81":[197.63,301.01,440.27,620.16,813.96],"82":[195.25,303.44,446.05,641.76,855.4],"83":[193.19,304.41,456.54,660.98,890.35],"84":[190.21,303.74,464.61,684.26,928.07],"85":[187.9,305.48,473.57,704.13,966.93],"86":[184.28,306.79,484.15,727.4,1010.56],"87":[182.69,310.2,493.5,751.36,1053.8],"88":[180.06,313.43,504.35,773.27,1100.66],"89":[177.16,317.27,514.76,801.7,1141.44],"90":[175.09,318.72,524.25,826.13,1185.96],"91":[172.55,322.76,538.76,852.49,1238.18],"92":[169.54,322.07,548.04,879.32,1281.5],"93":[166.75,324.03,562.22,907.84,1338.49],"94":[163.57,327.04,572.84,941.86,1388.83],"95":[158.39,328.65,588.12,980.75,1434.09],"96":[155.23,333.44,601.94,1013.3,1498.09],"97":[153.37,335.96,617.57,1037.21,1559.93],"98":[149.87,336.57,634.61,1075.97,1628.51],"99":[147.64,337.92,655.57,1109.25,1699.2],"100":[145.33,341.83,671.77,1151.75,1773.65]}},"stock100":{"dep_cum":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0001,0.0003,0.0005,0.0005,0.0007,0.0007,0.0008,0.001,0.001,0.0013,0.0016,0.0021,0.0023,0.003,0.0031,0.0035,0.0038,0.0043,0.0046,0.005,0.0053,0.0057],"dep_hist":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,2,0,2,0,1,2,0,3,3,5,2,7,1,4,3,5,3,4,3,4],"resid":{"61":[515.53,551.65,577.93,599.72,618.55],"62":[463.0,549.19,617.03,674.13,728.05],"63":[447.85,546.17,653.52,742.97,829.78],"64":[433.69,549.7,684.34,809.79,930.24],"65":[427.2,560.06,717.18,886.21,1041.9],"66":[418.18,567.25,756.6,958.77,1150.48],"67":[424.73,582.84,791.44,1036.25,1274.15],"68":[422.55,602.43,830.59,1112.18,1400.88],"69":[428.49,612.36,873.16,1195.58,1511.86],"70":[428.29,627.27,913.49,1275.62,1662.21],"71":[430.79,647.47,957.66,1363.73,1816.94],"72":[434.74,666.81,1007.73,1454.74,1986.45],"73":[440.92,687.97,1058.9,1555.47,2138.88],"74":[443.71,704.73,1110.51,1671.48,2340.63],"75":[449.88,727.42,1176.34,1788.21,2533.94],"76":[459.52,749.31,1244.79,1921.05,2774.33],"77":[467.45,782.63,1308.53,2065.26,2994.75],"78":[479.75,815.22,1379.11,2215.22,3257.46],"79":[488.24,843.64,1461.08,2366.58,3528.45],"80":[501.37,877.8,1542.28,2534.1,3821.23],"81":[499.99,914.47,1636.83,2737.91,4177.83],"82":[511.2,957.74,1713.46,2959.29,4533.43],"83":[527.52,997.09,1793.29,3147.34,4935.21],"84":[547.88,1037.37,1912.0,3367.54,5359.96],"85":[561.16,1078.58,2008.45,3628.35,5790.76],"86":[581.65,1105.88,2118.86,3880.47,6327.02],"87":[593.5,1162.49,2233.8,4157.05,6852.58],"88":[608.77,1210.74,2362.41,4411.96,7467.88],"89":[631.59,1258.97,2503.79,4743.86,8105.16],"90":[649.3,1321.32,2639.78,5039.36,8652.14],"91":[677.1,1395.25,2797.95,5368.79,9233.18],"92":[684.72,1456.17,2934.94,5708.78,9968.59],"93":[699.52,1513.84,3104.15,6086.64,10848.35],"94":[732.06,1565.25,3287.16,6543.72,11619.94],"95":[753.25,1648.54,3484.26,6994.73,12442.59],"96":[762.33,1715.65,3692.97,7498.95,13558.23],"97":[796.38,1789.52,3959.29,7945.96,14352.2],"98":[809.11,1871.51,4182.76,8516.86,15480.44],"99":[848.12,1932.16,4409.07,9176.8,16723.37],"100":[885.26,2053.64,4702.74,9774.23,18274.72]}},"cash100":{"dep_cum":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0326,0.7822,0.9997,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],"dep_hist":[0,0,0,0,0,0,0,0,0,0,326,7496,2175,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"resid":{"61":[95.95,95.97,96.36,97.09,97.21],"62":[84.21,84.99,86.17,88.62,89.41],"63":[73.52,74.8,77.04,78.55,80.87],"64":[63.51,65.43,67.22,69.64,71.33],"65":[54.14,55.79,58.05,60.23,62.39],"66":[44.8,46.57,48.86,51.25,53.36],"67":[35.73,37.51,39.86,42.3,44.47],"68":[26.89,28.69,31.04,33.48,35.69],"69":[18.21,20.04,22.34,24.79,26.97],"70":[9.76,11.56,13.83,16.27,18.43],"71":[1.49,3.26,5.49,7.86,10.02],"72":[0.0,0.0,0.0,0.0,1.72],"73":[0.0,0.0,0.0,0.0,0.0],"74":[0.0,0.0,0.0,0.0,0.0],"75":[0.0,0.0,0.0,0.0,0.0],"76":[0.0,0.0,0.0,0.0,0.0],"77":[0.0,0.0,0.0,0.0,0.0],"78":[0.0,0.0,0.0,0.0,0.0],"79":[0.0,0.0,0.0,0.0,0.0],"80":[0.0,0.0,0.0,0.0,0.0],"81":[0.0,0.0,0.0,0.0,0.0],"82":[0.0,0.0,0.0,0.0,0.0],"83":[0.0,0.0,0.0,0.0,0.0],"84":[0.0,0.0,0.0,0.0,0.0],"85":[0.0,0.0,0.0,0.0,0.0],"86":[0.0,0.0,0.0,0.0,0.0],"87":[0.0,0.0,0.0,0.0,0.0],"88":[0.0,0.0,0.0,0.0,0.0],"89":[0.0,0.0,0.0,0.0,0.0],"90":[0.0,0.0,0.0,0.0,0.0],"91":[0.0,0.0,0.0,0.0,0.0],"92":[0.0,0.0,0.0,0.0,0.0],"93":[0.0,0.0,0.0,0.0,0.0],"94":[0.0,0.0,0.0,0.0,0.0],"95":[0.0,0.0,0.0,0.0,0.0],"96":[0.0,0.0,0.0,0.0,0.0],"97":[0.0,0.0,0.0,0.0,0.0],"98":[0.0,0.0,0.0,0.0,0.0],"99":[0.0,0.0,0.0,0.0,0.0],"100":[0.0,0.0,0.0,0.0,0.0]}},"tdf":{"dep_cum":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0002,0.0003,0.0005,0.001,0.0022,0.0039,0.0062,0.0098,0.0136,0.0186,0.0231,0.029,0.0381,0.0457,0.0551,0.0643,0.0739,0.0844,0.094,0.1043,0.1141,0.1236,0.1359,0.1456,0.1557,0.1655,0.1769,0.187,0.1954],"dep_hist":[0,0,0,0,0,0,0,0,0,0,0,2,1,2,5,12,17,23,36,38,50,45,59,91,76,94,92,96,105,96,103,98,95,123,97,101,98,114,101,84],"resid":{"61":[240.1,253.11,261.21,268.4,275.94],"62":[215.3,242.29,265.91,283.73,301.85],"63":[201.58,234.09,267.87,296.83,322.64],"64":[188.33,226.88,268.68,307.02,341.76],"65":[178.48,220.89,270.24,317.54,360.76],"66":[170.19,215.24,270.62,325.92,379.26],"67":[162.76,211.61,271.06,335.75,395.75],"68":[156.52,207.13,271.52,342.26,414.47],"69":[149.78,202.62,271.16,350.75,428.26],"70":[142.66,197.65,271.71,359.33,442.08],"71":[136.0,194.08,271.53,367.09,464.79],"72":[130.16,189.14,272.68,373.65,481.62],"73":[122.94,184.51,273.12,379.3,499.04],"74":[116.25,180.08,273.72,387.41,520.36],"75":[110.21,176.46,273.68,397.69,532.92],"76":[103.24,171.12,273.86,408.02,555.1],"77":[95.24,167.3,273.95,415.54,579.4],"78":[88.23,164.33,274.69,423.87,595.5],"79":[82.22,159.32,275.95,433.22,618.32],"80":[76.11,155.96,276.92,446.69,634.92],"81":[70.2,151.23,279.94,454.74,662.95],"82":[63.29,147.63,278.51,462.89,682.72],"83":[57.67,141.93,277.08,474.1,711.26],"84":[50.47,137.46,279.61,484.56,739.38],"85":[42.42,132.31,279.67,497.14,769.11],"86":[36.08,128.15,280.04,507.11,796.42],"87":[28.59,122.6,278.48,519.24,835.54],"88":[20.98,117.59,277.4,531.99,866.19],"89":[13.07,113.1,280.98,542.05,884.55],"90":[5.07,106.55,279.46,551.3,915.27],"91":[0.0,101.68,281.74,562.99,948.28],"92":[0.0,95.15,280.18,571.69,970.27],"93":[0.0,89.82,279.54,580.93,1008.16],"94":[0.0,84.36,283.02,592.79,1042.37],"95":[0.0,77.34,282.96,615.07,1080.58],"96":[0.0,71.37,286.26,629.61,1114.31],"97":[0.0,65.41,284.56,643.67,1166.34],"98":[0.0,58.46,287.91,658.8,1199.83],"99":[0.0,51.76,287.48,674.3,1237.39],"100":[0.0,45.05,285.24,692.71,1301.15]}}},"quantiles":[0.1,0.25,0.5,0.75,0.9]},"coverage":{"ages":[62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100],"all_p10":[0.646,0.6427,0.6398,0.6299,0.6195,0.6141,0.6084,0.5982,0.5913,0.5762,0.5712,0.5556,0.5462,0.5291,0.5171,0.5094,0.4946,0.4811,0.4728,0.4535,0.4391,0.4215,0.4057,0.3856,0.3688,0.3599,0.338,0.3255,0.3124,0.2908,0.2827,0.2701,0.251,0.2417,0.2337,0.2165,0.2135,0.2012,0.1926],"all_p50":[0.9469,0.9402,0.9446,0.9402,0.9396,0.9501,0.9437,0.9446,0.942,0.9423,0.9477,0.9436,0.9348,0.934,0.9264,0.9228,0.9225,0.922,0.9151,0.906,0.9036,0.8975,0.8861,0.8771,0.8741,0.8687,0.8588,0.85,0.8421,0.8325,0.8217,0.8134,0.8001,0.7975,0.7845,0.779,0.7633,0.7626,0.7574],"bucket_p10":[0.3463,0.3447,0.3461,0.3435,0.342,0.3392,0.3389,0.3357,0.3336,0.3273,0.3278,0.3198,0.3165,0.3093,0.3027,0.2999,0.2934,0.2893,0.286,0.2745,0.2703,0.2598,0.2529,0.241,0.2314,0.2278,0.2156,0.2102,0.2024,0.1895,0.1859,0.1787,0.1665,0.1617,0.1576,0.1472,0.1449,0.1376,0.1326],"bucket_p50":[0.4975,0.5006,0.504,0.508,0.511,0.5187,0.5209,0.526,0.5281,0.5315,0.5376,0.5409,0.5373,0.5441,0.5418,0.5449,0.5467,0.5489,0.5522,0.5473,0.5504,0.5528,0.5525,0.5457,0.5488,0.549,0.5468,0.5439,0.5418,0.5422,0.538,0.5342,0.5282,0.5299,0.5273,0.5245,0.5175,0.5223,0.5221],"alive":[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.9999,0.9999,0.9998,0.9994,0.9992,0.9988,0.998,0.9966,0.9938,0.991,0.988,0.9831,0.9779,0.9717,0.9654,0.9576,0.9494,0.9401,0.929,0.9185],"bench":{"60/40":{"p50":[0.8881,0.9031,0.9192,0.9323,0.9498,0.9713,0.9817,0.9969,1.0129,1.0325,1.0471,1.0681,1.0836,1.0827,1.1135,1.1393,1.159,1.1901,1.2051,1.2202,1.2606,1.2758,1.3105,1.3298,1.3609,1.3931,1.421,1.4313,1.4826,1.5029,1.554,1.6002,1.6062,1.6723,1.7095,1.7579,1.7987,1.848,1.9098],"p10":[0.6295,0.6236,0.614,0.6074,0.6004,0.5958,0.5948,0.5882,0.5831,0.5776,0.5725,0.5647,0.5604,0.5501,0.5483,0.5434,0.5409,0.5296,0.5415,0.5305,0.5206,0.5077,0.5093,0.507,0.4944,0.5043,0.4941,0.4916,0.4898,0.4842,0.4881,0.4919,0.4835,0.4896,0.4898,0.487,0.4802,0.4948,0.4971]},"stock100":{"p50":[1.2623,1.3427,1.4049,1.4844,1.5642,1.6443,1.726,1.8125,1.8856,1.9785,2.0839,2.1947,2.3028,2.4221,2.5775,2.7209,2.8398,3.0321,3.1846,3.3858,3.573,3.749,3.9399,4.1448,4.4178,4.612,4.9132,5.132,5.5147,5.8036,6.0795,6.5356,6.868,7.2702,7.6992,8.1458,8.6714,9.2903,9.8841],"p10":[0.8963,0.8869,0.8793,0.869,0.8586,0.866,0.8683,0.8679,0.8741,0.8862,0.8973,0.9048,0.9113,0.9238,0.9537,0.9554,0.9647,0.9922,1.0227,1.0444,1.068,1.0914,1.1286,1.1662,1.2058,1.2409,1.2711,1.3142,1.3619,1.4169,1.4403,1.499,1.5421,1.5833,1.6345,1.6819,1.7621,1.8061,1.898]},"cash100":{"p50":[0.2256,0.201,0.1775,0.1538,0.1282,0.1086,0.0861,0.0653,0.0448,0.0238,0.0143,0.0393,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"p10":[0.0266,0.0228,0.0218,0.0185,0.0162,0.0121,0.0103,0.0075,0.005,0.0022,0.0014,0.0081,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]}},"bench_retire":{"60/40":0.7144,"stock100":0.6369,"cash100":0.4925},"actual_2026":{"age":61,"all":0.9582,"bucket":0.507},"retire":{"all":0.9573,"bucket":0.5006}},"rolling":{"horizon":15,"n_starts":202,"months":["1995-01","1995-02","1995-03","1995-04","1995-05","1995-06","1995-07","1995-08","1995-09","1995-10","1995-11","1995-12","1996-01","1996-02","1996-03","1996-04","1996-05","1996-06","1996-07","1996-08","1996-09","1996-10","1996-11","1996-12","1997-01","1997-02","1997-03","1997-04","1997-05","1997-06","1997-07","1997-08","1997-09","1997-10","1997-11","1997-12","1998-01","1998-02","1998-03","1998-04","1998-05","1998-06","1998-07","1998-08","1998-09","1998-10","1998-11","1998-12","1999-01","1999-02","1999-03","1999-04","1999-05","1999-06","1999-07","1999-08","1999-09","1999-10","1999-11","1999-12","2000-01","2000-02","2000-03","2000-04","2000-05","2000-06","2000-07","2000-08","2000-09","2000-10","2000-11","2000-12","2001-01","2001-02","2001-03","2001-04","2001-05","2001-06","2001-07","2001-08","2001-09","2001-10","2001-11","2001-12","2002-01","2002-02","2002-03","2002-04","2002-05","2002-06","2002-07","2002-08","2002-09","2002-10","2002-11","2002-12","2003-01","2003-02","2003-03","2003-04","2003-05","2003-06","2003-07","2003-08","2003-09","2003-10","2003-11","2003-12","2004-01","2004-02","2004-03","2004-04","2004-05","2004-06","2004-07","2004-08","2004-09","2004-10","2004-11","2004-12","2005-01","2005-02","2005-03","2005-04","2005-05","2005-06","2005-07","2005-08","2005-09","2005-10","2005-11","2005-12","2006-01","2006-02","2006-03","2006-04","2006-05","2006-06","2006-07","2006-08","2006-09","2006-10","2006-11","2006-12","2007-01","2007-02","2007-03","2007-04","2007-05","2007-06","2007-07","2007-08","2007-09","2007-10","2007-11","2007-12","2008-01","2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10"],"start_a":255.6,"series":{"strategy":[230.41,223.33,218.75,218.48,218.25,203.7,201.53,205.36,203.97,202.7,202.27,193.47,190.05,186.43,194.43,195.97,202.56,202.61,197.4,204.52,205.88,198.08,197.57,187.9,193.38,192.48,191.25,199.37,195.35,187.58,183.68,174.98,183.47,174.36,174.96,170.45,166.33,165.78,162.13,159.04,162.08,160.91,153.99,159.62,168.09,158.62,156.34,150.56,147.11,146.64,156.66,154.85,149.41,155.73,154.34,158.0,164.72,163.62,161.75,165.81,165.23,174.33,177.98,163.55,164.28,163.72,157.45,159.01,148.98,151.35,153.93,155.33,148.71,148.52,154.51,164.52,159.78,158.91,166.0,166.45,167.61,172.44,166.36,161.2,163.21,165.12,166.8,165.65,168.19,168.97,174.99,182.76,179.46,188.7,185.93,183.55,186.66,191.95,187.31,188.62,177.15,167.99,169.45,177.79,177.46,172.3,164.32,165.46,156.09,158.84,157.28,160.1,171.66,169.51,171.76,174.83,173.88,172.8,170.33,168.26,164.45,170.0,165.99,165.48,172.27,170.04,168.24,172.87,173.54,172.7,175.1,178.35,179.06,172.92,171.93,176.18,179.36,185.54,186.45,185.73,181.86,173.57,173.17,168.39,173.9,167.2,164.81,164.17,151.67,151.1,149.47,156.53,147.44,133.87,134.04,141.34,139.99,147.61,146.37,148.33,148.03,147.14,158.32,160.06,156.07,155.38,172.31,180.86,179.21,201.29,222.24,212.65,196.49,196.22,200.21,195.55,191.6,188.15,189.01,183.3,181.82,187.32,187.61,180.68,172.94,178.58,183.96,176.25,179.2,173.59,172.0,176.39,172.82,177.12,177.39,171.84,169.3,169.61,173.1,171.39,171.24,167.57],"60/40":[227.17,217.35,212.25,213.79,210.05,190.0,181.39,185.58,180.29,182.97,186.74,177.58,179.05,176.35,181.3,181.27,184.9,181.66,178.0,184.98,177.81,160.82,165.08,152.5,158.7,154.56,157.37,168.52,158.52,144.41,141.13,129.92,141.01,134.74,136.58,131.25,128.91,130.08,122.76,119.21,119.52,122.42,115.2,120.45,135.69,127.32,121.28,116.25,110.07,103.04,113.09,108.19,104.24,110.78,105.67,109.43,113.62,115.55,109.78,109.72,103.03,109.48,114.81,100.59,105.64,109.39,103.37,106.76,94.63,99.69,104.76,113.71,110.2,102.82,114.11,127.77,119.03,119.58,124.13,126.32,134.59,145.13,138.75,132.4,134.32,138.25,143.87,141.24,149.79,151.97,162.73,175.81,173.43,191.8,180.41,175.17,184.69,196.35,193.01,189.68,175.77,167.61,167.21,172.82,173.77,172.84,158.79,160.52,144.76,148.92,148.82,153.33,163.84,157.72,161.77,168.26,165.74,165.83,165.26,164.11,160.87,166.19,157.52,151.11,164.64,163.58,165.4,167.16,174.78,171.25,172.69,177.48,181.09,176.15,178.46,182.22,187.1,194.54,197.57,198.98,196.41,185.03,186.05,181.33,185.27,176.77,175.82,175.78,158.06,154.58,149.48,162.76,153.27,137.64,141.41,151.11,146.85,160.87,161.25,167.18,164.24,163.89,184.58,189.53,184.6,194.07,223.32,248.83,253.78,279.66,317.16,299.7,271.1,269.9,278.19,265.11,261.48,257.16,258.54,252.83,248.69,259.95,253.02,234.22,230.75,255.45,274.9,261.23,275.5,261.1,256.57,260.13,248.99,245.88,240.18,232.72,239.42,247.96,251.59,253.49,268.76,283.93],"stock100":[237.14,221.48,217.45,222.16,217.43,190.03,174.78,179.05,170.69,175.7,183.78,173.18,180.1,175.99,180.05,178.01,179.86,171.68,168.3,176.85,162.58,139.52,148.82,132.74,138.77,131.9,136.22,151.08,137.1,117.02,113.3,100.28,114.22,106.75,111.8,103.92,101.91,105.34,93.61,88.01,88.14,93.94,85.51,92.29,122.17,112.63,101.24,92.46,83.83,73.66,83.56,77.07,70.92,77.6,69.23,74.63,79.03,83.88,74.09,72.58,61.82,69.8,78.14,59.62,66.28,71.54,65.94,70.64,56.15,64.42,71.11,88.23,86.22,75.68,94.84,116.75,100.67,101.52,107.87,114.77,131.49,154.59,147.33,133.72,134.69,141.84,153.69,144.23,164.38,169.69,194.9,227.71,226.93,277.6,250.93,236.39,265.01,292.89,289.73,279.4,249.59,236.78,234.47,237.53,238.82,245.38,209.99,212.13,177.91,187.13,189.48,199.11,213.7,196.45,204.51,220.37,216.42,217.55,217.73,212.04,207.24,217.12,193.18,175.08,204.82,204.58,209.07,208.59,228.61,217.52,218.77,229.14,238.97,227.32,233.71,240.0,248.31,264.13,271.0,275.95,274.72,252.1,256.55,247.85,253.98,235.8,238.1,243.41,206.79,195.65,185.99,215.85,202.64,173.12,182.75,209.31,200.54,237.85,246.0,257.96,243.6,240.61,296.77,311.6,301.16,331.41,422.13,510.76,528.34,604.29,736.12,686.15,587.72,576.59,597.63,551.42,540.73,527.69,538.28,528.88,504.76,547.21,520.27,455.03,443.93,530.13,600.25,563.43,613.18,569.91,556.93,560.35,515.64,508.58,483.67,461.07,491.22,527.41,536.65,553.62,615.09,676.69],"cash100":[90.31,89.74,89.16,88.6,88.04,87.49,86.96,86.44,85.92,85.42,84.92,84.4,83.92,83.46,83.02,82.56,82.1,81.63,81.15,80.66,80.19,79.71,79.24,78.77,78.32,77.85,77.38,76.91,76.43,75.96,75.51,75.04,74.57,74.12,73.67,73.19,72.72,72.25,71.79,71.33,70.88,70.42,69.97,69.52,69.07,68.66,68.33,67.94,67.56,67.18,66.79,66.4,66.03,65.63,65.23,64.83,64.4,63.99,63.55,63.09,62.62,62.14,61.63,61.11,60.59,60.06,59.54,58.99,58.44,57.89,57.33,56.77,56.26,55.81,55.4,55.03,54.71,54.43,54.15,53.88,53.62,53.43,53.29,53.18,53.1,53.02,52.93,52.85,52.77,52.7,52.63,52.57,52.51,52.46,52.41,52.4,52.4,52.4,52.41,52.44,52.46,52.5,52.55,52.61,52.66,52.73,52.8,52.87,52.95,53.03,53.11,53.18,53.26,53.33,53.37,53.39,53.4,53.39,53.35,53.28,53.19,53.09,52.97,52.78,52.57,52.36,52.13,51.88,51.61,51.33,51.03,50.71,50.39,50.04,49.66,49.28,48.89,48.48,48.07,47.65,47.23,46.82,46.4,45.98,45.57,45.15,44.74,44.33,43.95,43.59,43.25,42.93,42.67,42.47,42.28,42.16,42.08,42.02,42.03,42.12,42.22,42.29,42.35,42.43,42.51,42.64,42.83,43.05,43.3,43.54,43.76,44.0,44.25,44.49,44.74,44.99,45.24,45.49,45.73,45.98,46.22,46.46,46.7,46.94,47.18,47.42,47.67,47.92,48.16,48.4,48.64,48.89,49.12,49.35,49.6,49.84,50.09,50.35,50.61,50.88,51.14,51.43],"tdf":[236.31,223.87,219.06,223.7,219.75,194.75,184.59,191.34,184.19,189.89,194.77,185.13,190.06,186.71,193.12,193.57,198.71,193.63,189.38,195.43,184.11,162.67,169.53,155.8,159.66,159.13,164.49,176.57,167.38,145.93,142.13,129.48,141.55,133.54,141.46,138.23,137.49,139.25,126.95,122.3,123.1,127.28,119.06,124.13,155.13,148.26,140.48,130.52,120.05,111.17,121.4,113.98,109.61,116.7,108.63,109.79,112.67,113.38,106.6,100.61,85.44,90.31,84.6,78.34,86.93,93.42,82.89,86.69,73.26,78.32,85.13,99.72,95.02,89.63,101.61,119.6,108.34,108.35,111.84,119.31,128.86,149.21,138.74,128.35,128.4,133.54,140.43,135.64,144.82,149.06,164.69,185.57,184.27,207.86,195.91,186.47,199.17,211.14,207.28,204.24,187.4,176.13,172.75,174.47,170.76,170.14,151.43,151.13,137.38,141.59,141.11,143.96,153.66,147.87,151.16,157.1,154.46,153.55,152.65,148.66,145.49,149.24,140.76,131.02,143.03,142.93,144.55,145.62,149.46,146.56,148.96,154.93,157.25,151.06,153.02,153.3,155.34,164.04,166.46,167.31,163.96,155.45,152.13,144.86,145.4,137.41,137.07,134.53,119.71,114.62,111.08,122.04,115.89,101.41,100.5,113.77,112.11,129.96,131.07,135.85,128.36,124.36,145.07,151.21,147.93,165.07,207.37,238.26,238.26,265.07,303.62,282.71,245.85,234.64,237.76,221.47,216.48,209.5,211.33,203.89,195.62,207.74,202.9,186.3,185.04,210.17,227.55,210.25,225.35,208.16,202.11,204.94,191.33,191.29,187.46,180.2,180.4,188.22,192.73,195.04,213.38,232.3]},"stats":{"strategy":{"worst":133.872,"p10":151.8996,"median":172.1375,"best":230.4147,"depleted_starts":0,"worst_month":"2007-10","mean":173.8181,"std":17.8088,"range":96.5427,"cv":0.1025},"60/40":{"worst":94.6281,"p10":111.0117,"median":166.0141,"best":317.1586,"depleted_starts":0,"worst_month":"2000-09","mean":172.8543,"std":49.1406,"range":222.5305,"cv":0.2843},"stock100":{"worst":56.1456,"p10":79.486,"median":204.6986,"best":736.1188,"depleted_starts":0,"worst_month":"2000-09","mean":239.6051,"std":159.4556,"range":679.9732,"cv":0.6655},"cash100":{"worst":42.0231,"p10":43.6047,"median":52.939,"best":90.3105,"depleted_starts":0,"worst_month":"2008-02","mean":57.8095,"std":13.295,"range":48.2874,"cv":0.23},"tdf":{"worst":73.2609,"p10":108.3787,"median":151.1844,"best":303.6165,"depleted_starts":0,"worst_month":"2000-09","mean":158.0385,"std":42.2381,"range":230.3557,"cv":0.2673}}},"kpi":{"retire_balance_a":255.6,"retire_balance_krw":816247882.0,"cash_years":3.19}};
+</script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DATA;
+  if (!D) { document.body.insertAdjacentHTML("afterbegin", "<p style='padding:20px'>data.js를 불러오지 못했습니다. 같은 폴더에 data.js가 있는지 확인하세요.</p>"); return; }
+  var M = D.meta, IDS = M.ids, LAB = M.labels;
+  var NS = "http://www.w3.org/2000/svg";
+  var state = { age: M.life_default };
+
+  /* ---------- 작은 도구 ---------- */
+  function $(id) { return document.getElementById(id); }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function sv(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function html(tag, cls, text, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;     // 이름·값은 textContent로만 넣는다 (외부 데이터를 HTML로 해석하지 않음)
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function pct(x, d) { return (x * 100).toFixed(d == null ? 1 : d) + "%"; }
+  function num(x, d) { return Number(x).toLocaleString("ko-KR", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function krw(won) {
+    if (won >= 1e8) return num(won / 1e8, 1) + "억 원";
+    return num(won / 1e4, 0) + "만 원";
+  }
+  function aToKrw(a) { return a * M.a2026; }
+  function niceTicks(lo, hi, n) {
+    var span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 2.5, 5, 10].map(function (m) { return m * mag; }).find(function (s) { return s >= raw; });
+    var out = [], v = Math.ceil(lo / step) * step;
+    for (; v <= hi + step * 1e-6; v += step) out.push(Math.round(v / step) * step);
+    return out;
+  }
+  function seriesColor(id) { return css("--s-" + id.replace("/", "")); }   // "60/40" -> --s-6040
+  function dateX(s) { var p = s.split("-"); return +p[0] + (+p[1] - 1) / 12; }
+
+  /* ---------- 툴팁 ---------- */
+  var allTips = [], clipSeq = 0;
+  document.addEventListener("pointerdown", function (e) {      // 차트 밖을 누르면 툴팁을 닫는다 (터치용)
+    allTips.forEach(function (tp) { if (!tp.host.contains(e.target)) tp.hide(); });
+  });
+  function tipFor(host) {
+    var t = html("div", "tip", null, host);
+    var api = {
+      host: host, onHide: null,
+      show: function (header, rows, x, y) {
+        t.textContent = "";
+        html("div", "h", header, t);
+        rows.forEach(function (r) {
+          var row = html("div", "r", null, t);
+          if (r.color) { var k = html("span", "k", null, row); k.style.borderTopColor = r.color; }
+          html("span", "n", r.name, row);
+          html("span", "v", r.value, row);
+        });
+        t.classList.add("on");
+        var w = t.offsetWidth, hw = host.clientWidth;
+        var left = x + 14; if (left + w > hw) left = x - w - 14;
+        t.style.left = Math.max(0, left) + "px"; t.style.top = Math.max(0, y - 10) + "px";
+      },
+      hide: function () { t.classList.remove("on"); if (api.onHide) api.onHide(); }
+    };
+    allTips.push(api);
+    return api;
+  }
+
+  /* ---------- 공통: 축·눈금 ---------- */
+  function frame(host, o) {
+    host.textContent = "";
+    var W = Math.max(280, host.clientWidth), H = o.height || 300;
+    var pad = { l: o.padL || 50, r: o.padR || 16, t: 12, b: 28 };
+    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": o.label || "", tabindex: 0 }, host);
+    svg.style.height = H + "px";
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+    var x = function (v) { return pad.l + (v - o.x0) / (o.x1 - o.x0) * iw; };
+    var y = function (v) { return pad.t + (1 - (v - o.y0) / (o.y1 - o.y0)) * ih; };
+    var yt = niceTicks(o.y0, o.y1, o.yN || 5);
+    yt.forEach(function (v) {
+      sv("line", { x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: css(v === 0 && o.zeroBase ? "--baseline" : "--grid"), "stroke-width": 1 }, svg);
+      var tx = sv("text", { x: pad.l - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: css("--muted") }, svg);
+      tx.textContent = o.yFmt(v);
+    });
+    (o.hlines || []).forEach(function (hl) {
+      sv("line", { x1: pad.l, x2: W - pad.r, y1: y(hl.y), y2: y(hl.y), stroke: css("--ink2"), "stroke-width": 1, opacity: 0.7 }, svg);
+      var tx = sv("text", { x: W - pad.r - 4, y: y(hl.y) - 5, "text-anchor": "end", "font-size": 11, fill: css("--ink2") }, svg);
+      tx.textContent = hl.label;
+    });
+    sv("line", { x1: pad.l, x2: W - pad.r, y1: H - pad.b, y2: H - pad.b, stroke: css("--baseline"), "stroke-width": 1 }, svg);
+    (o.xTicks || niceTicks(o.x0, o.x1, 6)).forEach(function (v) {
+      var tx = sv("text", { x: x(v), y: H - 8, "text-anchor": "middle", "font-size": 11, fill: css("--muted") }, svg);
+      tx.textContent = o.xFmt(v);
+    });
+    function drawV() { (o.vlines || []).forEach(function (vl) {
+      sv("line", { x1: x(vl.x), x2: x(vl.x), y1: pad.t, y2: H - pad.b, stroke: vl.color || css("--ink2"), "stroke-width": 1, opacity: vl.opacity || 0.7 }, svg);
+      var tx = sv("text", { x: x(vl.x) + (vl.dx == null ? 4 : vl.dx), y: pad.t + 10 + (vl.dy || 0), "font-size": 11, fill: css("--ink2"), "text-anchor": vl.anchor || "start" }, svg);
+      tx.textContent = vl.label;
+    }); }
+    if (!o.vTop) drawV();
+    return { svg: svg, W: W, H: H, pad: pad, x: x, y: y, iw: iw, ih: ih, drawV: drawV };
+  }
+
+  /* 선 차트 (+ 옅은 면, 십자선, 키보드) */
+  function lineChart(host, o) {
+    var f = frame(host, o), tip = tipFor(host);
+    var clipId = "clip" + (++clipSeq);
+    var defs = sv("defs", {}, f.svg), cp = sv("clipPath", { id: clipId }, defs);
+    sv("rect", { x: f.pad.l, y: f.pad.t - 1, width: f.iw, height: f.ih + 2 }, cp);
+    var plot = sv("g", { "clip-path": "url(#" + clipId + ")" }, f.svg);
+    (o.bands || []).forEach(function (b) {
+      var d = "";
+      b.hi.forEach(function (v, i) { d += (i ? "L" : "M") + f.x(o.xs[i]) + "," + f.y(v); });
+      for (var i = b.lo.length - 1; i >= 0; i--) d += "L" + f.x(o.xs[i]) + "," + f.y(b.lo[i]);
+      sv("path", { d: d + "Z", fill: b.color, opacity: 0.12 }, plot);
+    });
+    o.series.forEach(function (s) {
+      var d = "";
+      s.y.forEach(function (v, i) { d += (i ? "L" : "M") + f.x(o.xs[i]).toFixed(1) + "," + f.y(v).toFixed(1); });
+      sv("path", { d: d, fill: "none", stroke: s.color, "stroke-width": s.w || 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, plot);
+      if (s.endLabel && s.y[s.y.length - 1] <= o.y1) {
+        var li = s.y.length - 1;
+        sv("circle", { cx: f.x(o.xs[li]), cy: f.y(s.y[li]), r: 4, fill: s.color, stroke: css("--surface"), "stroke-width": 2 }, f.svg);
+        var tx = sv("text", { x: f.x(o.xs[li]) + 9, y: f.y(s.y[li]) + 4, "font-size": 11.5, fill: css("--ink2") }, f.svg);
+        tx.textContent = s.endLabel;
+      }
+    });
+    (o.points || []).forEach(function (p) {
+      sv("circle", { cx: f.x(p.x), cy: f.y(p.y), r: 5, fill: p.color, stroke: css("--surface"), "stroke-width": 2 }, f.svg);
+    });
+    var cross = sv("line", { y1: f.pad.t, y2: f.H - f.pad.b, stroke: css("--ink2"), "stroke-width": 1, opacity: 0 }, f.svg);
+    var dots = o.series.map(function (s) { return sv("circle", { r: 4, fill: s.color, stroke: css("--surface"), "stroke-width": 2, opacity: 0 }, f.svg); });
+    var cur = -1;
+    function at(i) {
+      i = Math.max(0, Math.min(o.xs.length - 1, i)); cur = i;
+      var px = f.x(o.xs[i]);
+      cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("opacity", 0.6);
+      var ymid = 0;
+      o.series.forEach(function (s, k) { dots[k].setAttribute("cx", px); dots[k].setAttribute("cy", f.y(s.y[i])); dots[k].setAttribute("opacity", s.y[i] > o.y1 ? 0 : 1); ymid += f.y(Math.min(s.y[i], o.y1)); });
+      var rows = o.series.map(function (s) { return { color: s.color, name: s.name, value: o.vFmt(s.y[i], s) }; });
+      tip.show(o.hFmt(i), rows, px, ymid / o.series.length);
+    }
+    function off() { cross.setAttribute("opacity", 0); dots.forEach(function (d) { d.setAttribute("opacity", 0); }); tip.hide(); }
+    function move(e) {
+      var r = f.svg.getBoundingClientRect(), px = (e.clientX - r.left) * (f.W / r.width);
+      var v = o.x0 + (px - f.pad.l) / f.iw * (o.x1 - o.x0), best = 0, bd = 1e9;
+      o.xs.forEach(function (xv, i) { var d = Math.abs(xv - v); if (d < bd) { bd = d; best = i; } });
+      at(best);
+    }
+    f.svg.addEventListener("pointermove", move);
+    f.svg.addEventListener("pointerdown", move);                                  // 손가락 탭
+    f.svg.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
+    f.svg.addEventListener("blur", off);
+    f.svg.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { at(cur < 0 ? 0 : cur + 1); e.preventDefault(); }
+      if (e.key === "ArrowLeft") { at(cur < 0 ? o.xs.length - 1 : cur - 1); e.preventDefault(); }
+      if (e.key === "Escape") off();
+    });
+  }
+
+  /* 누적 면적 (자산 비중) */
+  function stackChart(host, o) {
+    var f = frame(host, o), tip = tipFor(host), n = o.xs.length;
+    var base = o.xs.map(function () { return 0; });
+    o.layers.forEach(function (L) {
+      var top = base.map(function (b, i) { return b + L.y[i]; }), d = "";
+      top.forEach(function (v, i) { d += (i ? "L" : "M") + f.x(o.xs[i]).toFixed(1) + "," + f.y(v).toFixed(1); });
+      for (var i = n - 1; i >= 0; i--) d += "L" + f.x(o.xs[i]).toFixed(1) + "," + f.y(base[i]).toFixed(1);
+      sv("path", { d: d + "Z", fill: L.color, stroke: css("--surface"), "stroke-width": 2, "stroke-linejoin": "round" }, f.svg);
+      var mid = (base[n - 1] + top[n - 1]) / 2;
+      if (!o.noEndLabels) {
+        var tx = sv("text", { x: f.x(o.xs[n - 1]) + 8, y: f.y(mid) + 4, "font-size": 11.5, fill: css("--ink2") }, f.svg);
+        tx.textContent = L.name;
+      }
+      L.base = base.slice(); base = top;
+    });
+    f.drawV();
+    var cross = sv("line", { y1: f.pad.t, y2: f.H - f.pad.b, stroke: css("--ink"), "stroke-width": 1, opacity: 0 }, f.svg);
+    var cur = -1;
+    function at(i) {
+      i = Math.max(0, Math.min(n - 1, i)); cur = i;
+      var px = f.x(o.xs[i]); cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("opacity", 0.6);
+      var rows = o.layers.slice().reverse().map(function (L) { return { color: L.color, name: L.name, value: pct(L.y[i], 2) }; });
+      tip.show(o.hFmt(i), rows, px, f.pad.t + f.ih / 2);
+    }
+    function off() { cross.setAttribute("opacity", 0); tip.hide(); }
+    function move(e) {
+      var r = f.svg.getBoundingClientRect(), px = (e.clientX - r.left) * (f.W / r.width);
+      at(Math.round((px - f.pad.l) / f.iw * (n - 1)));
+    }
+    f.svg.addEventListener("pointermove", move);
+    f.svg.addEventListener("pointerdown", move);
+    f.svg.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
+    f.svg.addEventListener("blur", off);
+    f.svg.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { at(cur < 0 ? 0 : cur + 1); e.preventDefault(); }
+      if (e.key === "ArrowLeft") { at(cur < 0 ? n - 1 : cur - 1); e.preventDefault(); }
+    });
+  }
+
+  /* 막대 (윗면만 4px 둥글게, 바닥은 직각) */
+  function barPath(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    return "M" + x + "," + (y + h) + "V" + (y + r) + "Q" + x + "," + y + " " + (x + r) + "," + y + "H" + (x + w - r) +
+           "Q" + (x + w) + "," + y + " " + (x + w) + "," + (y + r) + "V" + (y + h) + "Z";
+  }
+  function histChart(host, o) {
+    var f = frame(host, o), tip = tipFor(host), n = o.xs.length, barOffs = [];
+    tip.onHide = function () { barOffs.forEach(function (fn) { fn(true); }); };
+    var band = f.iw / (o.x1 - o.x0), bw = Math.min(24, band * 0.72);
+    o.xs.forEach(function (a, i) {
+      var h = f.y(0) - f.y(o.ys[i]); if (h <= 0) return;
+      var inside = a <= o.sel;
+      var p = sv("path", { d: barPath(f.x(a) - bw / 2, f.y(o.ys[i]), bw, h, 4), fill: css("--brand"), opacity: inside ? 1 : +css("--fade") }, f.svg);
+      var hit = sv("rect", { x: f.x(a) - Math.max(bw, 14) / 2 - 1, y: f.pad.t, width: Math.max(bw, 14) + 2, height: f.ih, fill: "transparent" }, f.svg);
+      function on() { p.setAttribute("stroke", css("--ink")); p.setAttribute("stroke-width", 1);
+        tip.show(a + "세", [{ name: "이 나이에 바닥난 경로", value: num(o.ys[i]) + "개" }, { name: "비율", value: pct(o.ys[i] / o.total, 2) }], f.x(a), f.y(o.ys[i])); }
+      function off(fromHide) { p.removeAttribute("stroke"); if (fromHide !== true) tip.hide(); }
+      hit.addEventListener("pointermove", on); hit.addEventListener("pointerdown", on);
+      hit.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") off(); });
+      barOffs.push(off);
+    });
+  }
+
+  /* 분위수 범위 (p10-p90 얇은 선, p25-p75 굵은 띠, 중앙값 눈금) */
+  function rangeChart(host, q) {
+    host.textContent = "";
+    var W = Math.max(280, host.clientWidth), H = 178, padL = 16, padR = 16, top = 62, iw = W - padL - padR;
+    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "남은 자산 분포", tabindex: 0 }, host);
+    svg.style.height = H + "px";
+    var max = Math.max(q[4] * 1.08, 1), x = function (v) { return padL + v / max * iw; };
+    niceTicks(0, max, 4).forEach(function (v) {
+      sv("line", { x1: x(v), x2: x(v), y1: top - 6, y2: top + 44, stroke: css("--grid"), "stroke-width": 1 }, svg);
+      var t = sv("text", { x: x(v), y: top + 60, "text-anchor": "middle", "font-size": 11, fill: css("--muted") }, svg); t.textContent = num(v) + "A";
+      var t2 = sv("text", { x: x(v), y: top + 74, "text-anchor": "middle", "font-size": 10.5, fill: css("--muted") }, svg); t2.textContent = krw(aToKrw(v));
+    });
+    var cy = top + 20, col = css("--brand");
+    sv("line", { x1: x(q[0]), x2: x(q[4]), y1: cy, y2: cy, stroke: col, "stroke-width": 3, "stroke-linecap": "round", opacity: 0.5 }, svg);
+    sv("rect", { x: x(q[1]), y: cy - 10, width: Math.max(2, x(q[3]) - x(q[1])), height: 20, rx: 4, fill: col, opacity: 0.35 }, svg);
+    sv("rect", { x: x(q[2]) - 2, y: cy - 14, width: 4, height: 28, rx: 2, fill: col, stroke: css("--surface"), "stroke-width": 2 }, svg);
+    [[0, "하위 10%"], [2, "중앙값"], [4, "상위 10%"]].forEach(function (p) {
+      var anchor = p[0] === 0 ? "start" : p[0] === 4 ? "end" : "middle";
+      var xx = p[0] === 0 ? Math.max(x(q[0]), padL) : p[0] === 4 ? Math.min(x(q[4]), W - padR) : x(q[2]);
+      var t1 = sv("text", { x: xx, y: 12, "text-anchor": anchor, "font-size": 11, fill: css("--muted") }, svg); t1.textContent = p[1];
+      var t2 = sv("text", { x: xx, y: 29, "text-anchor": anchor, "font-size": 13, "font-weight": 650, fill: css("--ink") }, svg); t2.textContent = num(q[p[0]], 1) + "A";
+      var t3 = sv("text", { x: xx, y: 44, "text-anchor": anchor, "font-size": 11, fill: css("--ink2") }, svg); t3.textContent = "약 " + krw(aToKrw(q[p[0]]));
+    });
+  }
+
+  /* ---------- 표 ---------- */
+  function table(head, rows, cls) {
+    var t = html("table", "tbl " + (cls || "")), th = html("tr", null, null, html("thead", null, null, t));
+    head.forEach(function (h) { html("th", null, h, th); });
+    var tb = html("tbody", null, null, t);
+    rows.forEach(function (r) {
+      var tr = html("tr", r.me ? "me" : "", null, tb);
+      r.cells.forEach(function (c) { html("td", null, c, tr); });
+    });
+    return t;
+  }
+  function put(id, node) { var e = $(id); e.textContent = ""; e.appendChild(node); }
+
+  function legend(id, items, swatch) {
+    var e = $(id); e.textContent = "";
+    items.forEach(function (it) {
+      var s = html("span", null, null, e), i = html("i", swatch ? "sw" : "", null, s);
+      if (swatch) i.style.background = it.color; else i.style.borderTopColor = it.color;
+      html("span", null, it.name, s);
+    });
+  }
+
+  /* ===================== 개편(2차) 화면 로직 ===================== */
+  var bt = D.backtest, xsBt = bt.dates.map(dateX);
+  var ageIdx = {}; D.mc.ages.forEach(function (a, i) { ageIdx[a] = i; });
+  var S = "strategy", OTH = ["60/40", "tdf", "stock100"];       // 비교 대상 (현금 100%는 위험 비교에서 제외)
+  var MM = D.metrics, RS = D.rolling.stats, COV = D.coverage;
+
+  /* ---------- 문장 만들기 도구 (모든 해석 문장은 데이터에서 계산한다) ---------- */
+  function names(ids) { return ids.map(function (id) { return LAB[id]; }).join(", "); }
+  function listCmp(ids, f) { return ids.map(function (id) { return LAB[id] + " " + f(id); }).join(" · "); }
+  function better(ids, f, higher) {          // 전략보다 더 나은 값을 가진 비교 대상
+    var s = f(S);
+    return ids.filter(function (id) { var v = f(id); return v != null && (higher ? v > s : v < s); });
+  }
+  function mdd(id) { return MM[id].mdd; }
+  function vol(id) { return MM[id].vol; }
+  function rec(id) { var x = MM[id].recovery_months; return x == null ? Infinity : x; }
+  function cagr(id) { return MM[id].cagr; }
+  function bal(id) { return MM[id].balance_a_multiple; }
+  function dep(id, age) { return D.mc.series[id].dep_cum[ageIdx[age]]; }
+  function resid(id, age) { return D.mc.series[id].resid[String(age)]; }
+  function riskShare(age) {
+    var W = D.weights, i = W.ages.indexOf(age), row = W.values[i];
+    return ["equity", "gold", "dividend", "reit"].reduce(function (s, k) { return s + row[W.assets.indexOf(k)]; }, 0);
+  }
+  function recTxt(id) { var r = rec(id); return r === Infinity ? "미회복" : r + "개월"; }
+
+  function setText(id, text) { $(id).textContent = text; }
+  function setRead(id, rows) {
+    var host = $(id); host.textContent = "";
+    rows.forEach(function (r) {
+      var d = html("div", "r " + (r.cls || ""), null, host);
+      html("b", null, r.label, d);
+      var body = html("div", null, null, d);
+      if (r.text) html("div", null, r.text, body);
+      if (r.items) { var ul = html("ul", null, null, body); r.items.forEach(function (t) { html("li", null, t, ul); }); }
+    });
+  }
+
+  /* ---------- 한눈에 보기 ---------- */
+  function renderHero() {
+    var host = $("hero"); host.textContent = "";
+    var box = html("div", "hero2", null, host);
+    html("h2", null, "63nt1e의 핵심은 안정성입니다", box);
+    html("p", "lead2", "수익을 최대로 키우는 전략이 아니라, 나쁜 시기에도 덜 무너지고 은퇴하는 해의 운에 덜 좌우되도록 만든 전략입니다. 아래가 그 근거이고, 그 대가도 함께 적었습니다. (비교 대상: 60/40 · TDF · 주식 100%)", box);
+    function tile(parent, cls, lab, big, cmp, mean) {
+      var t = html("div", "st " + cls, null, parent);
+      html("div", "lab", lab, t); html("div", "big", big, t); html("div", "cmp2", cmp, t); html("div", "mean", mean, t);
+    }
+    html("div", "grp", "안정성의 근거 4가지", box);
+    var g1 = html("div", "tiles", null, box);
+    tile(g1, "", "가입 31년 중 최대낙폭", pct(mdd(S), 1), listCmp(OTH, function (id) { return pct(mdd(id), 1); }), "계좌가 고점에서 가장 크게 떨어진 폭. 작을수록 안정적입니다.");
+    tile(g1, "", "가장 나쁜 때 은퇴해도 (15년 뒤)", num(RS[S].worst, 0) + "%", listCmp(OTH, function (id) { return num(RS[id].worst, 0) + "%"; }), "시작 자산 대비 남은 돈. 100%면 시작 자산이 유지된 것입니다.");
+    tile(g1, "", "은퇴 시점에 따른 흔들림", num(RS[S].std, 1) + "%p", listCmp(OTH, function (id) { return num(RS[id].std, 1) + "%p"; }), "언제 은퇴하느냐에 따라 결과가 달라지는 정도. 작을수록 안정적입니다.");
+    tile(g1, "", "생활비를 채우는 배당·이자", pct(COV.retire.all, 0), "인컴 버킷 3개 자산만 " + pct(COV.retire.bucket, 0) + " · 60/40 " + pct(COV.bench_retire["60/40"], 0) + " · 주식 100% " + pct(COV.bench_retire.stock100, 0),
+         "은퇴 시점 인출액 중 보유 자산 전체의 이자·배당으로 충당되는 비율입니다.");
+    html("div", "grp", "대가: 안정성을 위해 내준 것", box);
+    var g2 = html("div", "tiles two", null, box);
+    tile(g2, "cost", "연평균 수익률 (적립기)", pct(cagr(S), 2), listCmp(OTH, function (id) { return pct(cagr(id), 2); }), "수익이 비교 대상보다 낮으면 61세 적립금도 적어집니다(" + num(bal(S), 1) + "A).");
+    var a = 90;
+    tile(g2, "cost", a + "세까지 자산이 바닥날 확률", pct(dep(S, a), 2), listCmp(OTH, function (id) { return pct(dep(id, a), 2); }) + " · 100세까지는 " + pct(dep(S, 100), 2) + " vs 60/40 " + pct(dep("60/40", 100), 2),
+         "아주 오래 살수록 위험자산을 줄인 영향이 드러납니다(4절).");
+  }
+
+  /* ---------- 1. 적립기 ---------- */
+  /* 전략 선택 칩: 적립금 추이와 고점 대비 하락률이 같은 선택을 공유한다 (기본: 63nt1e · 60/40 · TDF) */
+  state.show = {}; IDS.forEach(function (id) { state.show[id] = (id === S || id === "60/40" || id === "tdf"); });
+  function renderToggles(hostId, withMdd) {
+    var host = $(hostId); host.textContent = "";
+    IDS.forEach(function (id) {
+      var lab = html("label", "tg", null, host);
+      lab.setAttribute("data-id", id); lab.style.setProperty("--c", seriesColor(id));
+      var cb = html("input", null, null, lab); cb.type = "checkbox";
+      html("span", "sw", null, lab);
+      var tx = html("span", "tx", null, lab);
+      html("span", "nm", LAB[id], tx);
+      if (withMdd) { var m = html("span", "mdd", pct(mdd(id), 1), tx); html("small", null, "최대낙폭", m); }
+      cb.addEventListener("change", function () {
+        state.show[id] = cb.checked;
+        if (!IDS.some(function (k) { return state.show[k]; })) state.show[S] = true;      // 최소 한 개는 보이게
+        syncToggles(); renderBacktest(); renderDrawdown();
+      });
+    });
+  }
+  function syncToggles() {
+    Array.prototype.forEach.call(document.querySelectorAll(".seltog label[data-id]"), function (lab) {
+      var on = !!state.show[lab.getAttribute("data-id")];
+      lab.classList.toggle("on", on); lab.querySelector("input").checked = on;
+    });
+  }
+  function visibleIds() { return IDS.filter(function (id) { return state.show[id]; }); }
+
+  function renderBacktest() {
+    var vl = [{ x: dateX("2026-01"), label: "은퇴·인출 시작", anchor: "end", dx: -6 }];
+    var ids = visibleIds();
+    var series = ids.map(function (id) {
+      return { id: id, name: LAB[id], color: seriesColor(id), y: bt.series[id], w: id === S ? 2.6 : 2,
+               endLabel: id === S || id === "60/40" || id === "stock100" ? LAB[id] : null };
+    });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chBt"), { height: 320, padL: 44, padR: 78, x0: 1995, x1: xsBt[xsBt.length - 1], y0: 0, y1: ymax * 1.05, zeroBase: true,
+      xs: xsBt, series: series, vlines: vl, yFmt: function (v) { return num(v); }, xFmt: function (v) { return Math.round(v); },
+      xTicks: [1995, 2000, 2005, 2010, 2015, 2020, 2025], label: "적립금 추이 선 차트",
+      hFmt: function (i) { return bt.dates[i]; }, vFmt: function (v) { return num(v, 1) + "억 원"; } });
+    var rows = [];
+    bt.dates.forEach(function (d, i) { if (d.slice(5) === "12" || i === bt.dates.length - 1) rows.push({ cells: [d].concat(IDS.map(function (id) { return num(bt.series[id][i], 1); })) }); });
+    put("tbBt", table(["월말"].concat(IDS.map(function (id) { return LAB[id] + " (억 원)"; })), rows));
+  }
+  function renderDrawdown() {
+    var dd = D.drawdown, xs = dd.dates.map(dateX), ids = visibleIds();
+    var series = ids.map(function (id) {
+      return { id: id, name: LAB[id], color: seriesColor(id), y: dd.series[id], w: id === S ? 2.4 : 1.6 };
+    });
+    var points = series.map(function (s) {                       // 각 전략의 최저점(최대낙폭)을 점으로 표시
+      var k = 0; s.y.forEach(function (v, i) { if (v < s.y[k]) k = i; });
+      return { x: xs[k], y: s.y[k], color: s.color };
+    });
+    lineChart($("chDd"), { height: 260, padL: 44, padR: 12, x0: 1995, x1: xs[xs.length - 1], y0: -55, y1: 0, zeroBase: true,
+      xs: xs, series: series, points: points, yFmt: function (v) { return v + "%"; }, xFmt: function (v) { return Math.round(v); },
+      xTicks: [1995, 2005, 2015, 2025], label: "고점 대비 하락률 선 차트",
+      hFmt: function (i) { return dd.dates[i]; }, vFmt: function (v) { return v.toFixed(1) + "%"; } });
+    var rows = [];
+    dd.dates.forEach(function (d, i) { if (d.slice(5) === "12") rows.push({ cells: [d.slice(0, 4)].concat(IDS.map(function (id) { return dd.series[id][i].toFixed(1) + "%"; })) }); });
+    put("tbDd", table(["연말"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+  }
+  function renderMetrics() {
+    var defs = [
+      ["변동성 (연)", function (id) { return pct(vol(id), 1); }],
+      ["최대낙폭", function (id) { return pct(mdd(id), 1); }],
+      ["낙폭 회복 기간", function (id) { return recTxt(id); }],
+      ["연평균 수익률", function (id) { return pct(cagr(id), 2); }],
+      ["61세 적립금", function (id) { return num(bal(id), 1) + "A"; }]];
+    var rows = defs.map(function (d) { return { cells: [d[0]].concat(IDS.map(function (id) { return d[1](id); })) }; });
+    put("tbMetrics", table([""].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+  }
+  function readSection1() {
+    var bv = better(OTH, vol, false), bm = better(OTH, mdd, true), br = better(OTH, rec, false);
+    var stable = [bv, bm, br].filter(function (b) { return b.length === 0; }).length;
+    setText("c1", "가입 31년 동안 63nt1e의 계좌는 고점에서 최대 " + pct(Math.abs(mdd(S)), 1) + " 내려갔고, " +
+      (bm.length === 0 ? "비교 대상(현금 100% 제외) 중 하락 폭이 가장 작았습니다." : names(bm) + "보다는 하락 폭이 컸습니다."));
+    var cb = better(OTH, cagr, true), bb = better(OTH, bal, true), rows = [
+      { label: "의미", text: "변동성은 수익률이 출렁이는 정도, 최대낙폭은 계좌가 직전 최고점에서 가장 크게 떨어진 폭, 낙폭 회복 기간은 그 하락을 만회하는 데 걸린 시간입니다. 셋 다 작을수록 안정적입니다." },
+      { label: "해석", items: [
+        "변동성 " + pct(vol(S), 1) + ": " + (bv.length === 0 ? "비교 대상 중 가장 낮습니다" : names(bv) + "보다 높습니다") + " (" + listCmp(OTH, function (id) { return pct(vol(id), 1); }) + ")",
+        "최대낙폭 " + pct(mdd(S), 1) + ": " + (bm.length === 0 ? "가장 작습니다" : names(bm) + "보다 깊습니다") + " (" + listCmp(OTH, function (id) { return pct(mdd(id), 1); }) + ")",
+        "낙폭 회복 " + recTxt(S) + ": " + (br.length === 0 ? "가장 빨랐습니다" : names(br) + "보다 느렸습니다") + " (" + listCmp(OTH, recTxt) + ")",
+        (stable === 3 ? "세 지표 모두에서 63nt1e가 비교 대상(현금 100% 제외) 중 가장 안정적이었습니다." : stable + "개 지표에서 63nt1e가 가장 안정적이었습니다.")] },
+      { label: "대가", cls: "cost", text: cb.length === 0 ? "연평균 수익률(" + pct(cagr(S), 2) + ")도 비교 대상 중 가장 높았습니다." :
+        "연평균 수익률 " + pct(cagr(S), 2) + "는 " + names(cb) + "보다 낮고(" + listCmp(cb, function (id) { return pct(cagr(id), 2); }) + "), 61세 적립금 " + num(bal(S), 1) + "A도 " +
+        (bb.length ? names(bb) + "보다 적습니다(" + listCmp(bb, function (id) { return num(bal(id), 1) + "A"; }) + ")" : "비교 대상 중 가장 많습니다") + ". 안정성을 얻는 대신 수익 일부를 포기한 구조입니다." }];
+    setRead("r1", rows);
+  }
+
+  /* ---------- 2. 롤링 ---------- */
+  function quantile(arr, q) {
+    var a = arr.slice().sort(function (x, y) { return x - y; }), pos = (a.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+  }
+  /* 세로 박스 차트: 가로축 = 전략, 세로축 = 값. 박스 = 25~75%, 굵은 선 = 중앙값, 위·아래 선 = 최선·최악, 마름모 = 평균 */
+  function boxChart(host, o) {
+    host.textContent = "";
+    var tip = tipFor(host);
+    var W = Math.max(300, host.clientWidth), H = o.height || 340, pad = { l: 52, r: 16, t: 16, b: 36 };
+    var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": o.label, tabindex: 0 }, host);
+    svg.style.height = H + "px";
+    var iw = W - pad.l - pad.r, ih = H - pad.t - pad.b, n = o.items.length;
+    var st = o.items.map(function (it) {
+      var v = it.vals, mean = v.reduce(function (p, c) { return p + c; }, 0) / v.length;
+      var sd = Math.sqrt(v.reduce(function (p, c) { return p + (c - mean) * (c - mean); }, 0) / (v.length - 1));
+      return { it: it, mn: Math.min.apply(null, v), q1: quantile(v, 0.25), med: quantile(v, 0.5), q3: quantile(v, 0.75), mx: Math.max.apply(null, v), mean: mean, sd: sd };
+    });
+    var ymax = Math.max.apply(null, st.map(function (x) { return x.mx; })) * 1.08;
+    var y = function (v) { return pad.t + (1 - v / ymax) * ih; };
+    niceTicks(0, ymax, 6).forEach(function (v) {
+      sv("line", { x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: css("--grid"), "stroke-width": 1 }, svg);
+      var t = sv("text", { x: pad.l - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: css("--muted") }, svg); t.textContent = num(v) + "%";
+    });
+    sv("line", { x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0), stroke: css("--baseline"), "stroke-width": 1 }, svg);
+    sv("line", { x1: pad.l, x2: W - pad.r, y1: y(o.ref), y2: y(o.ref), stroke: css("--ink2"), "stroke-width": 1, opacity: 0.7 }, svg);
+    var rt = sv("text", { x: pad.l + 4, y: y(o.ref) - 5, "text-anchor": "start", "font-size": 11, fill: css("--ink2") }, svg); rt.textContent = "시작 자산 (100%)";
+    var band = iw / n, bw = Math.min(56, band * 0.46);
+    st.forEach(function (x, i) {
+      var cx = pad.l + band * (i + 0.5), c = x.it.color;
+      sv("line", { x1: cx, x2: cx, y1: y(x.mx), y2: y(x.mn), stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 4, x2: cx + bw / 4, y1: y(x.mx), y2: y(x.mx), stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 4, x2: cx + bw / 4, y1: y(x.mn), y2: y(x.mn), stroke: c, "stroke-width": 2 }, svg);
+      var bh = Math.max(2, y(x.q1) - y(x.q3));
+      sv("rect", { x: cx - bw / 2, y: y(x.q3), width: bw, height: bh, rx: 3, fill: c, opacity: 0.28, stroke: c, "stroke-width": 2 }, svg);
+      sv("line", { x1: cx - bw / 2, x2: cx + bw / 2, y1: y(x.med), y2: y(x.med), stroke: c, "stroke-width": 4, "stroke-linecap": "round" }, svg);
+      var my = y(x.mean);
+      sv("path", { d: "M" + cx + "," + (my - 6) + "L" + (cx + 6) + "," + my + "L" + cx + "," + (my + 6) + "L" + (cx - 6) + "," + my + "Z", fill: c, stroke: css("--surface"), "stroke-width": 2 }, svg);
+      var lab = function (xx, yy, txt, anchor) { var t = sv("text", { x: xx, y: yy, "text-anchor": anchor, "font-size": 11, fill: css("--ink2") }, svg); t.textContent = txt; };
+      lab(cx + bw / 2 + 6, y(x.med) + 4, "중앙 " + num(x.med, 0) + "%", "start");
+      lab(cx, y(x.mx) - 6, "최선 " + num(x.mx, 0) + "%", "middle");
+      lab(cx, y(x.mn) + 15, "최악 " + num(x.mn, 0) + "%", "middle");
+      var nm = sv("text", { x: cx, y: H - 12, "text-anchor": "middle", "font-size": 12.5, "font-weight": 650, fill: css("--ink") }, svg); nm.textContent = x.it.name;
+      var hit = sv("rect", { x: cx - band / 2, y: pad.t, width: band, height: ih, fill: "transparent" }, svg);
+      var show = function () {
+        tip.show(x.it.name + " (" + x.it.vals.length + "개 은퇴 시점)", [
+          { color: c, name: "최선", value: num(x.mx, 1) + "%" }, { color: c, name: "상위 25%", value: num(x.q3, 1) + "%" },
+          { color: c, name: "중앙값", value: num(x.med, 1) + "%" }, { color: c, name: "하위 25%", value: num(x.q1, 1) + "%" },
+          { color: c, name: "최악", value: num(x.mn, 1) + "%" }, { color: c, name: "평균", value: num(x.mean, 1) + "%" },
+          { color: c, name: "표준편차", value: num(x.sd, 1) + "%p" }], cx, y(x.med));
+      };
+      hit.addEventListener("pointermove", show); hit.addEventListener("pointerdown", show);
+      hit.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") tip.hide(); });
+    });
+    return st;
+  }
+  function renderRolling() {
+    var RL = D.rolling, hide = $("hideStockR").checked;
+    var ids = IDS.filter(function (id) { return id !== "cash100" && !(hide && id === "stock100"); });      // 박스 차트에서 현금 100%는 제외 (표에는 있음)
+    boxChart($("chRl"), { height: 360, ref: 100, label: "은퇴 시점별 15년 뒤 잔액 비율 박스 차트",
+      items: ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), vals: RL.series[id] }; }) });
+    var rows = IDS.map(function (id) {
+      var s = RS[id], v = RL.series[id];
+      return { me: id === S, cells: [LAB[id], num(s.worst, 1) + "%", num(quantile(v, 0.25), 1) + "%", num(s.median, 1) + "%", num(quantile(v, 0.75), 1) + "%", num(s.best, 1) + "%", num(s.std, 1) + "%p", s.worst_month] };
+    });
+    put("tbRl", table(["전략", "최악", "하위 25%", "중앙값", "상위 25%", "최선", "흔들림 (표준편차)", "최악이었던 은퇴 시점"], rows));
+    var yr = [];
+    RL.months.forEach(function (m, i) { if (m.slice(5) === "01") yr.push({ cells: [m.slice(0, 4)].concat(IDS.map(function (id) { return num(RL.series[id][i], 1) + "%"; })) }); });
+    put("tbRl2", table(["은퇴 시점(1월)"].concat(IDS.map(function (id) { return LAB[id]; })), yr));
+  }
+  function readSection2() {
+    var w = function (id) { return RS[id].worst; }, md = function (id) { return RS[id].median; }, bs = function (id) { return RS[id].best; };
+    var bw = better(OTH, w, true), hm = better(OTH, md, true), hb = better(OTH, bs, true);
+    var below = OTH.filter(function (id) { return RS[id].worst < 100; });
+    setText("c2", "가장 나쁜 시기(" + RS[S].worst_month + ")에 은퇴해도 15년 뒤 시작 자산의 " + num(RS[S].worst, 0) + "%가 남았습니다" +
+      (bw.length === 0 ? " — 비교 대상 중 가장 높은 값입니다." : "."));
+    var std1 = function (id) { return num(RS[id].std, 1) + "%p"; };
+    var ratioTxt = OTH.filter(function (id) { return RS[id].std > RS[S].std * 1.2; }).map(function (id) { return LAB[id] + "은 약 " + num(RS[id].std / RS[S].std, 1) + "배"; }).join(", ");
+    var rows = [
+      { label: "의미", text: "1995년부터 2011년까지 매월 은퇴했다고 가정하고, 모든 전략이 같은 시작 자산(" + num(D.rolling.start_a, 1) + "A)으로 15년 동안 매달 같은 생활비를 뽑았습니다. 박스 차트은 15년 뒤 남은 돈이 시작 자산의 몇 %인지를 전략별로 보여 줍니다. 박스는 은퇴 시점 202개 결과의 가운데 절반이고, 박스가 짧을수록 '언제 은퇴하든 비슷한 결과'입니다. 100% 위면 쓰고도 시작 자산 이상이 남은 것입니다. 흔들림(표준편차)은 결과가 흩어진 정도를 하나의 숫자로 요약한 값입니다." },
+      { label: "해석", items: [
+        "가장 나쁜 때 은퇴한 결과: " + [S].concat(OTH).map(function (id) { return LAB[id] + " " + num(RS[id].worst, 0) + "% (" + RS[id].worst_month + ")"; }).join(" · "),
+        "은퇴 시점에 따른 흔들림: 63nt1e " + std1(S) + " — " + listCmp(OTH, std1) + (ratioTxt ? ". 63nt1e와 비교하면 " + ratioTxt + " 흔들립니다." : ""),
+        "평균은 " + listCmp([S].concat(OTH), function (id) { return num(RS[id].mean, 0) + "%"; }) + ". " + (RS[S].std < RS["60/40"].std && Math.abs(RS[S].mean - RS["60/40"].mean) / RS["60/40"].mean < 0.1 ? "63nt1e와 60/40은 평균이 비슷한데 결과의 폭은 63nt1e가 훨씬 좁습니다." : ""),
+        below.length ? "시작 자산(100%) 아래로 내려간 비교 대상: " + below.map(function (id) { return LAB[id] + " (" + RS[id].worst_month + " 은퇴, " + num(RS[id].worst, 0) + "%)"; }).join(" · ") : "비교 대상 모두 시작 자산 이상이 남았습니다."] },
+      { label: "대가", cls: "cost", text: (hm.length || hb.length) ?
+        "대표값(중앙값)은 63nt1e " + num(RS[S].median, 0) + "%인데 " + (hm.length ? names(hm) + "는 더 높습니다(" + listCmp(hm, function (id) { return num(RS[id].median, 0) + "%"; }) + ")" : "비교 대상 중 가장 높습니다") +
+        ". 운이 좋은 때 은퇴한 최선 결과는 " + (hb.length ? names(hb) + "가 더 높습니다(" + listCmp(hb, function (id) { return num(RS[id].best, 0) + "%"; }) + ")" : "가장 높습니다") + ". 63nt1e는 나쁜 때를 막는 대신 좋은 때의 이익도 덜 가져갑니다." :
+        "중앙값과 최선 결과도 비교 대상 중 가장 높았습니다." },
+      { label: "주의", text: "인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, " + D.rolling.n_starts + "개 시작 월은 서로 독립된 사례가 아닙니다. 숫자의 정밀한 크기보다 전략 사이의 차이를 보세요. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다." }];
+    setRead("r2", rows);
+  }
+
+  /* ---------- 3. 인컴 ---------- */
+  function renderCoverage() {
+    var ages = COV.ages;
+    var series = [
+      { name: "63nt1e (다른 자산의 이자·배당까지 합친 전체)", color: css("--s-strategy"), y: COV.all_p50, w: 2.6, endLabel: "63nt1e 전체" },
+      { name: "63nt1e (인컴 버킷 3개 자산만)", color: css("--s-bucket"), y: COV.bucket_p50, w: 2, endLabel: "인컴 버킷만" },
+      { name: LAB["60/40"], color: seriesColor("60/40"), y: COV.bench["60/40"].p50, w: 1.8 },
+      { name: LAB.stock100, color: seriesColor("stock100"), y: COV.bench.stock100.p50, w: 1.8 },
+      { name: LAB.cash100, color: seriesColor("cash100"), y: COV.bench.cash100.p50, w: 1.8 }];
+    lineChart($("chCov"), { height: 300, padL: 44, padR: 92, x0: 62, x1: 100, y0: 0, y1: 2, zeroBase: true, xs: ages, series: series,
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [65, 70, 80, 90, 100],
+      label: "인컴 커버리지 선 차트", hFmt: function (i) { return ages[i] + "세"; }, vFmt: function (v) { return pct(v, 1); } });
+    legend("lgCov", series);
+    var i90 = ages.indexOf(90);
+    var now = [
+      ["63nt1e (전체)", COV.retire.all, COV.all_p50[i90]], ["63nt1e (인컴 버킷만)", COV.retire.bucket, COV.bucket_p50[i90]],
+      [LAB["60/40"], COV.bench_retire["60/40"], COV.bench["60/40"].p50[i90]], [LAB.stock100, COV.bench_retire.stock100, COV.bench.stock100.p50[i90]],
+      [LAB.cash100, COV.bench_retire.cash100, COV.bench.cash100.p50[i90]]];
+    put("tbCovNow", table(["", "은퇴 시점 (2025년 인컴 ÷ 2026년 인출액)", "90세 (중앙값)"], now.map(function (r, i) { return { me: i < 2, cells: [r[0], pct(r[1], 1), pct(r[2], 1)] }; })));
+    var rows = []; ages.forEach(function (a, i) { if (a % 5 === 0) rows.push({ cells: [a + "세"].concat(series.map(function (s) { return pct(s.y[i], 1); })) }); });
+    put("tbCov", table(["나이", "63nt1e 전체", "63nt1e 인컴 버킷", "60/40", "주식 100%", "현금 100%"], rows));
+  }
+  function readSection3() {
+    var br = COV.bench_retire, allv = COV.retire.all, top = Math.max(br["60/40"], br.stock100, br.cash100);
+    setText("c3", "은퇴 시점의 생활비 중 " + pct(allv, 0) + "가 보유 자산 전체의 이자·배당으로 채워집니다(인컴 버킷 3개 자산만으로는 " + pct(COV.retire.bucket, 0) + ").");
+    setRead("r3", [
+      { label: "의미", text: "인컴 커버리지는 '1년 동안 받는 배당·이자 ÷ 1년 생활비(인출액)'입니다. 100%면 자산을 팔지 않고 배당·이자만으로 생활할 수 있다는 뜻입니다. 인컴 버킷은 배당성장·중기채·리츠가 낸 몫만, 전체는 주식지수·장기채·금·현금 등 다른 자산의 이자·배당까지 합친 값입니다." },
+      { label: "해석", items: [
+        "은퇴 시점: 63nt1e 전체 " + pct(allv, 0) + " (인컴 버킷만 " + pct(COV.retire.bucket, 0) + ") · 60/40 " + pct(br["60/40"], 0) + " · 주식 100% " + pct(br.stock100, 0) + " · 현금 100% " + pct(br.cash100, 0) + (allv >= top ? ". 63nt1e가 가장 높습니다." : "."),
+        "배당·이자로 채워지는 몫이 클수록 주가가 내려갔을 때 팔아야 하는 자산이 줄어, 하락기에 덜 취약합니다.",
+        "63nt1e의 현금 10%는 인출액 약 " + num(D.kpi.cash_years, 1) + "년치입니다. 하락 직후 몇 년은 주식을 팔지 않고 현금과 배당·이자로 버틸 수 있도록 설계했습니다."] },
+      { label: "주의", text: "그래프의 선은 그 나이까지 바닥나지 않은 경로만의 중앙값이라 나이가 들수록 실제보다 좋게 보일 수 있습니다. 60/40과 주식 100%는 자산이 크게 불어 늦은 나이에 인컴이 인출액의 수 배가 되어 그래프 위로 잘립니다. TDF는 분배금에 자본이득이 섞여 있어 계산하지 않았습니다." }]);
+  }
+
+  /* ---------- 4. 인출기 (슬라이더) ---------- */
+  function buildSlider() {
+    var sl = $("sl"), thumb = 20, frac = function (v) { return (v - 80) / 20; };
+    function pos(v) { return "calc(" + thumb / 2 + "px + (100% - " + thumb + "px) * " + frac(v) + ")"; }
+    [80, 85, 90, 95, 100].forEach(function (v) { var t = html("span", "tick", v + "세", sl); t.style.left = pos(v); });
+    [[M.life_male, "남성 " + M.life_male], [M.life_female, "여성 " + M.life_female]].forEach(function (f) {
+      var e = html("span", "flag", f[1] + "세", sl); e.style.left = pos(f[0]);
+    });
+    $("life").addEventListener("input", function () { state.age = +this.value; update(); });
+    $("qM").addEventListener("click", function () { setAge(Math.round(M.life_male)); });
+    $("qF").addEventListener("click", function () { setAge(Math.round(M.life_female)); });
+  }
+  function setAge(a) { state.age = a; $("life").value = a; update(); }
+
+  function renderWithdraw() {
+    var a = state.age, i = ageIdx[a], p = dep(S, a), k = Math.round(p * M.mc_paths), q = resid(S, a);
+    $("lifeOut").textContent = a + "세";
+    setText("c4", a + "세까지 자산이 바닥날 확률은 " + pct(p, 2) + "입니다(" + num(M.mc_paths) + "번의 가상 은퇴 중 " + num(k) + "번). 같은 조건에서 60/40은 " + pct(dep("60/40", a), 2) + "입니다.");
+    var host = $("kpis4"); host.textContent = "";
+    function tile(lab, big, cmp, mean, cls) {
+      var t = html("div", "st " + (cls || ""), null, host);
+      html("div", "lab", lab, t); html("div", "big", big, t); html("div", "cmp2", cmp, t); html("div", "mean", mean, t);
+    }
+    tile(a + "세까지 바닥날 확률 (63nt1e)", pct(p, 2), listCmp(OTH, function (id) { return pct(dep(id, a), 2); }), "61세부터 " + a + "세까지 매월 생활비를 계속 낼 수 있었는지를 센 비율입니다.");
+    tile(a + "세 남은 자산 (중앙값)", num(q[2], 1) + "A", "약 " + krw(aToKrw(q[2])), "그 나이에 계좌에 남은 돈의 가운데 값입니다(바닥난 경우는 0으로 포함).");
+    tile("운이 나쁜 10%의 경계 (하위 10%)", num(q[0], 1) + "A", "약 " + krw(aToKrw(q[0])), "이보다 적게 남은 경우가 10%라는 뜻입니다.");
+
+    var xs = D.mc.ages, ids = [S].concat(OTH);
+    var series = ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), y: D.mc.series[id].dep_cum, w: id === S ? 2.6 : 1.8, endLabel: id === S ? LAB[id] : null }; });
+    var ymax = Math.max.apply(null, series.map(function (s) { return Math.max.apply(null, s.y); }));
+    lineChart($("chDep"), { height: 280, padL: 50, padR: 78, x0: 61, x1: 100, y0: 0, y1: Math.max(ymax * 1.12, 0.02), zeroBase: true, xs: xs, series: series,
+      vlines: [{ x: a, label: "기대수명 " + a + "세", color: css("--ink"), opacity: 0.6, anchor: a > 92 ? "end" : "start", dx: a > 92 ? -4 : 4 }],
+      yFmt: function (v) { return (v * 100).toFixed(v < 0.1 ? 1 : 0) + "%"; }, xFmt: function (v) { return v + "세"; }, xTicks: [61, 70, 80, 90, 100],
+      label: "나이별 누적 고갈 확률 선 차트", hFmt: function (j) { return xs[j] + "세까지"; }, vFmt: function (v) { return pct(v, 2); } });
+    legend("lgDep", series);
+    put("tbCompare", table([a + "세 기준", "바닥날 확률", "남은 자산 중앙값", "하위 10%"], IDS.map(function (id) {
+      var r = resid(id, a);
+      return { me: id === S, cells: [LAB[id], pct(dep(id, a), 2), num(r[2], 1) + "A", num(r[0], 1) + "A"] };
+    })));
+    var rows = []; xs.forEach(function (x, j) { if (x % 5 === 0 || x === 61) rows.push({ cells: [x + "세"].concat(IDS.map(function (id) { return pct(D.mc.series[id].dep_cum[j], 2); })) }); });
+    put("tbDep", table(["나이"].concat(IDS.map(function (id) { return LAB[id]; })), rows));
+
+    var higher = OTH.filter(function (id) { return dep(id, a) > p; }), lower = OTH.filter(function (id) { return dep(id, a) < p; });
+    var p100 = dep(S, 100), q100 = dep("60/40", 100);
+    setRead("r4", [
+      { label: "의미", text: "과거 월별 수익률을 12개월 덩어리로 섞어 만든 " + num(M.mc_paths) + "번의 가상 은퇴에서, 61세부터 선택한 나이가 되기 전에 매달 생활비를 낼 수 없게 된 비율입니다. 남은 자산은 그 나이에 계좌에 남은 돈이고, A값의 배수로 표시합니다." },
+      { label: "해석", items: [
+        a + "세까지 63nt1e의 고갈 확률은 " + pct(p, 2) + "로 " + [lower.length ? names(lower) + "보다는 높고" : "", higher.length ? names(higher) + "보다는 낮습니다" : ""].filter(Boolean).join(" ") + ". (" + listCmp(OTH, function (id) { return pct(dep(id, a), 2); }) + ")",
+        "바닥나지 않은 경우를 포함한 중앙값은 " + num(q[2], 1) + "A(약 " + krw(aToKrw(q[2])) + ")이고, 운이 나쁜 10%에서는 " + num(q[0], 1) + "A(약 " + krw(aToKrw(q[0])) + ") 이하가 남습니다."] },
+      { label: "대가", cls: "cost", text: p100 > q100 ?
+        "아주 오래 사는 경우(100세까지)에는 63nt1e " + pct(p100, 2) + ", 60/40 " + pct(q100, 2) + "입니다. 위험자산을 " + pct(riskShare(61), 0) + "(61세)에서 " + pct(riskShare(100), 1) + "(100세)까지 줄이는 안정성의 대가로 자산이 덜 불어나서, 장수할수록 고갈 확률이 60/40보다 높아집니다. 이것이 이 전략의 약점입니다." :
+        "100세까지도 63nt1e(" + pct(p100, 2) + ")가 60/40(" + pct(q100, 2) + ")보다 낮거나 같습니다." },
+      { label: "주의", text: "이 시뮬레이션은 1995~2026년 시장에서 뽑았고 그 기간은 미국 주식에 유리했습니다." + (dep("stock100", a) <= Math.min(p, dep("60/40", a), dep("tdf", a)) ? " 그래서 주식 100%의 고갈 확률이 가장 낮게 나오지만, 앞으로도 같다는 보장은 없습니다." : " 앞으로도 같은 결과가 나온다는 보장은 없습니다.") }]);
+  }
+
+  /* ---------- 5. 글라이드패스 ---------- */
+  function renderWeights() {
+    var w = D.weights, order = ["equity", "long_bond", "gold", "dividend", "mid_bond", "reit", "cash"];
+    var layers = order.map(function (k) {
+      var j = w.assets.indexOf(k);
+      return { key: k, name: M.asset_labels[k], color: css("--w-" + k), y: w.values.map(function (r) { return r[j]; }) };
+    });
+    var narrow = $("chW").clientWidth < 520;
+    stackChart($("chW"), { vTop: true, noEndLabels: narrow, height: 320, padL: 44, padR: narrow ? 12 : 70, x0: 30, x1: 100, y0: 0, y1: 1, xs: w.ages, layers: layers,
+      yFmt: function (v) { return Math.round(v * 100) + "%"; }, xFmt: function (v) { return v + "세"; },
+      xTicks: narrow ? [30, 50, 61, 80, 100] : [30, 40, 50, 61, 70, 80, 90, 100],
+      vlines: [{ x: 61, label: narrow ? "은퇴" : "은퇴 61세", color: css("--glide"), opacity: 1, dy: 0 },
+               { x: state.age, label: (narrow ? "수명 " : "기대수명 ") + state.age + "세", color: css("--ink"), opacity: 0.8, dy: 14, anchor: state.age > 90 ? "end" : "start", dx: state.age > 90 ? -4 : 4 }],
+      label: "나이별 자산 비중 누적 면적 차트", hFmt: function (i) { return w.ages[i] + "세"; } });
+    legend("lgW", layers.map(function (l) { return { name: l.name, color: l.color }; }), true);
+    var rows = []; w.ages.forEach(function (a, i) { if (a % 5 === 0 || a === 61) rows.push({ cells: [a + "세"].concat(order.map(function (k) { return pct(w.values[i][w.assets.indexOf(k)], 2); })) }); });
+    put("tbW", table(["나이"].concat(order.map(function (k) { return M.asset_labels[k]; })), rows));
+  }
+  function readSection5() {
+    setText("c5", "위험자산(주식지수·금·배당성장·리츠) 비중이 30세 " + pct(riskShare(30), 0) + " → 61세 " + pct(riskShare(61), 0) + " → 90세 " + pct(riskShare(90), 0) + "로, 해마다 0.5%p씩 낮아집니다.");
+    setRead("r5", [
+      { label: "의미", text: "글라이드패스는 나이에 맞춘 목표 비중을 정해 두고 따라가는 규칙입니다. 대분류(자본이득·인컴)와 그 안(주식형·채권·대체자산)이 모두 매년 0.5%p씩 6에서 3으로 옮겨 가고, 3·6·9·12월 말에 전체를 목표 비중으로 되돌립니다. 현금은 평생 10%로 고정합니다." },
+      { label: "해석", items: [
+        "젊을 때는 주식형 비중이 커서 자산을 키우고, 나이가 들수록 채권 비중이 늘어 같은 폭의 주가 하락이 계좌에 주는 충격이 작아집니다.",
+        "앞에서 본 작은 낙폭(1절)과 은퇴 시점에 덜 흔들리는 결과(2절)는 이 구조를 바탕으로 한 결과입니다.",
+        "고정된 현금 10%는 하락기에 주식을 서둘러 팔지 않고 생활비를 낼 수 있는 완충입니다(3절)."] },
+      { label: "대가", cls: "cost", text: "위험을 계속 줄이므로 오래 살수록 자산이 불어나는 속도가 느려집니다. 장수했을 때 고갈 확률이 60/40보다 높아지는 부분이 그 결과입니다(4절)." }]);
+  }
+
+  function update() { renderWithdraw(); renderWeights(); }
+  function renderAll() {
+    renderHero(); renderBacktest(); renderMetrics(); renderDrawdown(); readSection1();
+    renderRolling(); readSection2(); renderCoverage(); readSection3(); update(); readSection5();
+  }
+
+  $("dataEnd").textContent = M.data_end;
+  $("hdrEnd").textContent = M.data_end;
+  $("aWon").textContent = num(M.a2026);
+  $("aExA").textContent = $("aExN").textContent = num(D.kpi.retire_balance_a, 1);
+  $("aExK").textContent = krw(D.kpi.retire_balance_krw);
+  $("limFallback").textContent = "인출 때 현금과 시세차익 자산이 바닥나면 마지막 수단으로 인컴 자산까지 팔도록 구현했습니다. 몬테카를로 경로 " + num(M.mc_fallback_paths) + "개(" + pct(M.mc_fallback_paths / M.mc_paths, 1) + ")에서 이 경우가 있었습니다.";
+  $("rlA").textContent = num(D.rolling.start_a, 1); $("rlFrom").textContent = D.rolling.months[0]; $("rlTo").textContent = D.rolling.months[D.rolling.months.length - 1]; $("rlN").textContent = D.rolling.n_starts;
+  renderToggles("tgBt", false); renderToggles("tgDd", true); syncToggles();
+  $("hideStockR").addEventListener("change", renderRolling);
+  buildSlider();
+  renderAll();
+  var tmr; window.addEventListener("resize", function () { clearTimeout(tmr); tmr = setTimeout(renderAll, 120); });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+
+})();
+</script>
+</body>
+</html>

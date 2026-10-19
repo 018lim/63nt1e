@@ -192,8 +192,10 @@ leaf 목표 비중
 │   ├── metrics.py
 │   ├── report.py          # 전체 실행 → reports/results.json
 │   ├── readme_fill.py     # results.json → README 6절 (표·그림·문장)
-│   └── export.py          # 대시보드용 데이터 (dashboard/data.js, data.json)
+│   ├── export.py          # 대시보드용 데이터 (dashboard/data.js, data.json)
+│   └── build_site.py      # 대시보드를 site/ 로 묶음 (폴더째 호스팅용 index.html, 파일 하나짜리 63nt1e-dashboard.html)
 ├── dashboard/             # index.html + data.js/data.json
+├── site/                  # 배포용 묶음 (build_site.py 결과)
 ├── reports/               # results.json, rolling_15y.png
 └── tests/
 ```
@@ -264,4 +266,5 @@ GOLD_FEE_ADJ = False
 - [x] 백테스트 → 몬테카를로 → 대시보드 → README 결과 채우기 (`python -m src.report` → `src.readme_fill` → `src.export`)
 - [x] 은퇴 시점별 롤링 분석 1단계(1995~ 데이터, 10·15·20년) → README·대시보드 반영 (`src/rolling.py`)
 - [ ] 롤링 분석 2단계: 1972년부터 확장 데이터를 추가해 같은 코드(`rolling.run_rolling`)로 재실행 (데이터 파일 안내 필요)
-- [ ] GitHub 저장소 `018lim/63nt1e` 연결과 push
+- [x] GitHub 저장소 `018lim/63nt1e` 연결과 push (공개)
+- [ ] 대시보드 온라인 호스팅: GitHub Pages는 계정의 Actions 제재로 불가 → `site/` 폴더를 Netlify·Vercel 등에 올려 주소를 만들고 README 맨 위에 링크 추가

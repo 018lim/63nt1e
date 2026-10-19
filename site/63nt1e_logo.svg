@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 80 950 335" width="950" height="335">
+  <title>63nt1e — GENTLE</title>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="24">
+    <!-- 6 → G : built like the 3 (flat arms, rounded corners); open upper right and short crossbar read G, boxy body echoes the 3 -->
+    <path stroke="#6D361B" d="M210,112 H96 Q76,112 76,132 V280 Q76,300 96,300 H196 Q216,300 216,280 V232 Q216,206 190,206 H120"/>
+    <!-- 3 → E : three flat arms with the spine on the right -->
+    <path stroke="#6D361B" d="M272,112 H392 Q412,112 412,132 V180 Q412,206 386,206 H300 M386,206 Q412,206 412,232 V280 Q412,300 392,300 H272"/>
+    <!-- n -->
+    <path stroke="#221714" d="M462,192 V300 M462,244 Q462,192 516,192 Q570,192 570,244 V300"/>
+    <!-- t -->
+    <path stroke="#221714" d="M632,128 V268 Q632,300 664,300 H680 M600,194 H676"/>
+    <!-- 1 → l : flag on top, tail at the foot -->
+    <path stroke="#5078A5" d="M708,128 L746,106 V270 Q746,300 776,300 H790"/>
+    <!-- e -->
+    <path stroke="#221714" d="M828,246 H938 A56,56 0 1,0 924,284"/>
+  </g>
+  <!-- gentle glide path: a slow descent under the word -->
+  <path d="M70,356 C320,356 560,372 940,392" fill="none" stroke="#5078A5" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  <circle cx="70" cy="356" r="9" fill="#5078A5"/>
+  <circle cx="940" cy="392" r="9" fill="#5078A5" opacity="0.55"/>
+</svg>

@@ -5,7 +5,7 @@
 <h1 align="center">63nt1e — 6·3·1 Gentle Glide</h1>
 <p align="center"><b>은퇴 준비도 GENTLE하게</b></p>
 <p align="center">30세 6:3:1에서 90세 3:6:1까지, 매년 0.5%p씩 완만하게 이동하는 생애주기 퇴직연금 자산배분 전략</p>
-<p align="center"><b><a href="https://018lim.github.io/63nt1e/">▶ 대시보드 바로 보기</a></b></p>
+<p align="center"><b>대시보드: <code>site/63nt1e-dashboard.html</code> 파일을 내려받아 브라우저로 열면 바로 보입니다 (파일 하나, 인터넷 연결 불필요)</b></p>
 
 > **먼저, "A"가 뭔가요?**
 > A는 **A값**, 즉 국민연금 전체 가입자의 평균소득월액입니다(2026년 3,193,511원). 이 문서의 금액은 대부분 "A값의 몇 배"로 적습니다. 예를 들어 **255.6A는 A값의 255.6배**, 약 8.2억 원입니다.
@@ -237,8 +237,8 @@ TDF와 경쟁하는 전략이 아니라, **은퇴 후 현금흐름을 중시하�
 ## 9. 기술 스택과 개발 방식
 
 - Python (pandas, NumPy, yfinance), FRED, HTML/JavaScript 대시보드
-- **대시보드 열기**: `dashboard/index.html`을 브라우저로 열면 됩니다(인터넷 연결 불필요). 기대수명 슬라이더(80~100세)를 움직이면 고갈 확률과 잔여자산이 바로 바뀝니다. 숫자는 `python -m src.export`가 만든 `dashboard/data.js`에서 읽습니다.
-- **다시 계산하기**: `python -m src.fetch` → `src.splice` → `src.report` → `src.readme_fill` → `src.export` 순서로 실행합니다. 테스트는 `python -m pytest tests`입니다. 롤링 분석 결과만 화면에서 보려면 `python -m src.rolling`(전체 차트 데이터는 `--chart`)을 실행합니다.
+- **대시보드 열기**: `site/63nt1e-dashboard.html`(파일 하나) 또는 `dashboard/index.html`을 브라우저로 열면 됩니다(인터넷 연결 불필요). `site/` 폴더는 그대로 Netlify·Vercel 같은 정적 호스팅에 올릴 수 있습니다. 기대수명 슬라이더(80~100세)를 움직이면 고갈 확률과 잔여자산이 바로 바뀝니다. 숫자는 `python -m src.export`가 만든 `dashboard/data.js`에서 읽습니다.
+- **다시 계산하기**: `python -m src.fetch` → `src.splice` → `src.report` → `src.readme_fill` → `src.export` → `src.build_site` 순서로 실행합니다. 테스트는 `python -m pytest tests`입니다. 롤링 분석 결과만 화면에서 보려면 `python -m src.rolling`(전체 차트 데이터는 `--chart`)을 실행합니다.
 - 전략 설계와 검증 기준은 직접 정하고, 구현은 AI 코딩 도구(Claude)와 함께 진행했습니다. 데이터 검증 테스트(공개 연도별 수익률과의 대조)로 결과의 정확성을 확인했습니다.
 
 ---
