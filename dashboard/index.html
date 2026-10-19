@@ -271,7 +271,7 @@
   <p class="concl" id="c2"></p>
   <div class="card">
     <h3>은퇴 시점별 15년 뒤 잔액 비율 (상자 그림)</h3>
-    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>상자</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 상자가 짧을수록 은퇴 시점에 덜 좌우됩니다.</p>
+    <p class="cap"><span id="rlFrom"></span>부터 <span id="rlTo"></span>까지 매월 은퇴했다고 가정한 <span id="rlN"></span>개 결과의 분포입니다(시작 자산 <span id="rlA"></span>A). 가로축은 전략, 세로축은 15년 뒤 남은 돈이 시작 자산의 몇 %인지이고, 얇은 선(100%) 위면 쓰고도 시작 자산 이상이 남은 것입니다. <strong>상자</strong>는 가운데 절반(25~75%), <strong>굵은 선</strong>은 중앙값, <strong>위·아래 선</strong>은 최선·최악, <strong>마름모</strong>는 평균입니다. 상자가 짧을수록 은퇴 시점에 덜 좌우됩니다. 현금 100%는 그래프에서 뺐고 아래 표에는 있습니다.</p>
     <div class="opts"><label><input type="checkbox" id="hideStockR"> 주식 100% 숨기기 (나머지 상자를 더 크게 보기)</label></div>
     <div class="chart" id="chRl"></div>
     <div class="tbl-wrap" id="tbRl"></div>
@@ -831,7 +831,7 @@
   }
   function renderRolling() {
     var RL = D.rolling, hide = $("hideStockR").checked;
-    var ids = IDS.filter(function (id) { return !(hide && id === "stock100"); });
+    var ids = IDS.filter(function (id) { return id !== "cash100" && !(hide && id === "stock100"); });      // 상자 그림에서 현금 100%는 제외 (표에는 있음)
     boxChart($("chRl"), { height: 360, ref: 100, label: "은퇴 시점별 15년 뒤 잔액 비율 상자 그림",
       items: ids.map(function (id) { return { id: id, name: LAB[id], color: seriesColor(id), vals: RL.series[id] }; }) });
     var rows = IDS.map(function (id) {
