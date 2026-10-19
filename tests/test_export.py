@@ -60,3 +60,13 @@ def test_benchmark_coverage_and_meta(data, results):
     assert cov["bench_retire"]["60/40"] == pytest.approx(results["coverage"]["bench_retire"]["60/40"], abs=1e-3)
     assert 0 < data["meta"]["mc_fallback_paths"] < data["meta"]["mc_paths"]
     assert data["meta"]["mc_fallback_paths"] == results["mc_fallback_paths"]["base"]
+
+
+def test_rolling_block(data, results):
+    rl = data["rolling"]
+    assert rl["horizon"] == 15 and rl["n_starts"] == len(rl["months"]) == 202
+    assert rl["months"][0] == "1995-01" and rl["months"][-1] == "2011-10"           # 15년을 채울 수 있는 마지막 시작 월
+    assert set(rl["series"]) == set(data["meta"]["ids"])
+    assert all(len(v) == 202 for v in rl["series"].values())
+    assert rl["stats"]["strategy"]["median"] == pytest.approx(results["rolling15"]["stats"]["63nt1e"]["median"], abs=0.01)
+    assert rl["stats"]["strategy"]["worst"] == pytest.approx(min(rl["series"]["strategy"]), abs=0.01)

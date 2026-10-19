@@ -6,6 +6,7 @@ import json
 import re
 
 import config
+from src import a_value as av
 
 README = config.ROOT / "README.md"
 NAMES = ["63nt1e", "tdf", "60/40", "stock100", "cash100"]
@@ -63,12 +64,48 @@ def build_section(r: dict) -> str:
     return "\n".join(lines) + "\n" + notes
 
 
+def build_rolling(r: dict) -> str:
+    from src import rolling
+    b = r["rolling15"]
+    st, names = b["stats"], rolling.NAMES
+    img = config.REPORTS_DIR / "rolling_15y.png"
+    rolling.plot_block(b, img)
+    L = rolling.LABELS
+    a_mult = b["start_value"] * config.FX_FIXED / av.a_value(2026)
+    lines = [
+        "### 은퇴 시점별 15년 인출 결과 (롤링 분석)",
+        "",
+        f"{b['months'][0]}부터 {b['months'][-1]}까지 매월 은퇴했다고 가정하고(시작 월 {b['n_starts']}개, 15년을 채울 수 있는 마지막 시작 월까지), 모든 전략이 같은 시작 자산 {a_mult:.1f}A에서 15년 동안 인출했을 때 남은 돈입니다. "
+        f"인출액은 월 A값(2026년)의 2/3로 시작해 매년 {rolling.WD_GROWTH * 100:.2f}%씩 늘어납니다. 63nt1e는 61세 비중으로 시작해 기존 규칙(글라이드, 분기 리밸런싱, 인출 순서)을 그대로 쓰고, 수익은 재투자(`INCOME_TO_CASH=False`)합니다.",
+        "",
+        "![은퇴 시점별 15년 뒤 잔액 비율](reports/rolling_15y.png)",
+        "",
+        "가로축은 은퇴(인출 시작) 시점, 세로축은 15년 뒤 계좌에 남은 돈이 시작 자산의 몇 %인지입니다. 100%선 위면 15년 동안 생활비를 쓰고도 시작 자산 이상이 남은 것입니다(명목 기준).",
+        "",
+        "| 전략 | 최악 | 하위 10% | 중앙값 | 최선 | 바닥난 시작 월 수 | 최악이었던 은퇴 시점 |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for n in names:
+        s = st[n]
+        lines.append(f"| {L[n]} | {s['worst']:.1f}% | {s['p10']:.1f}% | {s['median']:.1f}% | {s['best']:.1f}% | {s['depleted_starts']} | {s['worst_month']} |")
+    def cmp(key, label):
+        hi = [L[n] for n in names if n != "63nt1e" and st[n][key] > st["63nt1e"][key]]
+        return f"{label}: " + ("63nt1e가 비교 대상 중 가장 높습니다" if not hi else "63nt1e보다 높은 전략은 " + ", ".join(hi))
+    lines += [
+        "",
+        "- " + cmp("worst", "최악") + f"({st['63nt1e']['worst']:.1f}%, {st['63nt1e']['worst_month']} 은퇴). " + cmp("p10", "하위 10%") + ". " + cmp("median", "중앙값") + ". " + cmp("best", "최선") + ".",
+        f"- 최악이었던 은퇴 시점은 전략마다 다릅니다: 63nt1e {st['63nt1e']['worst_month']}, 60/40 {st['60/40']['worst_month']}, 주식 100% {st['stock100']['worst_month']}, TDF {st['tdf']['worst_month']}.",
+        f"- 한계: 인접한 시작 월은 거의 같은 구간을 겹쳐 쓰고 데이터가 31년뿐이라, {b['n_starts']}개 시작 월은 독립된 {b['n_starts']}개 사례가 아닙니다. 잔액 비율은 물가·A값 보정이 없는 명목 값입니다.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def main():
     r = json.loads((config.REPORTS_DIR / "results.json").read_text(encoding="utf-8"))
     text = README.read_text(encoding="utf-8")
     start = text.index("## 6. 결과")
     end = text.index("## 7. 상담에서는")
-    section = "## 6. 결과\n\n<!-- 아래는 python -m src.report 와 python -m src.readme_fill 이 results.json 에서 생성한 값입니다 -->\n\n" + build_section(r) + "\n---\n\n"
+    section = "## 6. 결과\n\n<!-- 아래는 python -m src.report 와 python -m src.readme_fill 이 results.json 에서 생성한 값입니다 -->\n\n" + build_section(r) + "\n" + build_rolling(r) + "\n---\n\n"
     text = text[:start] + section + text[end:]
     README.write_text(text, encoding="utf-8")
     print("README 6절 갱신 완료")

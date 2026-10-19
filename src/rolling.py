@@ -115,6 +115,53 @@ def chart_table(res: dict, y: int = 15) -> pd.DataFrame:
     return pd.DataFrame(cols, index=[res["months"][i] for i in starts])
 
 
+def report_block(res: dict, y: int = 15) -> dict:
+    """README·대시보드용 요약: 시작 월별 y년 뒤 잔액 비율(차트)과 통계."""
+    d = res["by_horizon"][y]
+    starts = d["63nt1e"]["starts"]
+    block = {"horizon": y, "start_value": res["start_value"], "n_starts": int(len(starts)),
+             "months": [res["months"][i] for i in starts], "series": {}, "stats": {}}
+    for n in NAMES:
+        x = ratio(d[n], res["start_value"])
+        block["series"][n] = [float(v) for v in x]
+        k = int(np.argmin(x))
+        block["stats"][n] = {"worst": float(x.min()), "p10": float(np.quantile(x, 0.10)), "median": float(np.median(x)), "best": float(x.max()),
+                             "depleted_starts": int((x <= 0).sum()), "worst_month": res["months"][starts[k]]}
+    return block
+
+
+def plot_block(block: dict, path) -> None:
+    """README용 그림(PNG): 왼쪽 전체, 오른쪽은 주식 100%를 뺀 확대. x = 은퇴 시점, y = 15년 뒤 잔액 비율(%)."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib import font_manager
+    have = {f.name for f in font_manager.fontManager.ttflist}
+    for cand in ("Malgun Gothic", "AppleGothic", "NanumGothic", "Noto Sans CJK KR"):      # 설치된 한글 글꼴만 쓴다
+        if cand in have:
+            plt.rcParams["font.family"] = cand
+            break
+    plt.rcParams["axes.unicode_minus"] = False
+    colors = {"63nt1e": "#6D361B", "60/40": "#2a78d6", "stock100": "#1baf7a", "cash100": "#898781", "tdf": "#e87ba4"}
+    x = pd.to_datetime([m + "-01" for m in block["months"]])
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), dpi=150)
+    for ax, names, title in ((axes[0], NAMES, "전체"), (axes[1], [n for n in NAMES if n != "stock100"], "주식 100% 제외 (확대)")):
+        for n in names:
+            ax.plot(x, block["series"][n], color=colors[n], lw=2.4 if n == "63nt1e" else 1.6, label=LABELS[n])
+        ax.axhline(100, color="#221714", lw=0.8, alpha=0.6)
+        ax.text(x[-1], 100, "시작 자산(100%) ", va="bottom", ha="right", fontsize=8, color="#5b4e49")
+        ax.set_title(title, fontsize=11, color="#221714")
+        ax.set_xlabel("은퇴(인출 시작) 시점", fontsize=9)
+        ax.set_ylabel(f"{block['horizon']}년 뒤 잔액 비율 (시작 자산 대비 %)", fontsize=9)
+        ax.grid(axis="y", color="#e1e0d9", lw=0.8)
+        for s in ("top", "right"):
+            ax.spines[s].set_visible(False)
+        ax.legend(fontsize=8, frameon=False, loc="upper left")
+    fig.tight_layout()
+    fig.savefig(path)
+    plt.close(fig)
+
+
 def load_start_a_multiple() -> float:
     """적립기 결과(이미 계산된 reports/results.json)에서 61세 적립금(A값 배수)을 읽는다. 적립기는 다시 돌리지 않는다."""
     r = json.loads((config.REPORTS_DIR / "results.json").read_text(encoding="utf-8"))

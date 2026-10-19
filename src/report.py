@@ -7,7 +7,7 @@ import pandas as pd
 
 import config
 from src import a_value as av
-from src import backtest, benchmarks, metrics, montecarlo as mc, splice
+from src import backtest, benchmarks, metrics, montecarlo as mc, rolling, splice
 
 ACC_END = pd.Timestamp("2025-12-31")      # 적립기 마지막 월말 (61세 적립금 시점)
 
@@ -97,6 +97,7 @@ def compute_results(base=None) -> dict:
         "risk_log_count": len(bt.risk_log), "backtest_fallback_months": len(bt.fallback_months),
         "mc_fallback_paths": {"base": res.fallback_paths, "block6": s6["mc"].fallback_paths},
         "mc": mct.to_dict(orient="records"),
+        "rolling15": rolling.report_block(rolling.run_rolling(out["tr"], out["inc"], out["price"], float(acc["63nt1e"]["balance_a_multiple"])), 15),
         "strict_no_income_sale": {n: {a: mc.depletion_prob(strict["mc"], n, a) for a in ages} for n in ("strategy",)},
         "block6": {n: {a: mc.depletion_prob(s6["mc"], n, a) for a in ages} for n in s6["mc"].depletion_year},
         "income_to_cash_false": {

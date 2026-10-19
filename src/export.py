@@ -11,7 +11,7 @@ import pandas as pd
 
 import config
 from src import a_value as av
-from src import glide, metrics, report
+from src import glide, metrics, report, rolling
 from src import montecarlo as mc
 
 IDS = ["strategy", "60/40", "stock100", "cash100", "tdf"]
@@ -96,6 +96,11 @@ def build(out=None) -> dict:
             x = res.bench_income[i][alive, yi] / res.withdrawal[yi] if alive.any() else np.array([0.0])
             p50.append(r(np.quantile(x, 0.50))); p10.append(r(np.quantile(x, 0.10)))
         bench_cov[i] = {"p50": p50, "p10": p10}
+    rb_ = rolling.report_block(rolling.run_rolling(out["tr"], out["inc"], out["price"], float(acc["63nt1e"]["balance_a_multiple"])), 15)
+    idmap = {"63nt1e": "strategy", "60/40": "60/40", "stock100": "stock100", "cash100": "cash100", "tdf": "tdf"}
+    roll = {"horizon": rb_["horizon"], "n_starts": rb_["n_starts"], "months": rb_["months"], "start_a": r(acc["63nt1e"]["balance_a_multiple"], 1),
+            "series": {idmap[n]: [r(v, 2) for v in vals] for n, vals in rb_["series"].items()},
+            "stats": {idmap[n]: {k: (r(v, 2) if isinstance(v, float) else v) for k, v in st.items()} for n, st in rb_["stats"].items()}}
     c = report.income_coverage(out)
 
     data = {
@@ -119,6 +124,7 @@ def build(out=None) -> dict:
                      "bench_retire": {k: r(v) for k, v in c["bench_retire"].items()},
                      "actual_2026": {"age": 61, "all": r(c["2026_actual_all"]), "bucket": r(c["2026_actual_bucket"])},
                      "retire": {"all": r(c["retire_all"]), "bucket": r(c["retire_bucket"])}},
+        "rolling": roll,
         "kpi": {"retire_balance_a": r(acc_t["strategy"]["balance_a_multiple"], 1),
                 "retire_balance_krw": r(acc_t["strategy"]["balance_krw"], 0),
                 "cash_years": r(config.CASH_W * m.loc["2025-12-31", "total"] /
